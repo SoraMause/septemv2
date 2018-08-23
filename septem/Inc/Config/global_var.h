@@ -35,8 +35,6 @@ typedef struct {
   int32_t left;
   int32_t right;
   int32_t center;
-}ENC_VALUE;
-
-extern ENC_VALUE enc_value;
+}EncValue;
 
 #endif /* __GLOBAL_VAR_H */

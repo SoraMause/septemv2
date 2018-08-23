@@ -75,7 +75,9 @@ $(wildcard Src/Common/*.c)
 
 CPP_SOURCES = \
 Src/main.cpp \
-Src/Config/global_var.cpp 
+Src/Config/global_var.cpp \
+$(wildcard Src/Task/*.cpp) \
+$(wildcard Src/Controller/*.cpp) \
 
 # ASM sources
 ASM_SOURCES =  \
@@ -136,6 +138,8 @@ C_INCLUDES =  \
 -IInc/Peripheral \
 -IInc/Config \
 -IInc/Common \
+-IInc/Task \
+-IInc/Controller \
 -IDrivers/STM32F4xx_HAL_Driver/Inc \
 -IDrivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \

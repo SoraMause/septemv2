@@ -36,13 +36,11 @@
 #include "stm32f4xx_it.h"
 
 /* USER CODE BEGIN 0 */
-#include "spi.h"
 #include "adc.h"
-#include "tim.h"
-
 #include "global_var.h"
 #include "function.h"
-#include "buzzer.h"
+
+#include "timer.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -180,16 +178,7 @@ void SysTick_Handler(void)
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-  if ( MPU6500_calc_check() == 0 ) {
-    MPU6500_z_axis_offset_calc();
-  } else {
-    gyro_z_measured = MPU6500_read_gyro_z();
-    machineRadCalculation( gyro_z_measured );
-  }
-
-  update_encoder();
-
-  buzzerOutPut();
+  interrupt();
   /* USER CODE END SysTick_IRQn 1 */
 }
 

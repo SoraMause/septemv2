@@ -49,6 +49,7 @@
 
 /* USER CODE BEGIN Includes */
 #include <stdint.h>
+#include "global_var.h"
 /* USER CODE END Includes */
 
 extern TIM_HandleTypeDef htim1;
@@ -74,9 +75,9 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* USER CODE BEGIN Prototypes */
 void output_motor_pwm( uint32_t pwm1 , uint32_t pwm2, uint32_t pwm3, uint32_t pwm4 );
-void motorControl( uint32_t pwm_l , uint32_t pwm_r );
+void motorControl( int32_t pwm_l , int32_t pwm_r );
 void buzzerPwmOut( uint32_t pwm, uint32_t period );
-void update_encoder( void );
+EncValue update_encoder( void );
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

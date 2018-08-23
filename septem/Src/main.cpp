@@ -56,6 +56,7 @@
 #include "flash.h"
 
 #include "function.h"
+#include "timer.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -72,6 +73,8 @@ HAL_UART_Transmit(&huart3, &ch, 1, 1);
 #ifdef __cplusplus
  }
 #endif
+
+using namespace std;
 
 /* USER CODE END Includes */
 
@@ -132,7 +135,7 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   machine_init();
-
+  motorControllercheckConst();
   fullColorLedOut( LED_BLUE );
   
   /* USER CODE END 2 */
@@ -144,10 +147,8 @@ int main(void)
   /* USER CODE END WHILE */
     
   /* USER CODE BEGIN 3 */
-    printf( "gyro : %5.5f, machine_rad : %5.5f, offset = %5.5f\r", gyro_z_measured, machine_rad, checkGyroOffset() );
-    //printf( "batt analog = %4d, batt_monitor = %5.5ff\r",batt_analog, batt_monitor );
-    //printf( "0H:%4d,0L:%4d,0:%4d,3H:%4d,3L:%4d,3:%4d\r",sensorH[0], sensorL[0], sensor[0], sensorH[3], sensorL[3], sensor[3] );
-    //printf( "0H:%4d,0L:%4d,0:%4d,3H:%4d,3L:%4d,3:%4d\r",sensorH[1], sensorL[1], sensor[1], sensorH[1], sensorL[1], sensor[1] );
+    //printf( "gyro : %5.5f, machine_rad : %5.5f, offset = %5.5f\r", gyro_z_measured, machine_rad, checkGyroOffset() );
+    printf( "batt analog = %4d, batt_monitor = %5.5ff\r",batt_analog, batt_monitor );
     //printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",sensor[0], sensor[1], sensor[2], sensor[3] );
 
   }

@@ -43,7 +43,6 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-#include "global_var.h"
 
 TIM_MasterConfigTypeDef sMasterConfig;
 TIM_OC_InitTypeDef sConfigOC;
@@ -552,7 +551,7 @@ void output_motor_pwm( uint32_t pwm1 , uint32_t pwm2, uint32_t pwm3, uint32_t pw
 // [Substitutiong] nothing
 // [return] nothing
 ///////////////////////////////////////////////////////////////////////
-void motorControl( uint32_t pwm_l , uint32_t pwm_r )
+void motorControl( int32_t pwm_l , int32_t pwm_r )
 {
   // motor pwm buff
   uint32_t APHASE_L = 0; 
@@ -631,8 +630,10 @@ void buzzerPwmOut( uint32_t pwm, uint32_t period )
 // [Substitutiong] encoder varaiavble
 // [return] nothing
 ///////////////////////////////////////////////////////////////////////
-void update_encoder( void )
+EncValue update_encoder( void )
 {
+  EncValue enc_value;
+
   uint16_t enc_l_buff = TIM3->CNT;
   uint16_t enc_r_buff = TIM4->CNT;
   TIM3->CNT = 0;
@@ -651,6 +652,8 @@ void update_encoder( void )
   }
 
   enc_value.center = enc_value.left + enc_value.right / 2;
+
+  return enc_value;
 
 }
 /* USER CODE END 1 */
