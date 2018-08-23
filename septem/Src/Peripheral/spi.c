@@ -47,6 +47,7 @@
 #include "global_var.h"
 #include "config.h"
 #include <stdio.h>
+#include <math.h>
 
 static int16_t gyro_offset_cnt = 0; 
 static int8_t  gyro_calc_flag = 0;
@@ -240,7 +241,7 @@ float MPU6500_read_gyro_z( void )
   gyro_z = (int16_t)( read_shift_byte(MPU6500_RA_GYRO_ZOUT_H) | read_byte(MPU6500_RA_GYRO_ZOUT_L) );
 
   // offset 
-  gyro_z -= gyro_z_offset;
+  gyro_z -= (int16_t)gyro_z_offset;
 
   // GYRO FACTOR ( rad / sec )
   // 180 * PI ( rad/sec )
@@ -286,7 +287,9 @@ void MPU6500_z_axis_offset_calc( void )
     gyro_offset_cnt++;
   } else {
     gyro_z_offset /= 1024.0f;
+    gyro_z_offset = roundf( gyro_z_offset );
     gyro_calc_flag = 1;
+    machine_rad = 0.0f;
   }
 }
 
@@ -309,10 +312,10 @@ void machineRadCalculation( float gyro )
 }
 
 // debug ON
-//float checkGyroOffset()
-//{
-  //return gyro_z_offset;
-//}
+float checkGyroOffset()
+{
+  return gyro_z_offset;
+}
 
 /* USER CODE END 1 */
 
