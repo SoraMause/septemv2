@@ -1,7 +1,7 @@
 #include "global_var.h"
 
 // tim5 interrupt
-uint8_t timer025;
+uint8_t timer125;
 
 // gyro data
 float gyro_z_measured;

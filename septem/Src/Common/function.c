@@ -11,8 +11,6 @@
 #include "buzzer.h"
 #include "flash.h"
 
-#include <stdio.h>
-
 static float batt_calc_const = 0.0f;
 static uint8_t ctr_irled = 0;
 
@@ -25,11 +23,13 @@ static uint8_t ctr_irled = 0;
 void machine_init( void )
 {
   setbuf( stdout, NULL );
+  setIrledPwm( IRLED_OFF );
+  buzzerSetMonophonic( NORMAL, 100 );
+  HAL_Delay( 300 );
   certainLedOut( LED_OFF );
   fullColorLedOut( LED_OFF );
-  setIrledPwm( IRLED_OFF );
   MPU6500_init();
-  buzzerSetMonophonic( NORMAL, 300 );
+  buzzerSetMonophonic( NORMAL, 100 );
   HAL_Delay( 300 );
   MPU6500_z_axis_offset_calc_start();
   HAL_TIM_Encoder_Start( &htim3, TIM_CHANNEL_ALL ); // encoder
@@ -65,30 +65,47 @@ void setIrledPwm( uint8_t able )
 }
 
 ///////////////////////////////////////////////////////////////////////
+// emit ir led ( side )
+// [argument] ired 1 : ON 0 : OFF
+// [Substitutiong] nothing
+// [return] nothing
+///////////////////////////////////////////////////////////////////////
+void irledSideOut( uint8_t liting )
+{
+	if ( liting == IRLED_ON ) {
+		// パルス発光が有効なら点灯
+		if ( ctr_irled == IRLED_ON ) {
+      HAL_GPIO_WritePin(sensor_paluse2_GPIO_Port,sensor_paluse2_Pin,GPIO_PIN_SET );	// IRLED ON
+      HAL_GPIO_WritePin(sensor_paluse3_GPIO_Port,sensor_paluse3_Pin,GPIO_PIN_SET );	// IRLED ON
+		} else {
+      HAL_GPIO_WritePin(sensor_paluse2_GPIO_Port,sensor_paluse2_Pin,GPIO_PIN_RESET ); // IRLED OFF
+      HAL_GPIO_WritePin(sensor_paluse3_GPIO_Port,sensor_paluse3_Pin,GPIO_PIN_RESET ); // IRLED OFF
+		}
+	} else {
+    HAL_GPIO_WritePin(sensor_paluse2_GPIO_Port,sensor_paluse2_Pin,GPIO_PIN_RESET ); // IRLED OFF
+    HAL_GPIO_WritePin(sensor_paluse3_GPIO_Port,sensor_paluse3_Pin,GPIO_PIN_RESET ); // IRLED OFF
+	}	
+}
+
+///////////////////////////////////////////////////////////////////////
 // emit ir led 
 // [argument] ired 1 : ON 0 : OFF
 // [Substitutiong] nothing
 // [return] nothing
 ///////////////////////////////////////////////////////////////////////
-void irledOut( uint8_t liting )
+void irledFrontOut( uint8_t liting )
 {
 	if ( liting == IRLED_ON ) {
 		// パルス発光が有効なら点灯
 		if ( ctr_irled == IRLED_ON ) {
       HAL_GPIO_WritePin(sensor_paluse1_GPIO_Port,sensor_paluse1_Pin,GPIO_PIN_SET );	// IRLED ON
-      HAL_GPIO_WritePin(sensor_paluse2_GPIO_Port,sensor_paluse2_Pin,GPIO_PIN_SET );	// IRLED ON
-      HAL_GPIO_WritePin(sensor_paluse3_GPIO_Port,sensor_paluse3_Pin,GPIO_PIN_SET );	// IRLED ON
 			HAL_GPIO_WritePin(sensor_paluse4_GPIO_Port,sensor_paluse4_Pin,GPIO_PIN_SET );	// IRLED ON
 		} else {
       HAL_GPIO_WritePin(sensor_paluse1_GPIO_Port,sensor_paluse1_Pin,GPIO_PIN_RESET ); // IRLED OFF
-      HAL_GPIO_WritePin(sensor_paluse2_GPIO_Port,sensor_paluse2_Pin,GPIO_PIN_RESET ); // IRLED OFF
-      HAL_GPIO_WritePin(sensor_paluse3_GPIO_Port,sensor_paluse3_Pin,GPIO_PIN_RESET ); // IRLED OFF
 			HAL_GPIO_WritePin(sensor_paluse4_GPIO_Port,sensor_paluse4_Pin,GPIO_PIN_RESET ); // IRLED OFF
 		}
 	} else {
     HAL_GPIO_WritePin(sensor_paluse1_GPIO_Port,sensor_paluse1_Pin,GPIO_PIN_RESET ); // IRLED OFF
-    HAL_GPIO_WritePin(sensor_paluse2_GPIO_Port,sensor_paluse2_Pin,GPIO_PIN_RESET ); // IRLED OFF
-    HAL_GPIO_WritePin(sensor_paluse3_GPIO_Port,sensor_paluse3_Pin,GPIO_PIN_RESET ); // IRLED OFF
 	  HAL_GPIO_WritePin(sensor_paluse4_GPIO_Port,sensor_paluse4_Pin,GPIO_PIN_RESET ); // IRLED OFF
 	}	
 }

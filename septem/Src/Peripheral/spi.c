@@ -195,14 +195,21 @@ void write_byte( uint8_t reg, uint8_t val )
 void MPU6500_init( void )
 {
   uint8_t who_am_i;
+  uint8_t recheck_who_am_i;
   // MPU-6500の??��?��?バイスチェ??��?��?ク
   
   who_am_i = read_byte( MPU6500_RA_WHO_AM_I );
-  printf( "\n0x%x\r\n",who_am_i );
+  printf( "\r\n0x%x\r\n",who_am_i );
 
   if ( who_am_i != 0x70 ){
-    while(1){
-      printf( "gyro_error\r");
+    HAL_Delay( 100 );
+    recheck_who_am_i = read_byte( MPU6500_RA_WHO_AM_I );
+    if ( recheck_who_am_i != 0x70 ){
+      while(1){
+        printf( "gyro_error\r");
+      }
+    } else {
+      printf( "recheck_who_am_i = 0x%x\r\n", recheck_who_am_i );
     }
   }
 

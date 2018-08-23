@@ -90,7 +90,7 @@ void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -247,47 +247,119 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* USER CODE BEGIN 1 */
 ///////////////////////////////////////////////////////////////////////
-// set up ad converter 1
+// set up ad converter 1 ( side )
 // [argument] nothing
 // [Substitutiong] sensorH[4]
 // [return] nothing
 ///////////////////////////////////////////////////////////////////////
-void update_sensorH_data( void )
+void update_sidesensorH_data( void )
 {
-  uint32_t channels[4] = {ADC_CHANNEL_0,ADC_CHANNEL_1,ADC_CHANNEL_2,ADC_CHANNEL_3}; // channel set buff
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
-  for( int i = 0; i < 4 ;i++ ){
-    sConfig.Channel = channels[i];  // channel set
-    HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
-    HAL_ADC_Start( &hadc1 );     // ad convert start
-    while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
-    sensorH[i] = HAL_ADC_GetValue( &hadc1 );   // get value
-  }
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+
+  sConfig.Channel = ADC_CHANNEL_1;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
+  sensorH[1] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
+  sConfig.Channel = ADC_CHANNEL_2;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
+  sensorH[2] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
 }
 
 ///////////////////////////////////////////////////////////////////////
-// set up ad converter 1
+// set up ad converter 1 ( front )
+// [argument] nothing
+// [Substitutiong] sensorH[4]
+// [return] nothing
+///////////////////////////////////////////////////////////////////////
+void update_frontsensorH_data( void )
+{
+  //read object
+  ADC_ChannelConfTypeDef sConfig;
+  sConfig.Rank = 1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+  
+  sConfig.Channel = ADC_CHANNEL_0;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
+  sensorH[0] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
+  sConfig.Channel = ADC_CHANNEL_3;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
+  sensorH[3] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
+}
+
+///////////////////////////////////////////////////////////////////////
+// set up ad converter 1 ( side )
 // [argument] nothing
 // [Substitutiong] sensorL[4]
 // [return] nothing
 ///////////////////////////////////////////////////////////////////////
-void update_sensorL_data( void )
+void update_sidesensorL_data( void )
 {
-  uint32_t channels[4] = {ADC_CHANNEL_0,ADC_CHANNEL_1,ADC_CHANNEL_2,ADC_CHANNEL_3}; // channel set buff
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
-  for( int i = 0; i < 4 ;i++ ){
-    sConfig.Channel = channels[i];  // channel set
-    HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
-    HAL_ADC_Start( &hadc1 );     // ad convert start
-    while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
-    sensorL[i] = HAL_ADC_GetValue( &hadc1 );   // get value
-  }
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+
+  sConfig.Channel = ADC_CHANNEL_1;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
+  sensorL[1] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
+  sConfig.Channel = ADC_CHANNEL_2;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
+  sensorL[2] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
+}
+
+///////////////////////////////////////////////////////////////////////
+// set up ad converter 1 ( front )
+// [argument] nothing
+// [Substitutiong] sensorL[4]
+// [return] nothing
+///////////////////////////////////////////////////////////////////////
+void update_frontsensorL_data( void )
+{
+  //read object
+  ADC_ChannelConfTypeDef sConfig;
+  sConfig.Rank = 1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+  
+  sConfig.Channel = ADC_CHANNEL_0;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
+  sensorL[0] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
+  sConfig.Channel = ADC_CHANNEL_3;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
+  sensorL[3] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -212,29 +212,45 @@ void TIM5_IRQHandler(void)
   /* USER CODE BEGIN TIM5_IRQn 1 */
   
   // ir led process
-  timer025++;
-  switch(timer025){
+  timer125++;
+  switch(timer125){
     case 1:
+      update_sidesensorH_data();
+      irledSideOut( IRLED_OFF );
       batt_buff[0] = battMonitor( batt_analog );
-      update_sensorH_data();
-      irledOut( IRLED_OFF );
       break;
 
     case 2:
-      batt_buff[1] = battMonitor( batt_analog );
-      batt_monitor = (float) ( batt_buff[0] + batt_buff[1] + batt_buff[2] + batt_buff[3] ) / 4.0f;
       break;
 
     case 3:
-      batt_buff[2]= battMonitor( batt_analog );
-      update_sensorL_data();
+      update_sidesensorL_data();
+      batt_buff[1] = battMonitor( batt_analog );
       break;
 
     case 4:
+      irledFrontOut( IRLED_ON );
+      break;
+
+    case 5:
+      update_frontsensorH_data();
+      irledFrontOut( IRLED_OFF );
+      batt_buff[2]= battMonitor( batt_analog );
+      break;
+
+    case 6:
+      batt_monitor = ( batt_buff[0] + batt_buff[1] + batt_buff[2] + batt_buff[3] ) / 4.0f;
+      break;
+
+    case 7:
+      update_frontsensorL_data();
       batt_buff[3] = battMonitor( batt_analog );
+      break;
+
+    case 8:
       update_sensor_data();
-      irledOut( IRLED_ON );
-      timer025 = 0;
+      irledSideOut( IRLED_ON );
+      timer125 = 0;
       break;
   } // end switch
 

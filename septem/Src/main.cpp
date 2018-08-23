@@ -132,6 +132,9 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   machine_init();
+
+  fullColorLedOut( LED_BLUE );
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -141,8 +144,24 @@ int main(void)
   /* USER CODE END WHILE */
     
   /* USER CODE BEGIN 3 */
-    fullColorLedOut( LED_BLUE );
-    printf( "batt analog = %4d, batt_monitor = %5.5ff\r",batt_analog, batt_monitor );
+    
+    //printf( "batt analog = %4d, batt_monitor = %5.5ff\r",batt_analog, batt_monitor );
+    //printf( "0H:%4d,0L:%4d,0:%4d,3H:%4d,3L:%4d,3:%4d\r",sensorH[0], sensorL[0], sensor[0], sensorH[3], sensorL[3], sensor[3] );
+    //printf( "0H:%4d,0L:%4d,0:%4d,3H:%4d,3L:%4d,3:%4d\r",sensorH[1], sensorL[1], sensor[1], sensorH[1], sensorL[1], sensor[1] );
+    //printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",sensor[0], sensor[1], sensor[2], sensor[3] );
+
+    if ( getLeftPushsw() ){
+      HAL_Delay( 300 );
+      fullColorLedOut( LED_YELLOW );
+      setIrledPwm( IRLED_ON );
+    }
+
+    if ( getRightPushsw() ){
+      setIrledPwm( IRLED_OFF );
+      fullColorLedOut( LED_BLUE );
+      HAL_Delay( 300 );
+    }
+    
 
   }
   /* USER CODE END 3 */

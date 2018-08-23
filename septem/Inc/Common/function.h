@@ -13,7 +13,8 @@
 void machine_init( void );
 float battMonitor( int16_t data );
 void setIrledPwm( uint8_t ired );
-void irledOut( uint8_t liting );
+void irledSideOut( uint8_t liting );
+void irledFrontOut( uint8_t liting );
 
 #ifdef __cplusplus
  }

@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 // tim5 interrupt
-extern uint8_t timer025;
+extern uint8_t timer125;
 
 // gyro data
 extern float gyro_z_measured;

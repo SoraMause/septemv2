@@ -64,8 +64,10 @@ void MX_ADC1_Init(void);
 void MX_ADC2_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-void update_sensorL_data( void );
-void update_sensorH_data( void );
+void update_sidesensorH_data( void );
+void update_sidesensorL_data( void );
+void update_frontsensorH_data( void );
+void update_frontsensorL_data( void );
 void update_sensor_data( void );
 /* USER CODE END Prototypes */
 
