@@ -1,15 +1,17 @@
 #include "function.h"
-
+// peripheeral
 #include "stm32f4xx_hal.h"
 #include "adc.h"
 #include "tim.h"
 #include "spi.h"
-
+// config
 #include "global_var.h"
-
+//common
 #include "led.h"
 #include "buzzer.h"
 #include "flash.h"
+// controller
+#include "motorController.h"
 
 static float batt_calc_const = 0.0f;
 static uint8_t ctr_irled = 0;
@@ -35,6 +37,7 @@ void machine_init( void )
   HAL_TIM_Encoder_Start( &htim4, TIM_CHANNEL_ALL ); // encoder
   HAL_TIM_Base_Start_IT( &htim5 );
   HAL_ADC_Start_DMA( &hadc2, (uint32_t *)&batt_analog,1 );
+  calcMotorConst();
   batt_calc_const = 3.3f / 960.0f;
   MPU6500_z_axis_offset_calc_start();
 }

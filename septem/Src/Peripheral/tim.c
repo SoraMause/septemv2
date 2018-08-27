@@ -632,7 +632,7 @@ void buzzerPwmOut( uint32_t pwm, uint32_t period )
 ///////////////////////////////////////////////////////////////////////
 EncValue update_encoder( void )
 {
-  EncValue enc_value;
+  EncValue enc;
 
   uint16_t enc_l_buff = TIM4->CNT;
   uint16_t enc_r_buff = TIM3->CNT;
@@ -640,20 +640,20 @@ EncValue update_encoder( void )
   TIM4->CNT = 0;
 
   if( enc_l_buff > 32767 ){
-    enc_value.left = (int16_t)enc_l_buff;
+    enc.left = (int16_t)enc_l_buff;
   } else {
-    enc_value.left = -1 * enc_l_buff;
+    enc.left = enc_l_buff;
   }
   
   if ( enc_r_buff > 32767 ){
-    enc_value.right = -1 * (int16_t)enc_r_buff;
+    enc.right = -1 * (int16_t)enc_r_buff;
   } else {
-    enc_value.right = enc_r_buff;
+    enc.right = -1 * enc_r_buff;
   }
 
-  enc_value.center = enc_value.left + enc_value.right / 2;
+  enc.center = enc.left + enc.right / 2;
 
-  return enc_value;
+  return enc;
 
 }
 /* USER CODE END 1 */
