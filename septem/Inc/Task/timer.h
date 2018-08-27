@@ -4,13 +4,12 @@
 #include "global_var.h"
 #include "Geometry.h"
 
-void interrupt();
+void interrupt( void );
 
 //*********************************************************************
 // debug
 //*********************************************************************
-void motorControllercheckConst();
-EncValue checkEncValue();
-Velocity checkVelocity();
+EncValue checkEncValue( void );
+Velocity checkVelocity( void );
 
 #endif /* __TIMER_H */

@@ -495,7 +495,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 // [Substitutiong] nothigng
 // [return] nothing
 ///////////////////////////////////////////////////////////////////////
-void output_motor_pwm( uint32_t pwm1 , uint32_t pwm2, uint32_t pwm3, uint32_t pwm4 )
+void output_motor_pwm( int pwm1 , int pwm2, int pwm3, int pwm4 )
 {
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
@@ -551,13 +551,13 @@ void output_motor_pwm( uint32_t pwm1 , uint32_t pwm2, uint32_t pwm3, uint32_t pw
 // [Substitutiong] nothing
 // [return] nothing
 ///////////////////////////////////////////////////////////////////////
-void motorControl( int32_t pwm_l , int32_t pwm_r )
+void motorControl( int pwm_l , int pwm_r )
 {
   // motor pwm buff
-  uint32_t APHASE_L = 0; 
-  uint32_t ENBL_L = 0;
-  uint32_t APHASE_R = 0; 
-  uint32_t ENBL_R = 0;
+  int APHASE_L; 
+  int ENBL_L;
+  int APHASE_R; 
+  int ENBL_R;
 	// ** DRV8835 **
 	// State IN1 IN2
 	// Free   0   0
@@ -634,19 +634,19 @@ EncValue update_encoder( void )
 {
   EncValue enc_value;
 
-  uint16_t enc_l_buff = TIM3->CNT;
-  uint16_t enc_r_buff = TIM4->CNT;
+  uint16_t enc_l_buff = TIM4->CNT;
+  uint16_t enc_r_buff = TIM3->CNT;
   TIM3->CNT = 0;
   TIM4->CNT = 0;
 
   if( enc_l_buff > 32767 ){
-    enc_value.left = -1 *(int16_t)enc_l_buff;
+    enc_value.left = (int16_t)enc_l_buff;
   } else {
     enc_value.left = -1 * enc_l_buff;
   }
   
   if ( enc_r_buff > 32767 ){
-    enc_value.right = (int16_t)enc_r_buff;
+    enc_value.right = -1 * (int16_t)enc_r_buff;
   } else {
     enc_value.right = enc_r_buff;
   }

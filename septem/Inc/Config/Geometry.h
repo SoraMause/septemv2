@@ -1,17 +1,14 @@
 #ifndef __GEOMETRT_H
 #define __GEOMETRT_H
 
-struct Velocity {
+typedef struct {
   float v;
   float omega;
-};
+}Velocity;
 
-struct Position {
-  //float x;
-  //float y;
+typedef struct {
   float distance;
   float rad;
-  //float theta;
-};
+}Position;
 
 #endif /* __GEOMETRT_H */

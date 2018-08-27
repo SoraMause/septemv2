@@ -10,11 +10,11 @@
 // マシンのトレッド
 #define MACHINE_TREAD_WIDTH       0.068f
 // マシンの重さ
-#define MACHINE_WEIGHT            0.100f
+#define MACHINE_WEIGHT            0.106f
 // ギア比
 #define GEAR_RATION               5.25f // 42 / 8 = 5.25
 // マシンのモーメント
-#define INERTIAL_MOMENT           0.0000525f
+#define INERTIAL_MOMENT           0.00005565f
 
 //---------------------------------------------------------------------
 // モーターデータ ( 1717 3v version ie 512 )

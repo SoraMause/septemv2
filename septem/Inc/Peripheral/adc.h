@@ -58,7 +58,7 @@ extern ADC_HandleTypeDef hadc2;
 
 /* USER CODE END Private defines */
 
-extern void _Error_Handler(const char *, int);
+extern void _Error_Handler(char *, int);
 
 void MX_ADC1_Init(void);
 void MX_ADC2_Init(void);

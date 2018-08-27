@@ -214,12 +214,18 @@ void MPU6500_init( void )
     }
   }
 
+  HAL_Delay( 100 );
+
   // スリープ解除
   write_byte( MPU6500_RA_PWR_MGMT_1, 0x00 );
+
+  HAL_Delay( 100 );
 
 	// DLPF_CFG = 0 : GyroのLPFを無効??��?��?
 	// FIFOは使わな??��?��?
   write_byte( MPU6500_RA_CONFIG, 0x00 );
+
+  HAL_Delay( 100 );
 
   // Gyroのフルスケール??��?��?+-2000dpsに設??��?��?
 	write_byte(MPU6500_RA_GYRO_CONFIG, 0x18);
@@ -240,13 +246,10 @@ float MPU6500_read_gyro_z( void )
 
   gyro_z = (int16_t)( read_shift_byte(MPU6500_RA_GYRO_ZOUT_H) | read_byte(MPU6500_RA_GYRO_ZOUT_L) );
 
-  // offset 
-  gyro_z -= (int16_t)gyro_z_offset;
-
   // GYRO FACTOR ( rad / sec )
   // 180 * PI ( rad/sec )
   
-  omega = (float)gyro_z / GYRO_FACTOR / 180.0f * PI;
+  omega = (float)( ( gyro_z - gyro_z_offset ) / GYRO_FACTOR / 180.0f * PI);
 
   return omega;
 }
@@ -282,12 +285,12 @@ void MPU6500_z_axis_offset_calc( void )
   
   //omega = (float)gyro_z / GYRO_FACTOR / 180.0f * PI;
 
-  if ( gyro_offset_cnt < 1024 ){
+  if ( gyro_offset_cnt < 1000 ){
     gyro_z_offset += (float)gyro_z;
     gyro_offset_cnt++;
   } else {
-    gyro_z_offset /= 1024.0f;
-    gyro_z_offset = roundf( gyro_z_offset );
+    gyro_z_offset /= 1000.0f;
+    //gyro_z_offset = roundf( gyro_z_offset );
     gyro_calc_flag = 1;
     machine_rad = 0.0f;
   }

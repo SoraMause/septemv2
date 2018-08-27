@@ -5,12 +5,8 @@
 
 #include "buzzer.h"
 
-#include "MotorController.h"
-
 EncValue enc_value;
 Velocity v;
-
-MotorController *motor_controller = new MotorController();
 
 void interrupt()
 {
@@ -25,15 +21,13 @@ void interrupt()
   enc_value = update_encoder();
 
   // エンコーダから速度を計算
-  v = motor_controller->updateMotorData( enc_value );
-
   // To do motionのアップデート 
   // ( To do motion push, pop )
   // To do 目標値の値を得る
   // To do モーターに与える加速度を決定する
   
   // モーターの出力を行う
-  motor_controller->updateMotorDuty();
+  //motor_controller->updateMotorDuty();
 
   buzzerOutPut();
 }
@@ -41,17 +35,12 @@ void interrupt()
 //*********************************************************************
 // debug
 //*********************************************************************
-void motorControllercheckConst()
-{
-  motor_controller->checkConst();
-}
-
-EncValue checkEncValue()
+EncValue checkEncValue( void )
 {
   return enc_value;
 }
 
-Velocity checkVelocity()
+Velocity checkVelocity( void )
 {
   return v;
 }

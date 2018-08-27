@@ -62,7 +62,7 @@ extern TIM_HandleTypeDef htim5;
 
 /* USER CODE END Private defines */
 
-extern void _Error_Handler(const char *, int);
+extern void _Error_Handler(char *, int);
 
 void MX_TIM1_Init(void);
 void MX_TIM2_Init(void);
@@ -74,8 +74,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
 
 /* USER CODE BEGIN Prototypes */
-void output_motor_pwm( uint32_t pwm1 , uint32_t pwm2, uint32_t pwm3, uint32_t pwm4 );
-void motorControl( int32_t pwm_l , int32_t pwm_r );
+void output_motor_pwm( int pwm1 , int pwm2, int pwm3, int pwm4 );
+void motorControl( int pwm_l , int pwm_r );
 void buzzerPwmOut( uint32_t pwm, uint32_t period );
 EncValue update_encoder( void );
 /* USER CODE END Prototypes */

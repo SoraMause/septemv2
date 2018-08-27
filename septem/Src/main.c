@@ -58,10 +58,6 @@
 #include "function.h"
 #include "timer.h"
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-
 #ifdef __GNUC__
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 #else
@@ -70,11 +66,6 @@
 void __io_putchar(uint8_t ch) {
 HAL_UART_Transmit(&huart3, &ch, 1, 1);
 }
-#ifdef __cplusplus
- }
-#endif
-
-using namespace std;
 
 /* USER CODE END Includes */
 
@@ -135,7 +126,6 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   machine_init();
-  motorControllercheckConst();
   fullColorLedOut( LED_BLUE );
   
   /* USER CODE END 2 */
@@ -147,8 +137,10 @@ int main(void)
   /* USER CODE END WHILE */
     
   /* USER CODE BEGIN 3 */
-    //printf( "gyro : %5.5f, machine_rad : %5.5f, offset = %5.5f\r", gyro_z_measured, machine_rad, checkGyroOffset() );
-    printf( "batt analog = %4d, batt_monitor = %5.5ff\r",batt_analog, batt_monitor );
+    //EncValue enc_value = checkEncValue();
+    //printf( "enc_left, right, center, %6ld, %6ld, %9ld\r", enc_value.left, enc_value.right, enc_value.center );
+    printf( "gyro : %5.5f, machine_rad : %5.5f, offset = %5.5f\r", gyro_z_measured, machine_rad, checkGyroOffset() );
+    //printf( "batt analog = %4d, batt_monitor = %5.5ff\r",batt_analog, batt_monitor );
     //printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",sensor[0], sensor[1], sensor[2], sensor[3] );
 
   }
@@ -221,7 +213,7 @@ void SystemClock_Config(void)
   * @param  None
   * @retval None
   */
-void _Error_Handler(const char * file, int line)
+void _Error_Handler(char * file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */

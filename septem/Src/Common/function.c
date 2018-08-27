@@ -25,18 +25,18 @@ void machine_init( void )
   setbuf( stdout, NULL );
   setIrledPwm( IRLED_OFF );
   buzzerSetMonophonic( NORMAL, 100 );
-  HAL_Delay( 300 );
+  HAL_Delay( 101 );
   certainLedOut( LED_OFF );
   fullColorLedOut( LED_OFF );
   MPU6500_init();
   buzzerSetMonophonic( NORMAL, 100 );
-  HAL_Delay( 300 );
-  MPU6500_z_axis_offset_calc_start();
+  HAL_Delay( 100 );
   HAL_TIM_Encoder_Start( &htim3, TIM_CHANNEL_ALL ); // encoder
   HAL_TIM_Encoder_Start( &htim4, TIM_CHANNEL_ALL ); // encoder
   HAL_TIM_Base_Start_IT( &htim5 );
   HAL_ADC_Start_DMA( &hadc2, (uint32_t *)&batt_analog,1 );
   batt_calc_const = 3.3f / 960.0f;
+  MPU6500_z_axis_offset_calc_start();
 }
 
 ///////////////////////////////////////////////////////////////////////

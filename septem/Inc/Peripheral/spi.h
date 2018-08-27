@@ -120,7 +120,7 @@ extern SPI_HandleTypeDef hspi2;
 
 /* USER CODE END Private defines */
 
-extern void _Error_Handler(const char *, int);
+extern void _Error_Handler(char *, int);
 
 void MX_SPI2_Init(void);
 
