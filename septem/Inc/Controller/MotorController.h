@@ -6,6 +6,6 @@
 
 void calcMotorConst( void );
 void updateMotorDuty( void );
-Velocity updateMotorData( const EncValue enc_value );
+Velocity updateMotorData( void );
 
 #endif /* __MOTORCONTROLLER_H */

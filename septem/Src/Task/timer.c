@@ -7,7 +7,6 @@
 
 #include "motorController.h"
 
-static EncValue enc_value;
 static Velocity v;
 
 void interrupt()
@@ -20,10 +19,10 @@ void interrupt()
   }
 
   // エンコーダの値の取得
-  enc_value = update_encoder();
+  update_encoder();
 
   // エンコーダから速度を計算
-  v = updateMotorData( enc_value );
+  v = updateMotorData();
 
   // To do motionのアップデート 
 
@@ -32,7 +31,7 @@ void interrupt()
   // To do モーターに与える加速度を決定する
   
   // モーターの出力を行う
-  updateMotorDuty();
+  //updateMotorDuty();
 
   buzzerOutPut();
 }
@@ -40,11 +39,6 @@ void interrupt()
 //*********************************************************************
 // debug
 //*********************************************************************
-EncValue checkEncValue( void )
-{
-  return enc_value;
-}
-
 Velocity checkVelocity( void )
 {
   return v;

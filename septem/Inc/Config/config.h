@@ -8,7 +8,7 @@
 //---------------------------------------------------------------------
 #define MACHINE_WHEEL_RADIUS      0.01225f
 // マシンのトレッド
-#define MACHINE_TREAD_WIDTH       0.068f
+#define MACHINE_TREAD_WIDTH       0.066f
 // マシンの重さ
 #define MACHINE_WEIGHT            0.106f
 // ギア比

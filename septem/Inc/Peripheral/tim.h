@@ -77,7 +77,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void output_motor_pwm( int pwm1 , int pwm2, int pwm3, int pwm4 );
 void motorControl( int pwm_l , int pwm_r );
 void buzzerPwmOut( uint32_t pwm, uint32_t period );
-EncValue update_encoder( void );
+void update_encoder( void );
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

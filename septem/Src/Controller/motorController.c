@@ -50,7 +50,7 @@ void calcMotorConst( void )
 // [return] nothing
 // [contents] caluculate the motor data
 ///////////////////////////////////////////////////////////////////////
-Velocity updateMotorData( const EncValue enc_value )
+Velocity updateMotorData( void )
 {
   float enc_left_omega, enc_right_omega;
   Velocity now;

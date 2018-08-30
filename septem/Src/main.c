@@ -127,7 +127,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   machine_init();
   fullColorLedOut( LED_BLUE );
-  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -137,12 +136,9 @@ int main(void)
   /* USER CODE END WHILE */
     
   /* USER CODE BEGIN 3 */
-    //EncValue enc_value = checkEncValue();
-    //printf( "enc_left, right, center, %6ld, %6ld, %9ld\r", enc_value.left, enc_value.right, enc_value.center );
-    printf( "gyro : %5.5f, machine_rad : %5.5f, offset = %5.5f\r", gyro_z_measured, machine_rad, checkGyroOffset() );
-    //printf( "batt analog = %4d, batt_monitor = %5.5ff\r",batt_analog, batt_monitor );
+    printf( "gyro : %5.5f, machine_rad : %5.5f, offset = %5.5f, batt_monitor = %5.5f\r", gyro_z_measured, machine_rad, checkGyroOffset(), batt_monitor );
+    //printf( "batt analog = %4d, batt_monitor = %5.5f\r",batt_analog, batt_monitor );
     //printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",sensor[0], sensor[1], sensor[2], sensor[3] );
-
   }
   /* USER CODE END 3 */
 

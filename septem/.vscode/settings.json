@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "adc.h": "c",
-    "function.h": "c"
+    "function.h": "c",
+    "global_var.h": "c"
   }
 }

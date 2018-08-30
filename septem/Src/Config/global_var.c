@@ -22,3 +22,5 @@ t_sensor sensor_frontr;
 t_sensor sensor_frontl;
 t_sensor sensor_sidel;
 
+// encoder struct
+EncValue enc_value;

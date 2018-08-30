@@ -9,7 +9,6 @@ void interrupt( void );
 //*********************************************************************
 // debug
 //*********************************************************************
-EncValue checkEncValue( void );
 Velocity checkVelocity( void );
 
 #endif /* __TIMER_H */
