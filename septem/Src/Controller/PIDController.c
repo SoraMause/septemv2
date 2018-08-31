@@ -8,7 +8,7 @@
 // [contents] caluculate the pid controller ( feedback )
 ///////////////////////////////////////////////////////////////////////
 float PID( float target, float measurement, float *sum, float *old, float kp, 
-                    float ki, float kd, float maxim, float minmam )
+                    float ki, float kd, float maxim )
 {
   float p, i, d, error, sum2;
 
@@ -19,21 +19,21 @@ float PID( float target, float measurement, float *sum, float *old, float kp,
   p = error * kp;
 
   *sum += error * dt; 
-    i = *sum * ki;
+  i = *sum * ki;
 
-  d =  ( error - *old ) / dt * kd; 
+  d =  ( error - *old ) * kd; 
   *old = error;
 
   // リセットワインドアップ対策
-  if( maxim < (p+i+d) ){
+  if( (p+i+d) > maxim ){
     p = maxim;
     i = 0.0f;
     d = 0.0f;
     *sum = sum2;
   }
 
-  if( (p+i+d) < minmam ){
-    p = minmam;
+  if( (p+i+d) < -maxim ){
+    p = -maxim;
     i = 0.0f;
     d = 0.0f;
     *sum = sum2;

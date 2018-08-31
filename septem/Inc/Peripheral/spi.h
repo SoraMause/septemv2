@@ -133,7 +133,6 @@ float MPU6500_read_gyro_z( void );
 void MPU6500_z_axis_offset_calc_start( void );
 void MPU6500_z_axis_offset_calc( void );
 int8_t MPU6500_calc_check( void );
-void machineRadCalculation( float gyro );
 float checkGyroOffset( void );
 /* USER CODE END Prototypes */
 

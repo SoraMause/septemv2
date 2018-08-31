@@ -374,11 +374,11 @@ void update_sensor_data( void )
   sensor[0] = sensorH[0] - sensorL[0];  // Measures against external light
 
   if ( sensor[0] <= 880 ){
-    sensor_frontr.is_wall = not_exist;
+    sensor_frontr.is_wall = 0;
     cnt_front_right = 0;
   } else {
-    if ( cnt_front_right > 20 ){
-      sensor_frontr.is_wall = exist;
+    if ( cnt_front_right > 10 ){
+      sensor_frontr.is_wall = 1;
     } else {
       cnt_front_right++;
     }
@@ -387,11 +387,11 @@ void update_sensor_data( void )
   sensor[1] = sensorH[1] - sensorL[1];  // Measures against external light
 
   if ( sensor[1] <= 900 ){
-    sensor_sider.is_wall = not_exist;
+    sensor_sider.is_wall = 0;
     cnt_side_right = 0;
   } else {
-    if ( cnt_side_right > 20 ){
-      sensor_sider.is_wall = exist;
+    if ( cnt_side_right > 10 ){
+      sensor_sider.is_wall = 1;
     } else {
       cnt_side_right++;
     }
@@ -400,11 +400,11 @@ void update_sensor_data( void )
   sensor[2] = sensorH[2] - sensorL[2];  // Measures against external light
 
   if ( sensor[2] <= 950 ){
-    sensor_sidel.is_wall = not_exist;
+    sensor_sidel.is_wall = 0;
     cnt_side_left = 0;
   } else {
-    if ( cnt_side_left > 20 ){
-      sensor_sidel.is_wall = exist;
+    if ( cnt_side_left > 10 ){
+      sensor_sidel.is_wall = 1;
     } else {
       cnt_side_left++;
     }
@@ -415,10 +415,10 @@ void update_sensor_data( void )
 
   if ( sensor[3] <= 880 ){
     cnt_front_left = 0;
-    sensor_frontl.is_wall = not_exist;
+    sensor_frontl.is_wall = 0;
   } else {
-    if ( cnt_front_left > 20 ){
-      sensor_frontl.is_wall = exist;
+    if ( cnt_front_left > 10 ){
+      sensor_frontl.is_wall = 1;
     } else {
       cnt_front_left++;
     }

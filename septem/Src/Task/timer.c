@@ -3,11 +3,18 @@
 #include "spi.h"
 #include "tim.h"
 
+#include "config.h" 
+
 #include "buzzer.h"
 
-#include "motorController.h"
+#include "trackMotion.h"
+
+#include "targetGenerator.h"
 
 static Velocity v;
+static MotorDuty duty;
+static float gyro_z_before = 0.0f;
+static uint8_t controll_flag = 0;
 
 void interrupt()
 {
@@ -15,7 +22,7 @@ void interrupt()
     MPU6500_z_axis_offset_calc();
   } else {
     gyro_z_measured = MPU6500_read_gyro_z();
-    machineRadCalculation( gyro_z_measured );
+    machineRadCalculation();
   }
 
   // エンコーダの値の取得
@@ -24,16 +31,43 @@ void interrupt()
   // エンコーダから速度を計算
   v = updateMotorData();
 
-  // To do motionのアップデート 
+  if ( controll_flag == 1 && checkUpdateMotionEnd() == 0 ){
+    // To do motionのアップデート 
+    updateMotion();
 
-  // To do 目標値の値を得る
-  
-  // To do モーターに与える加速度を決定する
-  
-  // モーターの出力を行う
-  //updateMotorDuty();
+    // To do 目標値の値を得る
+    updateTargetVelocity();
+    
+    // モーターの出力を行う
+    duty = updateMotorDuty();
+
+    motorControl( duty.left, duty.right );
+  } else {
+    motorControl( 0, 0 );
+  }
+
 
   buzzerOutPut();
+}
+
+void setControl( int8_t _in )
+{
+  controll_flag = _in;
+}
+
+///////////////////////////////////////////////////////////////////////
+// machineRadCalculation
+// [argument] nothing
+// [Substitutiong] machine_rad
+// [return] nothing
+// [contents] caluculate the machine rad
+///////////////////////////////////////////////////////////////////////
+void machineRadCalculation( void )
+{
+  float gyro = 0.0f;
+  gyro = gyro_z_measured;
+  machine_rad += (float)( (gyro_z_before + gyro) * dt / 2.0f );
+  gyro_z_before = gyro;
 }
 
 //*********************************************************************
@@ -42,4 +76,9 @@ void interrupt()
 Velocity checkVelocity( void )
 {
   return v;
+}
+
+MotorDuty checkMotorDuty( void )
+{
+  return duty;
 }

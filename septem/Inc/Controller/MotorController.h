@@ -4,8 +4,13 @@
 #include "global_var.h"
 #include "Geometry.h" 
 
+typedef struct {
+  int32_t left;
+  int32_t right;
+}MotorDuty;
+
 void calcMotorConst( void );
-void updateMotorDuty( void );
+MotorDuty updateMotorDuty( void );
 Velocity updateMotorData( void );
 
 #endif /* __MOTORCONTROLLER_H */

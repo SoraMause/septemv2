@@ -7,6 +7,8 @@
 
 #include "tim.h"  // motorのdutyセット
 
+#include "targetGenerator.h"
+
 #include <stdio.h>
 
 // 定数( 先に計算しておく　)
@@ -21,6 +23,8 @@ static float torque_angle = 0.0f;
 static float torque_left = 0.0f;
 static float torque_right = 0.0f;
 static float motor_rpm = 0.0f;
+
+static float v = 0.0f;
 
 ///////////////////////////////////////////////////////////////////////
 // calcMotorConst
@@ -58,14 +62,16 @@ Velocity updateMotorData( void )
   enc_left_omega = (float)enc_value.left / MACHINE_ENC_CNT_PER_ROT * 2.0f * PI / dt ;
   enc_right_omega = (float)enc_value.right / MACHINE_ENC_CNT_PER_ROT * 2.0f * PI / dt;
 
-  now.v =  (enc_left_omega + enc_right_omega) / 2.0f * MACHINE_WHEEL_RADIUS;
+  now.v =  (enc_left_omega + enc_right_omega) / 2.0f / dt * MACHINE_WHEEL_RADIUS;
 	now.omega = (-enc_left_omega + enc_right_omega) / 2.0f * MACHINE_WHEEL_RADIUS / MACHINE_TREAD_WIDTH;
+
+  v = now.v;
 
   // 左右のタイヤの角速度を計算 ( 実際の制御では gyro sensor の値を使う )
   //speed.left_omega = ( speed.measument - speed.omega * MACHINE_TREAD_WIDTH ) / MACHINE_WHEEL_RADIUS;
   //speed.right_omega = ( speed.measument + speed.omega * MACHINE_TREAD_WIDTH ) / MACHINE_WHEEL_RADIUS;
 
-  motor_rpm = now.v * motorRpmConst;
+  motor_rpm = now.v * dt * motorRpmConst;
 
   return now;
 }
@@ -77,22 +83,27 @@ Velocity updateMotorData( void )
 // [return] nothing
 // [contents] update motor duty
 ///////////////////////////////////////////////////////////////////////
-void updateMotorDuty( void /* to do 目標値(acceleを与える)*/)
+MotorDuty updateMotorDuty( void )
 {
-  float accele = 0.0f;
+  float velocity_accele = 0.0f;
   float angular_accele = 0.0f;
   float duty_left_buff = 0.0f;
   float duty_right_buff = 0.0f;
-  int32_t duty_left = 0;
-  int32_t duty_right = 0;
 
-  //  * accele
-  torque_vectory = accele * vectoryConst;
+  MotorDuty duty;
+
+  velocity_accele = updateVelocityAccele( v );
+  angular_accele = updateAngularAccele();
+
+  //  トルクを計算する
+  torque_vectory = velocity_accele * vectoryConst;
   torque_angle =  angular_accele * angleConst;
 
+  // 左側のトルクと右側のトルクをそれぞれ求める
   torque_left = ( torque_vectory - torque_angle ) / GEAR_RATION;
   torque_right = ( torque_vectory + torque_angle ) / GEAR_RATION;
 
+  // duty を求める
   duty_left_buff = ( voltageTorqueConst * torque_left + MOTOR_REVERSE_VOLTAGE_CONSTANT * motor_rpm ) / batt_monitor;
   duty_right_buff = ( voltageTorqueConst * torque_right + MOTOR_REVERSE_VOLTAGE_CONSTANT * motor_rpm ) / batt_monitor;
 
@@ -106,9 +117,10 @@ void updateMotorDuty( void /* to do 目標値(acceleを与える)*/)
   duty_left_buff *= MOTOR_CONTROL_PERIOD;
   duty_right_buff *= MOTOR_CONTROL_PERIOD;
 
-  duty_left  = (int32_t)duty_left_buff;
-  duty_right = (int32_t)duty_right_buff;
+  // 出力電圧を計算
+  duty.left  = (int32_t)duty_left_buff;
+  duty.right = (int32_t)duty_right_buff;
 
-  motorControl( duty_left, duty_right );
+  return duty;
   
 }

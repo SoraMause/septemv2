@@ -52,7 +52,6 @@
 static int16_t gyro_offset_cnt = 0; 
 static int8_t  gyro_calc_flag = 0;
 static float gyro_z_offset = 0.0f;
-static float gyro_z_before = 0.0f;
 /* USER CODE END 0 */
 
 SPI_HandleTypeDef hspi2;
@@ -230,6 +229,8 @@ void MPU6500_init( void )
   // Gyroのフルスケール??��?��?+-2000dpsに設??��?��?
 	write_byte(MPU6500_RA_GYRO_CONFIG, 0x18);
 
+  gyro_calc_flag = 1;
+
 }
 
 
@@ -299,19 +300,6 @@ void MPU6500_z_axis_offset_calc( void )
 int8_t MPU6500_calc_check( void )
 {
   return gyro_calc_flag;
-}
-
-///////////////////////////////////////////////////////////////////////
-// machineRadCalculation
-// [argument] nothing
-// [Substitutiong] machine_rad
-// [return] nothing
-// [contents] caluculate the machine rad
-///////////////////////////////////////////////////////////////////////
-void machineRadCalculation( float gyro )
-{
-  machine_rad += (float)( (gyro_z_before + gyro) * dt / 2.0f );
-  gyro_z_before = gyro;
 }
 
 // debug ON
