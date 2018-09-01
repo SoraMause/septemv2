@@ -24,3 +24,14 @@ t_sensor sensor_sidel;
 
 // encoder struct
 EncValue enc_value;
+
+// log 関連
+Logger logger;
+
+// 外部ファイルから値を回収する用のグローバル変数
+int16_t log_v_target;
+int16_t log_v;
+float log_omega_tareget;
+float log_omega;
+float log_rad_target;
+float log_rad;

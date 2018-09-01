@@ -39,4 +39,24 @@ typedef struct {
 
 extern EncValue enc_value;
 
+// logger -------------------------------------------------------------
+typedef struct {
+  int16_t v_target[2048];
+  int16_t v[2048];
+  float omega_target[2048];
+  float omega[2048];
+  float rad_target[2048];
+  float rad[2048];
+}Logger;
+
+extern Logger logger;
+
+// 外部ファイルから値を回収する用のグローバル変数
+extern int16_t log_v_target;
+extern int16_t log_v;
+extern float log_omega_tareget;
+extern float log_omega;
+extern float log_rad_target;
+extern float log_rad;
+
 #endif /* __GLOBAL_VAR_H */

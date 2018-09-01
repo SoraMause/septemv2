@@ -22,7 +22,7 @@ float PID( float target, float measurement, float *sum, float *old, float kp,
   i = *sum * ki;
 
   d =  ( error - *old ) * kd; 
-  *old = error;
+  *old = measurement;
 
   // リセットワインドアップ対策
   if( (p+i+d) > maxim ){

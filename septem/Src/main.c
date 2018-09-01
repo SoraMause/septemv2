@@ -57,6 +57,7 @@
 
 #include "function.h"
 #include "timer.h"
+#include "logger.h"
 
 #include "trackMotion.h"
 #include "motion.h"
@@ -138,8 +139,8 @@ int main(void)
   pushMotion( TURN_RIGHT );
   pushMotion( DELAY );
   pushMotion( TURN_LEFT );
+  pushMotion( DELAY );
   pushMotion( END_MOTION );
-  //Velocity v;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -155,6 +156,15 @@ int main(void)
       HAL_Delay( 1500 );
       fullColorLedOut( LED_CYAN );
       setControl( 1 );
+      setLogFlag( 1 );
+    }
+
+    if ( checkUpdateMotionEnd() == 1 ){
+      fullColorLedOut( LED_WHITE );
+      setLogFlag( 0 );
+      if ( getLeftPushsw() ){
+        showLog();
+      }
     }
 
     //v = checkVelocity();

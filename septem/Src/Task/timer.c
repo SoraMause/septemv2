@@ -7,6 +7,8 @@
 
 #include "buzzer.h"
 
+#include "logger.h"
+
 #include "trackMotion.h"
 
 #include "targetGenerator.h"
@@ -46,7 +48,8 @@ void interrupt()
     motorControl( 0, 0 );
   }
 
-
+  updateLogger();
+  
   buzzerOutPut();
 }
 

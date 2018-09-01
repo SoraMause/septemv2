@@ -50,7 +50,7 @@
 #include <math.h>
 
 static int16_t gyro_offset_cnt = 0; 
-static int8_t  gyro_calc_flag = 0;
+static int8_t  gyro_calc_flag = 1;
 static float gyro_z_offset = 0.0f;
 /* USER CODE END 0 */
 

@@ -94,8 +94,11 @@ float updateVelocityAccele( float measured )
   if ( checkNowMotion() == turn ){
     feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, 0.3f, 0.0f, 0.1f, 15.0f );
   } else {
-    feedback_accele = PID( v, measured, &v_sum, &v_old, 1.0f, 0.6f, 0.0f, 50.0f );
+    feedback_accele = PID( v, measured, &v_sum, &v_old, 1.0f, 0.7f, 0.0f, 50.0f );
   }
+
+  log_v = measured;
+  log_v_target = v;
 
   if ( checkNowMotion() == no_control ){
     velocity_accele = 0.0f;
@@ -116,9 +119,14 @@ float updateAngularAccele( void )
   if ( checkNowMotion() == straight ){
     feedback_angular_accele = PID( 0.0f, gyro_z_measured, &gyro_sum, &gyro_old, 13.0f, 0.0f, 0.5f, 30.0f );
   } else {
-    feedback_angular_accele = PID( rad, machine_rad, &gyro_sum, &gyro_old, 34.0f, 12.5f, 5.0f, 50.0f );
+    feedback_angular_accele = PID( rad, machine_rad, &gyro_sum, &gyro_old, 36.5f, 15.0f, 4.0f, 100.0f );
     //feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, 35.0f, 1.0f, 1.0f, 30.0f );
-  } 
+  }
+
+  log_omega = gyro_z_measured;
+  log_omega_tareget = omega;
+  log_rad = machine_rad;
+  log_rad_target = rad; 
   
   if ( checkNowMotion() == no_control || checkNowMotion() == delay ){
     angular_accele = 0.0f;
