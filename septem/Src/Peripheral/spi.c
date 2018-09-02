@@ -247,10 +247,10 @@ float MPU6500_read_gyro_z( void )
 
   gyro_z = (int16_t)( read_shift_byte(MPU6500_RA_GYRO_ZOUT_H) | read_byte(MPU6500_RA_GYRO_ZOUT_L) );
 
-  // GYRO FACTOR ( rad / sec )
+  // GYRO FACTOR 
   // 180 * PI ( rad/sec )
   
-  omega = (float)( ( gyro_z - gyro_z_offset ) / GYRO_FACTOR / 180.0f * PI);
+  omega = (float)( ( gyro_z - gyro_z_offset ) / GYRO_FACTOR);
 
   return omega;
 }
@@ -277,14 +277,10 @@ void MPU6500_z_axis_offset_calc_start( void )
 void MPU6500_z_axis_offset_calc( void )
 {
   int16_t gyro_z;
-  //float omega;
 
   gyro_z = (int16_t)( read_shift_byte(MPU6500_RA_GYRO_ZOUT_H) | read_byte(MPU6500_RA_GYRO_ZOUT_L) );
 
-  // GYRO FACTOR ( rad / sec )
-  // 180 * PI ( rad/sec )
-  
-  //omega = (float)gyro_z / GYRO_FACTOR / 180.0f * PI;
+  // GYRO FACTOR ( deg / sec )
 
   if ( gyro_offset_cnt < 1000 ){
     gyro_z_offset += (float)gyro_z;

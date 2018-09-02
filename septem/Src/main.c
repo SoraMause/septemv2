@@ -135,11 +135,16 @@ int main(void)
   fullColorLedOut( LED_BLUE );
   setMotionEnd( 1 );
   pushMotion( ADJ_FRONT );
+  //pushMotion( ONE_BLOCK );
+  pushMotion( SEARCH_SLAROM_RIGHT );
+  pushMotion( SEARCH_SLAROM_RIGHT );
+  pushMotion( SEARCH_SLAROM_RIGHT );
+  pushMotion( SEARCH_SLAROM_RIGHT );
+  pushMotion( SEARCH_SLAROM_RIGHT );
+  pushMotion( SEARCH_SLAROM_RIGHT );
+  pushMotion( SEARCH_SLAROM_RIGHT );
+  pushMotion( SEARCH_SLAROM_RIGHT );
   pushMotion( HALF_BLOCK_STOP );
-  pushMotion( TURN_RIGHT );
-  pushMotion( DELAY );
-  pushMotion( TURN_LEFT );
-  pushMotion( DELAY );
   pushMotion( END_MOTION );
   /* USER CODE END 2 */
 
@@ -150,21 +155,29 @@ int main(void)
   /* USER CODE END WHILE */
     
   /* USER CODE BEGIN 3 */
+    switch( pattern ){
+      case 0:
+        if ( MPU6500_calc_check() == 1 ) {
+          fullColorLedOut( LED_GREEN );
+          HAL_Delay( 6000 );
+          fullColorLedOut( LED_CYAN );
+          setControl( 1 );
+          setLogFlag( 1 );
+        }
 
-    if ( MPU6500_calc_check() == 1 ) {
-      fullColorLedOut( LED_GREEN );
-      HAL_Delay( 1500 );
-      fullColorLedOut( LED_CYAN );
-      setControl( 1 );
-      setLogFlag( 1 );
-    }
+        if ( checkUpdateMotionEnd() == 1 ){
+          setLogFlag( 0 );
+          pattern = 2;
+        }
+        break;
 
-    if ( checkUpdateMotionEnd() == 1 ){
-      fullColorLedOut( LED_WHITE );
-      setLogFlag( 0 );
-      if ( getLeftPushsw() ){
-        showLog();
-      }
+      case 2:
+        fullColorLedOut( LED_WHITE );
+        
+        if ( getLeftPushsw() ){
+          showLog();
+        }
+        break;
     }
 
     //v = checkVelocity();

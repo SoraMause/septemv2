@@ -30,18 +30,30 @@ static float v_old = 0.0f;
 static float gyro_sum = 0.0f;
 static float gyro_old = 0.0f;
 
+// 角度指定用の変数
+static float rad_target = 0.0f;
+
 // 距離、角度などモーションに必要なものを更新しておく
 void resetMotion( void )
 {
-  // global 変数の machine rad を reset
-  machine_rad = 0.0f;
   // 距離角度をリセット
   distance = 0.0f;
   rad = 0.0f;
   // pid 関連の偏差の積、偏差の値をリセット
   v_sum = 0.0f, 
   v_old = 0.0f;
-  
+
+}
+
+void resetRadParam( void )
+{
+  // global 変数の machine rad を reset
+  machine_rad = 0.0f;
+
+  // 角度指定用の変数 
+  rad_target = 0.0f;
+
+  // pid gain reset
   gyro_sum = 0.0f;
   gyro_old = 0.0f;
 
@@ -65,11 +77,13 @@ void updateTargetVelocity( void )
   distance += v * dt;     // 理論値から距離を積算する
   rad += omega * dt;      // 理論値から角度を積算する
 
+  rad_target += omega * dt;
+
   // FF 制御 ( 今の値 - 一つ前の値 ) ( /dt) 
   // 先に加速度をかけておく
   feedfoward_acccele = ( v - v_previous ); 
 
-  feedfoward_angular_accele = ( omega - omega_previous ) * 10.0f;
+  //feedfoward_angular_accele = ( omega - omega_previous );
 
   // 今の値を保存
   v_previous = v;           
@@ -92,7 +106,7 @@ float updateVelocityAccele( float measured )
 
   // 超信地旋回のときはゲインを変更
   if ( checkNowMotion() == turn ){
-    feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, 0.3f, 0.0f, 0.1f, 15.0f );
+    feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, 0.35f, 0.0f, 0.1f, 15.0f );
   } else {
     feedback_accele = PID( v, measured, &v_sum, &v_old, 1.0f, 0.7f, 0.0f, 50.0f );
   }
@@ -117,10 +131,11 @@ float updateAngularAccele( void )
 
   // 直進と直進以外でゲインを変化させる
   if ( checkNowMotion() == straight ){
-    feedback_angular_accele = PID( 0.0f, gyro_z_measured, &gyro_sum, &gyro_old, 13.0f, 0.0f, 0.5f, 30.0f );
+    feedback_angular_accele = PID( 0.0f, gyro_z_measured, &gyro_sum, &gyro_old, 0.1f, 0.0f, 0.1f, 30.0f );
+    //feedback_angular_accele = PID( rad, machine_rad, &gyro_sum, &gyro_old, 1.0f, 0.1f, 0.1f, 10.0f );
   } else {
-    feedback_angular_accele = PID( rad, machine_rad, &gyro_sum, &gyro_old, 36.5f, 15.0f, 4.0f, 100.0f );
-    //feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, 35.0f, 1.0f, 1.0f, 30.0f );
+    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, 6.5f, 2.5f, 0.5f, 100.0f );
+    //feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, 0.45f, 3.0f, 1.0f, 50.0f );
   }
 
   log_omega = gyro_z_measured;

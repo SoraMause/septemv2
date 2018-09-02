@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+// pattern
+extern int16_t pattern;
+
 // tim5 interrupt
 extern uint8_t timer125;
 

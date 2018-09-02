@@ -21,29 +21,23 @@ float PID( float target, float measurement, float *sum, float *old, float kp,
   *sum += error * dt; 
   i = *sum * ki;
 
-  d =  ( error - *old ) * kd; 
+  d =  ( measurement - *old ) * kd; 
   *old = measurement;
 
   // リセットワインドアップ対策
-  if( (p+i+d) > maxim ){
+  if( (p+i-d) > maxim ){
     p = maxim;
     i = 0.0f;
     d = 0.0f;
     *sum = sum2;
   }
 
-  if( (p+i+d) < -maxim ){
+  if( (p+i-d) < -maxim ){
     p = -maxim;
     i = 0.0f;
     d = 0.0f;
     *sum = sum2;
   }
 
-  return ( p+i+d );
-}
-
-void PIDReset( float *sum, float *old )
-{
-  *sum = 0.0f;
-  *old = 0.0f;
+  return ( p+i-d );
 }

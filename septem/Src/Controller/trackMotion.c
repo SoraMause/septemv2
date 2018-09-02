@@ -7,6 +7,7 @@ static int16_t head = 0;
 static int16_t last = 0;
 static int8_t motion = 0;
 static int8_t end_flag = 0;
+static float offset_rad = 0.0f;
 
 void motion_init( void )
 {
@@ -36,6 +37,7 @@ void updateMotion( void )
   if ( checkEndMotion() == 1 ){
     switch( motion_queue[head] ){
       case NO_CONTROL:
+        
         motion = no_control;
         break;
 
@@ -88,31 +90,31 @@ void updateMotion( void )
 
       case TURN_LEFT:
         motion = turn;
-        yawrateTrapezoid( 1.5708f, 62.832f, 7.85398f );
+        yawrateTrapezoid( 90.0f, 1540.0f, 360.0f );
         head++;
         break;
 
       case TURN_RIGHT:
         motion = turn;
-        yawrateTrapezoid( -1.5708f, -62.832f, -7.85398f );
+        yawrateTrapezoid( -90.0f, -1540.0f, -360.0f );
         head++;
         break;
 
       case ROTATION:
         motion = turn;
-        yawrateTrapezoid( 3.14f, 62.8f, 12.566f );
+        yawrateTrapezoid( -180.0f, -1540.0f, -360.0f );
         head++;
         break;
 
       case SEARCH_SLAROM_LEFT:
         motion = slarom;
-        setSlarom( 1.5708f, 125.664f, 12.5664f, 500.0f, 23.5f, 22.5f );
+        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.5f, 21.5f );
         head++;
         break;
 
       case SEARCH_SLAROM_RIGHT:
         motion = slarom;
-        setSlarom( -1.5708f, -125.664f, -12.5664f, 500.0f, 23.5f, 22.5f );
+        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 21.5f );
         head++;
         break;
 

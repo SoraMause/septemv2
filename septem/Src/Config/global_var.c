@@ -1,5 +1,8 @@
 #include "global_var.h"
 
+// pattern
+int16_t pattern;
+
 // tim5 interrupt
 uint8_t timer125;
 

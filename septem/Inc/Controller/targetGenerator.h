@@ -2,6 +2,8 @@
 #define __TARGETGENERATOR_H
 
 void resetMotion( void );
+void resetRadParam( void );
+
 void updateTargetVelocity( void );
 
 void wallOutCorrection( void );
