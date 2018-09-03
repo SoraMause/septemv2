@@ -4,6 +4,10 @@
     "function.h": "c",
     "global_var.h": "c",
     "trackmotion.h": "c",
-    "targetgenerator.h": "c"
+    "targetgenerator.h": "c",
+    "math.h": "c",
+    "corecrt_math.h": "c",
+    "corecrt.h": "c",
+    "stdint.h": "c"
   }
 }

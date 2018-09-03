@@ -39,7 +39,7 @@ void machine_init( void )
   HAL_TIM_Base_Start_IT( &htim5 );
   HAL_ADC_Start_DMA( &hadc2, (uint32_t *)&batt_analog,1 );
   batt_calc_const = 3.3f / 960.0f;
-  MPU6500_z_axis_offset_calc_start();
+  //MPU6500_z_axis_offset_calc_start();
 }
 
 ///////////////////////////////////////////////////////////////////////

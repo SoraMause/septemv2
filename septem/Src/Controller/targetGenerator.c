@@ -14,13 +14,11 @@
 static float v = 0.0f;                 // 速度
 static float v_previous = 0.0f;        // 一つ前の速度
 static float omega = 0.0f;             // 角速度
-static float omega_previous = 0.0f;    // 一つ前の角速度
 static float distance = 0.0f;          // 距離
 static float rad = 0.0f;               // 角度
 
 // 制御の目標値　設定用変数
 static float feedfoward_acccele = 0.0f;         // 速度のフィードフォワード
-static float feedfoward_angular_accele = 0.0f;  // 角速度のフィードフォワード
 
 // 速度のPID用変数
 static float v_sum = 0.0f;
@@ -32,6 +30,10 @@ static float gyro_old = 0.0f;
 
 // 角度指定用の変数
 static float rad_target = 0.0f;
+
+// side sensor の pd 用 
+static int8_t ctr_sidewall_flag = 0;
+static int16_t sensor_error_before = 0.0f;
 
 // 距離、角度などモーションに必要なものを更新しておく
 void resetMotion( void )
@@ -63,34 +65,32 @@ void resetRadParam( void )
 void updateTargetVelocity( void )
 {
 
-  v = 0.0f;
-  omega = 0.0f;
-
   v = speedNext( distance );  // 速度を取得
 
   if ( checkNowMotion() == turn ){
     omega = yawrateNext( rad );   // 角速度を取得する
   } else if ( checkNowMotion() == slarom ){
     omega = slaromNext( distance, rad );
+  } else {
+    omega = 0.0f;
   }
 
   distance += v * dt;     // 理論値から距離を積算する
   rad += omega * dt;      // 理論値から角度を積算する
 
-  rad_target += omega * dt;
+  rad_target += omega * dt;   // 角度の目標値毎回リセットしないため積算をし続けておく
 
   // FF 制御 ( 今の値 - 一つ前の値 ) ( /dt) 
   // 先に加速度をかけておく
   feedfoward_acccele = ( v - v_previous ); 
 
-  //feedfoward_angular_accele = ( omega - omega_previous );
-
   // 今の値を保存
   v_previous = v;           
-  omega_previous = omega;
 
   // to do 壁切れ補正
   //wallOutCorrection();
+
+  // to do 迷路の更新タイミングを教える
 
 }
 
@@ -99,9 +99,57 @@ void wallOutCorrection( void )
 
 }
 
-float wallSidePID( void )
+void setControlWallPD( int8_t _able )
 {
-  return 0.0f;
+  ctr_sidewall_flag = _able;
+}
+
+float wallSidePD( float kp, float kd, float maxim )
+{
+  int16_t error = 0;
+  int16_t error_buff = 0;
+  float p,d;
+
+  // sensor の状態によって偏差の取り方を変える
+  if ( sensor_sidel.is_wall == 1 && sensor_sider.is_wall == 1 ){
+    error = sensor_sider.error - sensor_sidel.error;
+  } else if ( sensor_sidel.is_wall == 1 ){
+    error = -2 * sensor_sidel.error;
+  } else if ( sensor_sider.is_wall == 1 ){
+    error = 2 * sensor_sider.error;
+  } else {
+    error = 0;
+  }
+
+  error_buff = error;
+
+  if ( ( (error - sensor_error_before) > 500 ) || ( ( error - sensor_error_before ) < -500 ) ){
+    // to do flag 一度制御をきる
+    error = 0;
+  } 
+
+  sensor_error_before = error_buff;
+
+  p = (float)( kp * error );
+  d = (float)( ( error - sensor_error_before) * kd );
+  
+  if ( (p + d) > maxim ) {
+    p = maxim;
+    d = 0.0f;
+  }
+
+  if ( (p + d) < -maxim ) {
+    p = -maxim;
+    d = 0.0f;
+  }
+
+  if ( ctr_sidewall_flag == 1 ){
+    return (p + d);
+  } else {
+    return 0.0f;
+  }
+  
+
 }
 
 float updateVelocityAccele( float measured )
@@ -132,15 +180,15 @@ float updateVelocityAccele( float measured )
 float updateAngularAccele( void )
 {
   float angular_accele = 0.0f;    // 角加速度
-  float feedback_angular_accele = 0.0f; //フィードバック
+  float feedback_angular_accele = 0.0f; //角度のフィードバック
+  float feedback_wall = 0.0f;
 
   // 直進と直進以外でゲインを変化させる
   if ( checkNowMotion() == straight ){
     feedback_angular_accele = PID( 0.0f, gyro_z_measured, &gyro_sum, &gyro_old, 0.1f, 0.0f, 0.1f, 30.0f );
-    //feedback_angular_accele = PID( rad, machine_rad, &gyro_sum, &gyro_old, 1.0f, 0.1f, 0.1f, 10.0f );
+    feedback_wall = wallSidePD( 0.1f, 0.0f, 10.0f );
   } else {
     feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, 6.5f, 2.7f, 0.5f, 100.0f );
-    //feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, 0.45f, 3.0f, 1.0f, 50.0f );
   }
 
   log_omega = gyro_z_measured;
@@ -151,7 +199,7 @@ float updateAngularAccele( void )
     angular_accele = 0.0f;
     return angular_accele;
   } else {
-    angular_accele = feedfoward_angular_accele + feedback_angular_accele;
+    angular_accele = feedback_angular_accele + feedback_wall;
     return angular_accele;
   }
 
