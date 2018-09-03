@@ -99,6 +99,11 @@ void wallOutCorrection( void )
 
 }
 
+float wallSidePID( void )
+{
+  return 0.0f;
+}
+
 float updateVelocityAccele( float measured )
 {
   float velocity_accele = 0.0f;   // 加速度
@@ -134,14 +139,13 @@ float updateAngularAccele( void )
     feedback_angular_accele = PID( 0.0f, gyro_z_measured, &gyro_sum, &gyro_old, 0.1f, 0.0f, 0.1f, 30.0f );
     //feedback_angular_accele = PID( rad, machine_rad, &gyro_sum, &gyro_old, 1.0f, 0.1f, 0.1f, 10.0f );
   } else {
-    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, 6.5f, 2.5f, 0.5f, 100.0f );
+    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, 6.5f, 2.7f, 0.5f, 100.0f );
     //feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, 0.45f, 3.0f, 1.0f, 50.0f );
   }
 
   log_omega = gyro_z_measured;
-  log_omega_tareget = omega;
-  log_rad = machine_rad;
-  log_rad_target = rad; 
+  log_rad = (int16_t)machine_rad;
+  log_rad_target = (int16_t)rad_target; 
   
   if ( checkNowMotion() == no_control || checkNowMotion() == delay ){
     angular_accele = 0.0f;

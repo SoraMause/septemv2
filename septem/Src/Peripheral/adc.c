@@ -384,6 +384,8 @@ void update_sensor_data( void )
     }
   }
 
+  log_sensorfr = sensor[0];       // log buff
+
   sensor[1] = sensorH[1] - sensorL[1];  // Measures against external light
 
   if ( sensor[1] <= 900 ){
@@ -396,6 +398,8 @@ void update_sensor_data( void )
       cnt_side_right++;
     }
   }
+
+  log_sensorsr = sensor[1];       // log_buff
 
   sensor[2] = sensorH[2] - sensorL[2];  // Measures against external light
 
@@ -411,6 +415,8 @@ void update_sensor_data( void )
     
   }
 
+  log_sensorsl = sensor[2];     // log buff
+
   sensor[3] = sensorH[3] - sensorL[3];  // Measures against external light
 
   if ( sensor[3] <= 880 ){
@@ -423,6 +429,8 @@ void update_sensor_data( void )
       cnt_front_left++;
     }
   }
+
+  log_sensorfl = sensor[3];     // log buff
 
   //sensor_sider.error = sensor[1] - 1100;
   //sensor_sidel.error = sensor[2] - 1170;

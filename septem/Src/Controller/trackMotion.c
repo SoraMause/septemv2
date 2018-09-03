@@ -1,5 +1,5 @@
 #include "trackMotion.h" 
-
+#include "targetGenerator.h"
 #include "motion.h"
 
 static int8_t motion_queue[4096];
@@ -7,7 +7,6 @@ static int16_t head = 0;
 static int16_t last = 0;
 static int8_t motion = 0;
 static int8_t end_flag = 0;
-static float offset_rad = 0.0f;
 
 void motion_init( void )
 {
@@ -37,7 +36,6 @@ void updateMotion( void )
   if ( checkEndMotion() == 1 ){
     switch( motion_queue[head] ){
       case NO_CONTROL:
-        
         motion = no_control;
         break;
 
@@ -48,6 +46,7 @@ void updateMotion( void )
         break;
 
       case DELAY:
+        resetRadParam();
         motion = delay;
         head++;
         break;
@@ -89,18 +88,21 @@ void updateMotion( void )
         break;
 
       case TURN_LEFT:
+        resetRadParam();
         motion = turn;
         yawrateTrapezoid( 90.0f, 1540.0f, 360.0f );
         head++;
         break;
 
       case TURN_RIGHT:
+        resetRadParam();
         motion = turn;
         yawrateTrapezoid( -90.0f, -1540.0f, -360.0f );
         head++;
         break;
 
       case ROTATION:
+        resetRadParam();
         motion = turn;
         yawrateTrapezoid( -180.0f, -1540.0f, -360.0f );
         head++;

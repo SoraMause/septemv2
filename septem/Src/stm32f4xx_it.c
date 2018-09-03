@@ -229,6 +229,7 @@ void TIM5_IRQHandler(void)
 
     case 6:
       batt_monitor = ( batt_buff[0] + batt_buff[1] + batt_buff[2] + batt_buff[3] ) / 4.0f;
+      log_batt = batt_monitor;
       break;
 
     case 7:

@@ -1,8 +1,5 @@
 #include "global_var.h"
 
-// pattern
-int16_t pattern;
-
 // tim5 interrupt
 uint8_t timer125;
 
@@ -34,7 +31,11 @@ Logger logger;
 // 外部ファイルから値を回収する用のグローバル変数
 int16_t log_v_target;
 int16_t log_v;
-float log_omega_tareget;
 float log_omega;
-float log_rad_target;
-float log_rad;
+int16_t log_rad_target;
+int16_t log_rad;
+float log_batt;
+int16_t log_sensorfl;
+int16_t log_sensorfr;
+int16_t log_sensorsl;
+int16_t log_sensorsr;

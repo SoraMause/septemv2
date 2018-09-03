@@ -8,6 +8,8 @@ void updateTargetVelocity( void );
 
 void wallOutCorrection( void );
 
+float wallSidePID( void );
+
 float updateVelocityAccele( float measured );
 float updateAngularAccele( void );
 

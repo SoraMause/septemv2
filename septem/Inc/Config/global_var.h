@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-// pattern
-extern int16_t pattern;
-
 // tim5 interrupt
 extern uint8_t timer125;
 
@@ -46,10 +43,14 @@ extern EncValue enc_value;
 typedef struct {
   int16_t v_target[2048];
   int16_t v[2048];
-  float omega_target[2048];
   float omega[2048];
-  float rad_target[2048];
-  float rad[2048];
+  int16_t rad_target[2048];
+  int16_t rad[2048];
+  int16_t sensor_fl[2048];
+  int16_t sensor_fr[2048];
+  int16_t sensor_sl[2048];
+  int16_t sensor_sr[2048];
+  float batt[2048];
 }Logger;
 
 extern Logger logger;
@@ -57,9 +58,13 @@ extern Logger logger;
 // 外部ファイルから値を回収する用のグローバル変数
 extern int16_t log_v_target;
 extern int16_t log_v;
-extern float log_omega_tareget;
 extern float log_omega;
-extern float log_rad_target;
-extern float log_rad;
+extern int16_t log_rad_target;
+extern int16_t log_rad;
+extern float log_batt;
+extern int16_t log_sensorfl;
+extern int16_t log_sensorfr;
+extern int16_t log_sensorsl;
+extern int16_t log_sensorsr;
 
 #endif /* __GLOBAL_VAR_H */

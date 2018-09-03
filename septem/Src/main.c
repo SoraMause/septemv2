@@ -133,19 +133,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   machine_init();
   fullColorLedOut( LED_BLUE );
-  setMotionEnd( 1 );
-  pushMotion( ADJ_FRONT );
-  //pushMotion( ONE_BLOCK );
-  pushMotion( SEARCH_SLAROM_RIGHT );
-  pushMotion( SEARCH_SLAROM_RIGHT );
-  pushMotion( SEARCH_SLAROM_RIGHT );
-  pushMotion( SEARCH_SLAROM_RIGHT );
-  pushMotion( SEARCH_SLAROM_RIGHT );
-  pushMotion( SEARCH_SLAROM_RIGHT );
-  pushMotion( SEARCH_SLAROM_RIGHT );
-  pushMotion( SEARCH_SLAROM_RIGHT );
-  pushMotion( HALF_BLOCK_STOP );
-  pushMotion( END_MOTION );
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -155,36 +142,24 @@ int main(void)
   /* USER CODE END WHILE */
     
   /* USER CODE BEGIN 3 */
-    switch( pattern ){
-      case 0:
-        if ( MPU6500_calc_check() == 1 ) {
-          fullColorLedOut( LED_GREEN );
-          HAL_Delay( 6000 );
-          fullColorLedOut( LED_CYAN );
-          setControl( 1 );
-          setLogFlag( 1 );
-        }
-
-        if ( checkUpdateMotionEnd() == 1 ){
-          setLogFlag( 0 );
-          pattern = 2;
-        }
-        break;
-
-      case 2:
-        fullColorLedOut( LED_WHITE );
-        
-        if ( getLeftPushsw() ){
-          showLog();
-        }
-        break;
-    }
 
     //v = checkVelocity();
     //printf( "v.v = %5.5f, v.omega = %5.5f\r\n",v.v, v.omega );
     //printf( "gyro : %5.5f, machine_rad : %5.5f, offset = %5.5f, batt_monitor = %5.5f\r", gyro_z_measured, machine_rad, checkGyroOffset(), batt_monitor );
     //printf( "batt analog = %4d, batt_monitor = %5.5f\r",batt_analog, batt_monitor );
-    //printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",sensor[0], sensor[1], sensor[2], sensor[3] );
+    printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",sensor[0], sensor[1], sensor[2], sensor[3] );
+
+    if ( getLeftPushsw() ){
+      HAL_Delay( 300 );
+      setIrledPwm( IRLED_ON );
+      fullColorLedOut( LED_CYAN );
+    }
+
+    if ( getRightPushsw() ){
+      setIrledPwm( IRLED_OFF );
+      HAL_Delay( 300 );
+      fullColorLedOut( LED_BLUE );
+    }
   }
   /* USER CODE END 3 */
 
