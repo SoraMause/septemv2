@@ -14,17 +14,17 @@
 
 // straight
 #define HALF_BLOCK          4
-#define ONE_BLOCK           5 
-#define ONE_BLOCK_CHECK     6
-#define ADJ_FRONT           7
-#define ADJ_BACK            8
-#define HALF_BLOCK_STOP     9
+#define HALF_BLOCK_SEARCH   5
+#define ONE_BLOCK           6 
+#define ONE_BLOCK_CHECK     7
+#define ADJ_FRONT           8
+#define ADJ_BACK            9
+#define HALF_BLOCK_STOP     10
 
 // turn 
 #define TURN_LEFT           11
 #define TURN_RIGHT          12
 #define ROTATION            13
-#define ROTATION_CHECK      15
 
 // slarom
 #define SEARCH_SLAROM_LEFT  17

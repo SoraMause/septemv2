@@ -49,11 +49,6 @@
 #include "config.h"
 #include "global_var.h"
 
-static uint8_t cnt_front_right = 0;
-static uint8_t cnt_front_left = 0;
-static uint8_t cnt_side_right = 0;
-static uint8_t cnt_side_left = 0;
-
 ADC_ChannelConfTypeDef sConfig;
 
 /* USER CODE END 0 */
@@ -61,6 +56,11 @@ ADC_ChannelConfTypeDef sConfig;
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 DMA_HandleTypeDef hdma_adc2;
+
+static uint16_t pre_sensor_sl = 0;
+static uint16_t pre_sensor_sr = 0;
+static uint16_t pre_sensor_fl = 0;
+static uint16_t pre_sensor_fr = 0;
 
 /* ADC1 init function */
 void MX_ADC1_Init(void)
@@ -90,7 +90,7 @@ void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -257,7 +257,7 @@ void update_sidesensorH_data( void )
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
 
   sConfig.Channel = ADC_CHANNEL_2;  // channel set
   HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
@@ -286,7 +286,7 @@ void update_frontsensorH_data( void )
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
   
   sConfig.Channel = ADC_CHANNEL_3;  // channel set
   HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
@@ -315,7 +315,7 @@ void update_sidesensorL_data( void )
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
 
   sConfig.Channel = ADC_CHANNEL_2;  // channel set
   HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
@@ -344,7 +344,7 @@ void update_frontsensorL_data( void )
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
   
   sConfig.Channel = ADC_CHANNEL_3;  // channel set
   HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
@@ -371,69 +371,57 @@ void update_frontsensorL_data( void )
 void update_sensor_data( void )
 {
   
+  // sensor値の補正考える。
   sensor[0] = sensorH[0] - sensorL[0];  // Measures against external light
+  sensor[0] = ( sensor[0] + pre_sensor_fr ) / 2;
+  pre_sensor_fr = sensor[0];
 
-  if ( sensor[0] <= 1250 ){
+  if ( sensor[0] <= 700 ){
     sensor_frontr.is_wall = 0;
-    cnt_front_right = 0;
   } else {
-    if ( cnt_front_right > 10 ){
-      sensor_frontr.is_wall = 1;
-    } else {
-      cnt_front_right++;
-    }
+    sensor_frontr.is_wall = 1;
   }
 
   log_sensorfr = sensor[0];       // log buff
 
   sensor[1] = sensorH[1] - sensorL[1];  // Measures against external light
+  sensor[1] = ( sensor[1] + pre_sensor_sr ) / 2;
+  pre_sensor_sr = sensor[1];
 
-  if ( sensor[1] <= 1600 ){
+  if ( sensor[1] <= 660 ){
     sensor_sider.is_wall = 0;
-    cnt_side_right = 0;
   } else {
-    if ( cnt_side_right > 10 ){
-      sensor_sider.is_wall = 1;
-    } else {
-      cnt_side_right++;
-    }
+    sensor_sider.is_wall = 1;
   }
 
   log_sensorsr = sensor[1];       // log_buff
 
   sensor[2] = sensorH[2] - sensorL[2];  // Measures against external light
+  sensor[2] = ( sensor[2] + pre_sensor_sl ) / 2;
+  pre_sensor_sl = sensor[2];
 
-  if ( sensor[2] <= 1600 ){
+  if ( sensor[2] <= 700 ){
     sensor_sidel.is_wall = 0;
-    cnt_side_left = 0;
   } else {
-    if ( cnt_side_left > 10 ){
-      sensor_sidel.is_wall = 1;
-    } else {
-      cnt_side_left++;
-    }
-    
+    sensor_sidel.is_wall = 1;
   }
 
   log_sensorsl = sensor[2];     // log buff
 
   sensor[3] = sensorH[3] - sensorL[3];  // Measures against external light
+  sensor[3] = (sensor[3] + pre_sensor_fl ) / 2;
+  pre_sensor_fl = sensor[3];
 
-  if ( sensor[3] <= 1350 ){
-    cnt_front_left = 0;
+  if ( sensor[3] <= 700 ){
     sensor_frontl.is_wall = 0;
   } else {
-    if ( cnt_front_left > 10 ){
-      sensor_frontl.is_wall = 1;
-    } else {
-      cnt_front_left++;
-    }
+    sensor_frontl.is_wall = 1;
   }
 
   log_sensorfl = sensor[3];     // log buff
 
-  sensor_sider.error = sensor[1] - 1809;
-  sensor_sidel.error = sensor[2] - 1767;
+  sensor_sider.error = sensor[1] - 800;
+  sensor_sidel.error = sensor[2] - 900;
 
   //sensor_frontr.error = sensor[0] - 2300;
   //sensor_frontr.error = sensor[3] - 2300;

@@ -17,6 +17,8 @@ static float omega = 0.0f;             // 角速度
 static float distance = 0.0f;          // 距離
 static float rad = 0.0f;               // 角度
 
+static float motion_distance = 0.0f;   // 今のモーションの距離を格納する変数
+
 // 制御の目標値　設定用変数
 static float feedfoward_acccele = 0.0f;         // 速度のフィードフォワード
 
@@ -35,6 +37,10 @@ static float rad_target = 0.0f;
 static int8_t ctr_sidewall_flag = 0;
 static int16_t sensor_error_before = 0.0f;
 
+// maze update flag 
+static int8_t maze_wall_update_flag = 0;
+static int8_t maze_update_flag = 0;
+
 // 距離、角度などモーションに必要なものを更新しておく
 void resetMotion( void )
 {
@@ -44,6 +50,10 @@ void resetMotion( void )
   // pid 関連の偏差の積、偏差の値をリセット
   v_sum = 0.0f, 
   v_old = 0.0f;
+
+  // pid gain reset
+  gyro_sum = 0.0f;
+  gyro_old = 0.0f;
 
 }
 
@@ -59,6 +69,11 @@ void resetRadParam( void )
   gyro_sum = 0.0f;
   gyro_old = 0.0f;
 
+}
+
+void setMotionDistance( float _L_motion )
+{
+  motion_distance = _L_motion;
 }
 
 // velocity　の目標値を更新 
@@ -91,12 +106,30 @@ void updateTargetVelocity( void )
   //wallOutCorrection();
 
   // to do 迷路の更新タイミングを教える
-
+  if ( maze_wall_update_flag == 1 && distance >= motion_distance - 10.0f ){
+    maze_update_flag = 1;
+    maze_wall_update_flag = 0;
+  }
 }
 
 void wallOutCorrection( void )
 {
 
+}
+
+void setMazeWallUpdate( int8_t _able )
+{
+  maze_wall_update_flag = _able;
+}
+
+void certainMazeUpdateFlag( void )
+{
+  maze_update_flag = 0;
+}
+
+int8_t checkMazeUpdateFlag( void )
+{
+  return maze_update_flag;
 }
 
 void setControlWallPD( int8_t _able )
@@ -123,7 +156,7 @@ float wallSidePD( float kp, float kd, float maxim )
 
   error_buff = error;
 
-  if ( ( (error - sensor_error_before) > 500 ) || ( ( error - sensor_error_before ) < -500 ) ){
+  if ( ( (error - sensor_error_before) > 300 ) || ( ( error - sensor_error_before ) < -300 ) ){
     // to do flag 一度制御をきる
     error = 0;
   } 
@@ -159,9 +192,9 @@ float updateVelocityAccele( float measured )
 
   // 超信地旋回のときはゲインを変更
   if ( checkNowMotion() == turn ){
-    feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, 0.35f, 0.0f, 0.1f, 15.0f );
+    feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, 0.45f, 0.0f, 0.1f, 15.0f );
   } else {
-    feedback_accele = PID( v, measured, &v_sum, &v_old, 1.0f, 0.7f, 0.0f, 50.0f );
+    feedback_accele = PID( v, measured, &v_sum, &v_old, 1.5f, 0.70f, 0.0f, 50.0f );
   }
 
   log_v = measured;
@@ -185,10 +218,10 @@ float updateAngularAccele( void )
 
   // 直進と直進以外でゲインを変化させる
   if ( checkNowMotion() == straight ){
-    feedback_angular_accele = PID( 0.0f, gyro_z_measured, &gyro_sum, &gyro_old, 0.1f, 0.0f, 0.1f, 30.0f );
-    feedback_wall = wallSidePD( 0.1f, 0.0f, 10.0f );
+    feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, 0.30f, 0.0f, 0.1f, 15.0f );
+    feedback_wall = wallSidePD( 0.35f, 0.1f, 15.0f );
   } else {
-    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, 6.5f, 2.7f, 0.5f, 100.0f );
+    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, 5.0f, 1.5f, 25.0f, 50.0f );
   }
 
   log_omega = gyro_z_measured;

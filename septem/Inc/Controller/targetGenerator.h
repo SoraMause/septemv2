@@ -6,7 +6,13 @@
 void resetMotion( void );
 void resetRadParam( void );
 
+void setMotionDistance( float _L_motion );
+
 void updateTargetVelocity( void );
+
+void setMazeWallUpdate( int8_t _able );
+void certainMazeUpdateFlag( void );
+int8_t checkMazeUpdateFlag( void );
 
 void wallOutCorrection( void );
 

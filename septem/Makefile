@@ -76,6 +76,7 @@ $(wildcard Src/Peripheral/*.c) \
 $(wildcard Src/Common/*.c) \
 $(wildcard Src/Task/*.c) \
 $(wildcard Src/Controller/*.c) \
+$(wildcard Src/Maze/*.c) 
 
 # ASM sources
 ASM_SOURCES =  \
@@ -138,6 +139,7 @@ C_INCLUDES =  \
 -IInc/Common \
 -IInc/Task \
 -IInc/Controller \
+-IInc/Maze \
 -IDrivers/STM32F4xx_HAL_Driver/Inc \
 -IDrivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \

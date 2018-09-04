@@ -53,6 +53,7 @@ void updateMotion( void )
         fullColorLedOut( LED_YELLOW );
         certainLedOut( LED_OFF );
         resetRadParam();
+        resetMotion();
         motion = delay;
         head++;
         break;
@@ -60,6 +61,16 @@ void updateMotion( void )
       case HALF_BLOCK:
         motion = straight;
         setControlWallPD( 1 );
+        speedTrapezoid( 90.0f, 4.0f, 500.0f, 500.0f, 500.0f );
+        head++;
+        break;
+      
+      case HALF_BLOCK_SEARCH:
+        motion = straight;
+        setControlWallPD( 1 );
+        fullColorLedOut( LED_RED );
+        certainLedOut( LED_OFF );
+        setMazeWallUpdate( 1 ); 
         speedTrapezoid( 90.0f, 4.0f, 500.0f, 500.0f, 500.0f );
         head++;
         break;
@@ -76,16 +87,18 @@ void updateMotion( void )
         fullColorLedOut( LED_BLUE );
         certainLedOut( LED_OFF );
         setControlWallPD( 1 );
+        setMazeWallUpdate( 1 ); 
         speedTrapezoid( 180.0f, 4.0f, 500.0f, 500.0f, 500.0f );
         head++;
         break;
 
       case ADJ_FRONT:
         motion = straight;
-        fullColorLedOut( LED_OFF );
-        certainLedOut( LED_FRONT );
+        fullColorLedOut( LED_YELLOW );
+        certainLedOut( LED_REAR );
         setControlWallPD( 1 );
-        speedTrapezoid( 128.0f, 4.0f, 500.0f, 0.0f, 500.0f );
+        setMazeWallUpdate( 1 ); 
+        speedTrapezoid( 129.0f, 4.0f, 500.0f, 0.0f, 500.0f );
         head++;
         break;
 
@@ -94,7 +107,7 @@ void updateMotion( void )
         fullColorLedOut( LED_OFF );
         certainLedOut( LED_REAR );
         setControlWallPD( 1 );
-        speedTrapezoid( -38.0f, -4.0f, -400.0f, 500.0f, 0.0f );
+        speedTrapezoid( -60.0f, -4.0f, -300.0f, 0.0f, 0.0f );
         head++;
         break;
 
@@ -111,7 +124,6 @@ void updateMotion( void )
         fullColorLedOut( LED_GREEN );
         certainLedOut( LED_REAR );
         motion = turn;
-        resetRadParam();
         setControlWallPD( 0 );
         yawrateTrapezoid( 90.0f, 1540.0f, 360.0f );
         head++;
@@ -121,7 +133,6 @@ void updateMotion( void )
         motion = turn;
         fullColorLedOut( LED_GREEN );
         certainLedOut( LED_OFF );
-        resetRadParam();
         setControlWallPD( 0 );
         yawrateTrapezoid( -90.0f, -1540.0f, -360.0f );
         head++;
@@ -131,9 +142,8 @@ void updateMotion( void )
         motion = turn;
         fullColorLedOut( LED_GREEN );
         certainLedOut( LED_FRONT );
-        resetRadParam();
         setControlWallPD( 0 );
-        yawrateTrapezoid( -180.0f, -1540.0f, -450.0f );
+        yawrateTrapezoid( 180.0f, 1540.0f, 450.0f );
         head++;
         break;
 
@@ -142,6 +152,7 @@ void updateMotion( void )
         fullColorLedOut( LED_CYAN );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
+        setMazeWallUpdate( 1 );
         setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.5f, 21.5f );
         head++;
         break;
@@ -151,6 +162,7 @@ void updateMotion( void )
         fullColorLedOut( LED_MAGENTA );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
+        setMazeWallUpdate( 1 );
         setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 21.5f );
         head++;
         break;

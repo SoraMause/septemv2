@@ -67,6 +67,7 @@ void speedTrapezoid( float L ,float accele, float target, float start, float end
   end_flag = 0;
 
   resetMotion();
+  setMotionDistance( L );
 
   //printf( "セクションの時間　加速, 減速, %f, %f \r\n",_t_start, _t_end );
   //printf( "距離, 加速, 一定速度, 減速,%f,%f,%f,%f\r\n",L, accele_L, constant_L, decele_L );
@@ -223,6 +224,7 @@ void setSlarom( float L, float accele, float rad_target, float speed_target, flo
   end_flag = 0;
 
   resetMotion();
+  setMotionDistance( slarom_distance );
 
   //printf( "時間　: 角加速全体 %f, 加減速: %f\r\n",yawrate_trape_time, _t_start_end *2 );
   //printf( "オフセット走行距離 前　: %f, 後ろ : %f\r\n",before_distance, after_distance );
