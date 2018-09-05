@@ -8,6 +8,7 @@
     "math.h": "c",
     "corecrt_math.h": "c",
     "corecrt.h": "c",
-    "stdint.h": "c"
+    "stdint.h": "c",
+    "agent.h": "c"
   }
 }

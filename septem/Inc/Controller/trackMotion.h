@@ -20,15 +20,18 @@
 #define ADJ_FRONT           8
 #define ADJ_BACK            9
 #define HALF_BLOCK_STOP     10
+#define SET_STRAIGHT        11
 
 // turn 
-#define TURN_LEFT           11
-#define TURN_RIGHT          12
-#define ROTATION            13
+#define TURN_LEFT           16
+#define TURN_RIGHT          17
+#define ROTATION            18
 
 // slarom
-#define SEARCH_SLAROM_LEFT  17
-#define SEARCH_SLAROM_RIGHT 18
+#define SEARCH_SLAROM_LEFT  24
+#define SEARCH_SLAROM_RIGHT 25
+#define SLAROM_LEFT         26
+#define SLAROM_RIGHT        27
 
 //---------------------------------------------------------------------
 //enum
@@ -51,4 +54,5 @@ void updateMotion( void );
 int8_t checkUpdateMotionEnd( void );
 int8_t checkNowMotion( void );
 
+void showMotion( void );
 #endif /* __TRACKMOTION_H */

@@ -53,6 +53,7 @@
 
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern ADC_HandleTypeDef hadc3;
 
 /* USER CODE BEGIN Private defines */
 
@@ -62,6 +63,7 @@ extern void _Error_Handler(char *, int);
 
 void MX_ADC1_Init(void);
 void MX_ADC2_Init(void);
+void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 void update_sidesensorH_data( void );

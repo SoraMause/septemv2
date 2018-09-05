@@ -194,7 +194,7 @@ float updateVelocityAccele( float measured )
   if ( checkNowMotion() == turn ){
     feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, 0.45f, 0.0f, 0.1f, 15.0f );
   } else {
-    feedback_accele = PID( v, measured, &v_sum, &v_old, 1.5f, 0.70f, 0.0f, 50.0f );
+    feedback_accele = PID( v, measured, &v_sum, &v_old, 1.5f, 0.6f, 0.0f, 50.0f );
   }
 
   log_v = measured;
@@ -221,7 +221,7 @@ float updateAngularAccele( void )
     feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, 0.30f, 0.0f, 0.1f, 15.0f );
     feedback_wall = wallSidePD( 0.35f, 0.1f, 15.0f );
   } else {
-    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, 5.0f, 1.5f, 25.0f, 50.0f );
+    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, 5.0f, 0.9f, 25.0f, 50.0f );
   }
 
   log_omega = gyro_z_measured;

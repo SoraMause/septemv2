@@ -55,12 +55,8 @@ ADC_ChannelConfTypeDef sConfig;
 
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+ADC_HandleTypeDef hadc3;
 DMA_HandleTypeDef hdma_adc2;
-
-static uint16_t pre_sensor_sl = 0;
-static uint16_t pre_sensor_sr = 0;
-static uint16_t pre_sensor_fl = 0;
-static uint16_t pre_sensor_fr = 0;
 
 /* ADC1 init function */
 void MX_ADC1_Init(void)
@@ -90,7 +86,7 @@ void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -132,6 +128,41 @@ void MX_ADC2_Init(void)
   }
 
 }
+/* ADC3 init function */
+void MX_ADC3_Init(void)
+{
+  ADC_ChannelConfTypeDef sConfig;
+
+    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
+    */
+  hadc3.Instance = ADC3;
+  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc3.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc3.Init.ScanConvMode = ENABLE;
+  hadc3.Init.ContinuousConvMode = ENABLE;
+  hadc3.Init.DiscontinuousConvMode = DISABLE;
+  hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc3.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc3.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc3.Init.NbrOfConversion = 1;
+  hadc3.Init.DMAContinuousRequests = DISABLE;
+  hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  if (HAL_ADC_Init(&hadc3) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+    */
+  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Rank = 1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
 
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 {
@@ -147,11 +178,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
   
     /**ADC1 GPIO Configuration    
     PA0-WKUP     ------> ADC1_IN0
-    PA1     ------> ADC1_IN1
-    PA2     ------> ADC1_IN2
     PA3     ------> ADC1_IN3 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
+    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_3;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -199,6 +228,27 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 
   /* USER CODE END ADC2_MspInit 1 */
   }
+  else if(adcHandle->Instance==ADC3)
+  {
+  /* USER CODE BEGIN ADC3_MspInit 0 */
+
+  /* USER CODE END ADC3_MspInit 0 */
+    /* ADC3 clock enable */
+    __HAL_RCC_ADC3_CLK_ENABLE();
+  
+    /**ADC3 GPIO Configuration    
+    PA1     ------> ADC3_IN1
+    PA2     ------> ADC3_IN2 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN ADC3_MspInit 1 */
+
+  /* USER CODE END ADC3_MspInit 1 */
+  }
 }
 
 void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
@@ -214,11 +264,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
   
     /**ADC1 GPIO Configuration    
     PA0-WKUP     ------> ADC1_IN0
-    PA1     ------> ADC1_IN1
-    PA2     ------> ADC1_IN2
     PA3     ------> ADC1_IN3 
     */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0|GPIO_PIN_3);
 
   /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
@@ -243,6 +291,24 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
   /* USER CODE END ADC2_MspDeInit 1 */
   }
+  else if(adcHandle->Instance==ADC3)
+  {
+  /* USER CODE BEGIN ADC3_MspDeInit 0 */
+
+  /* USER CODE END ADC3_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_ADC3_CLK_DISABLE();
+  
+    /**ADC3 GPIO Configuration    
+    PA1     ------> ADC3_IN1
+    PA2     ------> ADC3_IN2 
+    */
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1|GPIO_PIN_2);
+
+  /* USER CODE BEGIN ADC3_MspDeInit 1 */
+
+  /* USER CODE END ADC3_MspDeInit 1 */
+  }
 } 
 
 /* USER CODE BEGIN 1 */
@@ -257,21 +323,21 @@ void update_sidesensorH_data( void )
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
-
-  sConfig.Channel = ADC_CHANNEL_2;  // channel set
-  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
-  HAL_ADC_Start( &hadc1 );     // ad convert start
-  while( HAL_ADC_PollForConversion( &hadc1,100 ) != HAL_OK );  // trans
-  sensorH[2] = HAL_ADC_GetValue( &hadc1 );   // get value
-  HAL_ADC_Stop( &hadc1 );
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
 
   sConfig.Channel = ADC_CHANNEL_1;  // channel set
-  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
-  HAL_ADC_Start( &hadc1 );     // ad convert start
-  while( HAL_ADC_PollForConversion( &hadc1,50 ) != HAL_OK );  // trans
-  sensorH[1] = HAL_ADC_GetValue( &hadc1 );   // get value
-  HAL_ADC_Stop( &hadc1 );
+  HAL_ADC_ConfigChannel( &hadc3, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc3 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc3,100 ) != HAL_OK );  // trans
+  sensorH[1] = HAL_ADC_GetValue( &hadc3 );   // get value
+  HAL_ADC_Stop( &hadc3 );
+
+  sConfig.Channel = ADC_CHANNEL_2;  // channel set
+  HAL_ADC_ConfigChannel( &hadc3, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc3 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc3,100 ) != HAL_OK );  // trans
+  sensorH[2] = HAL_ADC_GetValue( &hadc3 );   // get value
+  HAL_ADC_Stop( &hadc3 );
 
 }
 
@@ -286,20 +352,20 @@ void update_frontsensorH_data( void )
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   
-  sConfig.Channel = ADC_CHANNEL_3;  // channel set
-  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
-  HAL_ADC_Start( &hadc1 );     // ad convert start
-  while( HAL_ADC_PollForConversion( &hadc1,100 ) != HAL_OK );  // trans
-  sensorH[3] = HAL_ADC_GetValue( &hadc1 );   // get value
-  HAL_ADC_Stop( &hadc1 );
-
   sConfig.Channel = ADC_CHANNEL_0;  // channel set
   HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
   HAL_ADC_Start( &hadc1 );     // ad convert start
   while( HAL_ADC_PollForConversion( &hadc1,100 ) != HAL_OK );  // trans
   sensorH[0] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
+  sConfig.Channel = ADC_CHANNEL_3;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,100 ) != HAL_OK );  // trans
+  sensorH[3] = HAL_ADC_GetValue( &hadc1 );   // get value
   HAL_ADC_Stop( &hadc1 );
 
 }
@@ -315,21 +381,21 @@ void update_sidesensorL_data( void )
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
-
-  sConfig.Channel = ADC_CHANNEL_2;  // channel set
-  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
-  HAL_ADC_Start( &hadc1 );     // ad convert start
-  while( HAL_ADC_PollForConversion( &hadc1,100 ) != HAL_OK );  // trans
-  sensorL[2] = HAL_ADC_GetValue( &hadc1 );   // get value
-  HAL_ADC_Stop( &hadc1 );
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
 
   sConfig.Channel = ADC_CHANNEL_1;  // channel set
-  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
-  HAL_ADC_Start( &hadc1 );     // ad convert start
-  while( HAL_ADC_PollForConversion( &hadc1,100 ) != HAL_OK );  // trans
-  sensorL[1] = HAL_ADC_GetValue( &hadc1 );   // get value
-  HAL_ADC_Stop( &hadc1 );
+  HAL_ADC_ConfigChannel( &hadc3, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc3 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc3,100 ) != HAL_OK );  // trans
+  sensorL[1] = HAL_ADC_GetValue( &hadc3 );   // get value
+  HAL_ADC_Stop( &hadc3 );
+
+  sConfig.Channel = ADC_CHANNEL_2;  // channel set
+  HAL_ADC_ConfigChannel( &hadc3, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc3 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc3,100 ) != HAL_OK );  // trans
+  sensorL[2] = HAL_ADC_GetValue( &hadc3 );   // get value
+  HAL_ADC_Stop( &hadc3 );
 
 }
 
@@ -344,20 +410,20 @@ void update_frontsensorL_data( void )
   //read object
   ADC_ChannelConfTypeDef sConfig;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   
-  sConfig.Channel = ADC_CHANNEL_3;  // channel set
-  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
-  HAL_ADC_Start( &hadc1 );     // ad convert start
-  while( HAL_ADC_PollForConversion( &hadc1,100 ) != HAL_OK );  // trans
-  sensorL[3] = HAL_ADC_GetValue( &hadc1 );   // get value
-  HAL_ADC_Stop( &hadc1 );
-
   sConfig.Channel = ADC_CHANNEL_0;  // channel set
   HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
   HAL_ADC_Start( &hadc1 );     // ad convert start
   while( HAL_ADC_PollForConversion( &hadc1,100 ) != HAL_OK );  // trans
   sensorL[0] = HAL_ADC_GetValue( &hadc1 );   // get value
+  HAL_ADC_Stop( &hadc1 );
+
+  sConfig.Channel = ADC_CHANNEL_3;  // channel set
+  HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
+  HAL_ADC_Start( &hadc1 );     // ad convert start
+  while( HAL_ADC_PollForConversion( &hadc1,100 ) != HAL_OK );  // trans
+  sensorL[3] = HAL_ADC_GetValue( &hadc1 );   // get value
   HAL_ADC_Stop( &hadc1 );
 
 }
@@ -371,12 +437,10 @@ void update_frontsensorL_data( void )
 void update_sensor_data( void )
 {
   
-  // sensor値の補正考える。
+  // sensor値の補正�?える�?
   sensor[0] = sensorH[0] - sensorL[0];  // Measures against external light
-  sensor[0] = ( sensor[0] + pre_sensor_fr ) / 2;
-  pre_sensor_fr = sensor[0];
 
-  if ( sensor[0] <= 700 ){
+  if ( sensor[0] <= 1900 ){
     sensor_frontr.is_wall = 0;
   } else {
     sensor_frontr.is_wall = 1;
@@ -385,10 +449,8 @@ void update_sensor_data( void )
   log_sensorfr = sensor[0];       // log buff
 
   sensor[1] = sensorH[1] - sensorL[1];  // Measures against external light
-  sensor[1] = ( sensor[1] + pre_sensor_sr ) / 2;
-  pre_sensor_sr = sensor[1];
 
-  if ( sensor[1] <= 660 ){
+  if ( sensor[1] <= 1500 ){
     sensor_sider.is_wall = 0;
   } else {
     sensor_sider.is_wall = 1;
@@ -397,10 +459,8 @@ void update_sensor_data( void )
   log_sensorsr = sensor[1];       // log_buff
 
   sensor[2] = sensorH[2] - sensorL[2];  // Measures against external light
-  sensor[2] = ( sensor[2] + pre_sensor_sl ) / 2;
-  pre_sensor_sl = sensor[2];
 
-  if ( sensor[2] <= 700 ){
+  if ( sensor[2] <= 1700 ){
     sensor_sidel.is_wall = 0;
   } else {
     sensor_sidel.is_wall = 1;
@@ -409,10 +469,8 @@ void update_sensor_data( void )
   log_sensorsl = sensor[2];     // log buff
 
   sensor[3] = sensorH[3] - sensorL[3];  // Measures against external light
-  sensor[3] = (sensor[3] + pre_sensor_fl ) / 2;
-  pre_sensor_fl = sensor[3];
 
-  if ( sensor[3] <= 700 ){
+  if ( sensor[3] <= 2000 ){
     sensor_frontl.is_wall = 0;
   } else {
     sensor_frontl.is_wall = 1;
@@ -420,8 +478,8 @@ void update_sensor_data( void )
 
   log_sensorfl = sensor[3];     // log buff
 
-  sensor_sider.error = sensor[1] - 800;
-  sensor_sidel.error = sensor[2] - 900;
+  sensor_sider.error = sensor[1] - 1700;
+  sensor_sidel.error = sensor[2] - 1860;
 
   //sensor_frontr.error = sensor[0] - 2300;
   //sensor_frontr.error = sensor[3] - 2300;

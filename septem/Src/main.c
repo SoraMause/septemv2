@@ -1,4 +1,4 @@
-/**
+﻿/**
   ******************************************************************************
   * File Name          : main.c
   * Description        : Main program body
@@ -123,6 +123,7 @@ int main(void)
   MX_DMA_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
+  MX_ADC3_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();

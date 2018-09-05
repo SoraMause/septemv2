@@ -24,6 +24,7 @@ void mazeWall_init(void)
 			maze.east_wall[i][j] = unknown;
 			maze.west_wall[i][j] = unknown;
 			maze.south_wall[i][j] = unknown;
+			maze.search[i][j] = 0;
 		}
 	}
 
@@ -165,9 +166,7 @@ void mazeSetWall( uint8_t x, uint8_t y )
 	int8_t south_wall = 0;
 	int8_t west_wall = 0;
 
-	maze.search[x][y] = true;
-
-// 方向別に壁の状態を取得
+	// 方向別に壁の状態を取得
 	switch( mypos.direction ){
 		case north:
 			north_wall = sensor_frontl.is_wall | sensor_frontr.is_wall;
@@ -813,6 +812,7 @@ void mazeSubstituteData(void)
 			maze.east_wall[i][j] = maze_store.east_wall[i][j];
 			maze.west_wall[i][j] = maze_store.west_wall[i][j];
 			maze.south_wall[i][j] = maze_store.south_wall[i][j];
+			maze.search[i][j] = maze_store.search[i][j];
 		}
 	}
 }
@@ -878,4 +878,96 @@ void mazeWallOutput( uint8_t mode )
 			printf("+\r\n");
 		}
 	}
+}
+
+void mazeUpdateStraightWeightMap( uint8_t gx, uint8_t gy )
+{
+	uint8_t is_end = 1;
+	uint8_t next_flag = 1;
+	uint16_t step_number = 0;
+	
+	mazeClearStepMap( gx, gy );
+
+	while( is_end == 1 ){
+		is_end = 0;
+		for( int i = 0; i <= MAZE_SIZE_X; i++ ){
+			for( int j = 0; j <= MAZE_SIZE_Y; j++ ){
+				
+				// 北壁
+				if ( maze.step[i][j] == MAX_STEP ){
+					// 歩数が初期値なら更新
+					if ( j < MAZE_SIZE_Y){	
+						if ( maze.search[i][j] == 1 ){
+							if ( (maze.north_wall[i][j] == 0)&&(maze.step[i][j+1] == step_number) ){
+							// 南壁がないなら直進だから+1
+								if ( maze.south_wall[i][j] == 0 ) {
+									maze.step[i][j] = step_number + 1;
+									is_end = 1;	
+								} else {
+									maze.step[i][j] = step_number + 2;
+									is_end = 1;	
+									next_flag = 1;
+								} 
+							}						
+						}
+					}
+
+					// 東壁
+					if ( maze.search[i][j] == 1 ){
+					if ( i < MAZE_SIZE_X ){	
+						if ( (maze.east_wall[i][j] == 0)&&(maze.step[i+1][j] == step_number) ){
+								if ( maze.west_wall[i][j] == 0 ) {
+									maze.step[i][j] = step_number + 1;
+									is_end = 1;	
+								} else {
+									maze.step[i][j] = step_number + 2;
+									is_end = 1;	
+									next_flag = 1;
+								} 
+							}	
+						}
+					}
+
+					// 南壁
+					if ( maze.search[i][j] == 1 ){
+					if ( j > 0 ) {					
+						if ( (maze.south_wall[i][j] == 0)&&(maze.step[i][j-1] == step_number) ){
+								if ( maze.north_wall[i][j] == 0 ) {
+									maze.step[i][j] = step_number + 1;
+									is_end = 1;	
+								} else {
+									maze.step[i][j] = step_number + 2;
+									is_end = 1;	
+									next_flag = 1;
+								} 
+							}
+						}
+					}
+
+					// 西壁
+					if ( maze.search[i][j] == 1 ){
+					if ( i > 0 ){					
+						if ( (maze.west_wall[i][j] == 0)&&(maze.step[i-1][j] == step_number) ){
+								if ( maze.east_wall[i][j] == 0 ) {
+									maze.step[i][j] = step_number + 1;
+									is_end = 1;	
+								} else {
+									maze.step[i][j] = step_number + 2;
+									is_end = 1;	
+									next_flag = 1;
+								} 
+							}
+						}
+					}
+
+				}
+			} // end for j
+		} // end for i
+		if ( is_end == 0 && next_flag == 1 ){ 
+			is_end = 1;
+			next_flag = 0;
+		}
+		if ( is_end == 1 ) step_number++;
+	} // end while
+
 }

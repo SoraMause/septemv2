@@ -1,8 +1,9 @@
 #include "trackMotion.h" 
 #include "targetGenerator.h"
 #include "motion.h"
-
 #include "led.h"
+
+#include <stdio.h>
 
 static int8_t motion_queue[4096];
 static int16_t head = 0;
@@ -28,6 +29,14 @@ void pushMotion( int8_t motion_in )
     last = 0;
     motion_queue[last] = motion_in;
     last++;
+  }
+}
+
+void showMotion( void )
+{
+  printf( "head = %4d, last = %4d\r\n",head, last );
+  for ( int i = 0; i < last; i++ ){
+    printf( "motion_queue[%4d] = %4d\r\n",i,motion_queue[i] );
   }
 }
 
@@ -120,6 +129,15 @@ void updateMotion( void )
         head++;
         break;
 
+      case SET_STRAIGHT:
+        motion = straight;
+        fullColorLedOut( LED_RED );
+        certainLedOut( LED_FRONT );
+        setControlWallPD( 1 );
+        //speedTrapezoid( set_distance[head], 4.0f, set_speed[head], set_start_speed[head], set_end_speed[head] );
+        head++;
+        break;
+
       case TURN_LEFT:
         fullColorLedOut( LED_GREEN );
         certainLedOut( LED_REAR );
@@ -163,6 +181,24 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
+        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 21.5f );
+        head++;
+        break;
+
+      case SLAROM_LEFT:
+        motion = slarom;
+        fullColorLedOut( LED_CYAN );
+        certainLedOut( LED_FRONT );
+        setControlWallPD( 0 );
+        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.5f, 21.5f );
+        head++;
+        break;
+
+      case SLAROM_RIGHT:
+        motion = slarom;
+        fullColorLedOut( LED_MAGENTA );
+        certainLedOut( LED_FRONT );
+        setControlWallPD( 0 );
         setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 21.5f );
         head++;
         break;

@@ -14,8 +14,8 @@
 
 #define MAX_STEP      65535
 
-#define HALF_BLOCK_DISTANCE   0.09f
-#define ONE_BLOCK_DISTANCE    0.18f
+#define HALF_BLOCK_DISTANCE   90.0f
+#define ONE_BLOCK_DISTANCE    180.0f
 
 #define MASK_SEARCH	0x01
 #define MASK_SHORT	0x03
@@ -88,4 +88,7 @@ void mazeSubstituteData(void);
 
 void mazeSetWall( uint8_t x, uint8_t y );
 void mazeWallOutput( uint8_t mode );
+
+void mazeUpdateStraightWeightMap( uint8_t gx, uint8_t gy );
+
 #endif /*__MAZE_H*/
