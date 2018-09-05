@@ -19,6 +19,9 @@ extern int16_t sensorL[4];
 extern int16_t sensorH[4];
 extern int16_t sensor[4];
 
+// motion
+extern int8_t motion_queue[4096];
+
 // sensor struct
 typedef struct {
   uint8_t is_wall;
@@ -66,5 +69,15 @@ extern int16_t log_sensorfl;
 extern int16_t log_sensorfr;
 extern int16_t log_sensorsl;
 extern int16_t log_sensorsr;
+
+// 最短走行用
+typedef struct {
+  float distance;
+  float start_speed;
+  float end_speed;
+  float speed;
+}t_fast_path;
+
+extern t_fast_path fast_path[256];
 
 #endif /* __GLOBAL_VAR_H */

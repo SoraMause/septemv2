@@ -16,6 +16,9 @@ int16_t sensorL[4];
 int16_t sensorH[4];
 int16_t sensor[4];
 
+// motion
+int8_t motion_queue[4096];
+
 // sensor struct
 t_sensor sensor_sider;
 t_sensor sensor_frontr;
@@ -39,3 +42,6 @@ int16_t log_sensorfl;
 int16_t log_sensorfr;
 int16_t log_sensorsl;
 int16_t log_sensorsr;
+
+// 最短走行用
+t_fast_path fast_path[256];

@@ -20,9 +20,6 @@
 #define MASK_SEARCH	0x01
 #define MASK_SHORT	0x03
 
-#define true 1
-#define false 0
-
 typedef enum
 {
 	front = 0,		//前

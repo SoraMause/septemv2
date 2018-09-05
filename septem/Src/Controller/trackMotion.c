@@ -2,10 +2,10 @@
 #include "targetGenerator.h"
 #include "motion.h"
 #include "led.h"
+#include "global_var.h"
 
 #include <stdio.h>
 
-static int8_t motion_queue[4096];
 static int16_t head = 0;
 static int16_t last = 0;
 static int8_t motion = 0;
@@ -134,7 +134,7 @@ void updateMotion( void )
         fullColorLedOut( LED_RED );
         certainLedOut( LED_FRONT );
         setControlWallPD( 1 );
-        //speedTrapezoid( set_distance[head], 4.0f, set_speed[head], set_start_speed[head], set_end_speed[head] );
+        speedTrapezoid( fast_path[head].distance, 16.0f, fast_path[head].speed, fast_path[head].start_speed, fast_path[head].end_speed );
         head++;
         break;
 

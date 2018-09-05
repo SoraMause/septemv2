@@ -31,6 +31,7 @@
 
 // maze
 #include "maze.h"
+#include "agent.h"
 
 static int16_t pattern = 0;
 
@@ -93,6 +94,7 @@ void MauseSystem( void )
         HAL_Delay( 100 );
         buzzerSetMonophonic( C_SCALE, 100 );
         HAL_Delay( 100 );
+        mazeSubstituteData();
         changePattern( 40 );
       }
 
@@ -192,11 +194,11 @@ void MauseSystem( void )
 
     case 21:
       pushMotion( HALF_BLOCK_STOP );
-      mazeSetWall( mypos.x, mypos.y );
       maze.search[mypos.x][mypos.y] = 1;
       pushMotion( DELAY );
       pushMotion( END_MOTION );
       certainMazeUpdateFlag();
+      //mazeSetWall( mypos.x, mypos.y );
       changePattern( 22 );
       break;
 
@@ -243,8 +245,18 @@ void MauseSystem( void )
       else fullColorLedOut( LED_GREEN );
       
       if ( getLeftPushsw() ){
+        fullColorLedOut( LED_CYAN );
+        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 0 );
+        HAL_Delay( 300 );
         setIrledPwm( IRLED_ON );
         changePattern( 41 );
+      }
+
+      if ( getRightPushsw() ){
+        
+        certainLedOut( LED_FRONT );
+        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 1 );
+        certainLedOut( LED_OFF );
       }
 
       break;
