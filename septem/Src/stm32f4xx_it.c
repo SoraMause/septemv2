@@ -218,6 +218,7 @@ void TIM5_IRQHandler(void)
       break;
 
     case 4:
+      update_side_sensor_data();
       irledFrontOut( IRLED_ON );
       break;
 
@@ -238,7 +239,7 @@ void TIM5_IRQHandler(void)
       break;
 
     case 8:
-      update_sensor_data();
+      update_front_sensor_data();
       irledSideOut( IRLED_ON );
       timer125 = 0;
       break;

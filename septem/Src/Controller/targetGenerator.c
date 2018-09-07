@@ -1,14 +1,14 @@
 #include "targetGenerator.h"
-
+// config 
 #include "config.h"
+#include "global_var.h"
 
+// controller
 #include "trackMotion.h"
-
 #include "motion.h"
-
 #include "PIDController.h"
 
-#include "global_var.h"
+
 
 // motion 用変数
 static float v = 0.0f;                 // 速度
@@ -26,9 +26,27 @@ static float feedfoward_acccele = 0.0f;         // 速度のフィードフォ�
 static float v_sum = 0.0f;
 static float v_old = 0.0f;
 
+// speed Gain
+// 直線用
+static float speed_p = 0.0f;
+static float speed_i = 0.0f;
+
+// 超信地旋回用
+static float speed_turn_p = 0.0f;
+static float speed_turn_d = 0.0f;
+
 // 角度のPID用変数
 static float gyro_sum = 0.0f;
 static float gyro_old = 0.0f;
+// yawrate gain
+// 直線用
+static float gyro_p = 0.0f;
+static float gyro_d = 0.0f;
+
+// turn,slarom 用
+static float gyro_turn_p = 0.0f;
+static float gyro_turn_i = 0.0f;
+static float gyro_turn_d = 0.0f;
 
 // 角度指定用の変数
 static float rad_target = 0.0f;
@@ -37,9 +55,39 @@ static float rad_target = 0.0f;
 static int8_t ctr_sidewall_flag = 0;
 static int16_t sensor_error_before = 0.0f;
 
+// wall side pd gain
+static float wall_p = 0.0f;
+static float wall_i = 0.0f;
+
 // maze update flag 
 static int8_t maze_wall_update_flag = 0;
 static int8_t maze_update_flag = 0;
+
+void setSearchGain( void )
+{
+  // speed Gain
+  // 直線用
+  speed_p = 1.5f;
+  speed_i = 0.7f;
+
+  // 超信地旋回用
+  speed_turn_p = 0.45f;
+  speed_turn_d = 0.1f;
+
+  // yawrate gain
+  // gyro 直線用
+  gyro_p = 0.30f;
+  gyro_d = 0.1f;
+
+  // gyro turn,slarom 用
+  gyro_turn_p = 5.0f;
+  gyro_turn_i = 0.9f;
+  gyro_turn_d = 25.0f;
+
+  // wall side pd gain
+  wall_p = 0.35f;
+  wall_i = 0.1f;
+}
 
 // 距離、角度などモーションに必要なものを更新しておく
 void resetMotion( void )
@@ -90,8 +138,11 @@ void updateTargetVelocity( void )
     omega = 0.0f;
   }
 
+  // 距離に関して最短走行のときは理論値ではなく実走行距離を目標値に代入にしたいなあって。
   distance += v * dt;     // 理論値から距離を積算する
+  
   rad += omega * dt;      // 理論値から角度を積算する
+  
 
   rad_target += omega * dt;   // 角度の目標値毎回リセットしないため積算をし続けておく
 
@@ -103,6 +154,7 @@ void updateTargetVelocity( void )
   v_previous = v;           
 
   // to do 壁切れ補正
+  
   //wallOutCorrection();
 
   // to do 迷路の更新タイミングを教える
@@ -112,9 +164,13 @@ void updateTargetVelocity( void )
   }
 }
 
-void wallOutCorrection( void )
+void wallOutStraightCorrection( void )
 {
-
+  if ( checkNowMotion() == straight && motion_distance == 180.0f ){
+    // to do 左壁を読んだら左の壁切れをチェックするようになる
+    // to do 右側も同様に
+    // to do きれたら distance = 90.0mm に固定
+  }
 }
 
 void setMazeWallUpdate( int8_t _able )
@@ -192,13 +248,13 @@ float updateVelocityAccele( float measured )
 
   // 超信地旋回のときはゲインを変更
   if ( checkNowMotion() == turn ){
-    feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, 0.45f, 0.0f, 0.1f, 15.0f );
+    feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, speed_turn_p, 0.0f, speed_turn_d, 15.0f );
   } else {
-    feedback_accele = PID( v, measured, &v_sum, &v_old, 1.5f, 0.6f, 0.0f, 50.0f );
+    feedback_accele = PID( v, measured, &v_sum, &v_old, speed_p, speed_i, 0.0f, 50.0f );
   }
 
-  log_v = measured;
-  log_v_target = v;
+  log_v = (int16_t)measured;
+  log_v_target = (int16_t)v;
 
   if ( checkNowMotion() == no_control ){
     velocity_accele = 0.0f;
@@ -218,13 +274,13 @@ float updateAngularAccele( void )
 
   // 直進と直進以外でゲインを変化させる
   if ( checkNowMotion() == straight ){
-    feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, 0.30f, 0.0f, 0.1f, 15.0f );
-    feedback_wall = wallSidePD( 0.35f, 0.1f, 15.0f );
+    feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, gyro_p, 0.0f, gyro_d, 15.0f );
+    feedback_wall = wallSidePD( wall_p, wall_i, 15.0f );
   } else {
-    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, 5.0f, 0.9f, 25.0f, 50.0f );
+    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, gyro_turn_p, gyro_turn_i, gyro_turn_d, 50.0f );
   }
 
-  log_omega = gyro_z_measured;
+  log_omega = (int16_t)gyro_z_measured;
   log_rad = (int16_t)machine_rad;
   log_rad_target = (int16_t)rad_target; 
   

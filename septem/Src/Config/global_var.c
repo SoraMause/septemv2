@@ -34,7 +34,7 @@ Logger logger;
 // 外部ファイルから値を回収する用のグローバル変数
 int16_t log_v_target;
 int16_t log_v;
-float log_omega;
+int16_t log_omega;
 int16_t log_rad_target;
 int16_t log_rad;
 float log_batt;

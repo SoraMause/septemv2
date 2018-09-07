@@ -43,7 +43,7 @@ void showLog( void )
   if( logger_flag == 1 ) logger_flag = 0;
   printf( "v_target, v, omega, rad_target, rad, sensor fl, sl, sr, fr\r\n");  
   for ( int i = 0; i < cnt_log; i++ ){
-      printf( "%d,%d,%f,%d,%d,%d,%d,%d,%d,%f\r\n", 
+      printf( "%d,%d,%d,%d,%d,%d,%d,%d,%d,%f\r\n", 
       logger.v_target[i],logger.v[i],logger.omega[i],logger.rad_target[i],logger.rad[i],
       logger.sensor_fl[i], logger.sensor_sl[i], logger.sensor_sr[i], logger.sensor_fr[i],
       logger.batt[i]  );

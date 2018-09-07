@@ -70,7 +70,8 @@ void update_sidesensorH_data( void );
 void update_sidesensorL_data( void );
 void update_frontsensorH_data( void );
 void update_frontsensorL_data( void );
-void update_sensor_data( void );
+void update_side_sensor_data( void );
+void update_front_sensor_data( void );
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

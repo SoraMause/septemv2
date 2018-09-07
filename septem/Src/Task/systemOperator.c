@@ -11,6 +11,10 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+
+// arm libraly 
+#include "arm_math.h"
+
 // standard libraly
 #include <stdio.h>
 #include <stdint.h>
@@ -138,6 +142,7 @@ void MauseSystem( void )
 
     case 13:
       if ( MPU6500_calc_check() == 1 ){
+        setSearchGain();
         fullColorLedOut( LED_GREEN );
         HAL_Delay( 1000 );
         fullColorLedOut( LED_CYAN );

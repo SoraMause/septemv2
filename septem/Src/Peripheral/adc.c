@@ -429,25 +429,13 @@ void update_frontsensorL_data( void )
 }
 
 ///////////////////////////////////////////////////////////////////////
-// update sensor data
+// update side sensor data
 // [argument] nothing
 // [Substitutiong] sensor[4]
 // [return] nothing
 ///////////////////////////////////////////////////////////////////////
-void update_sensor_data( void )
+void update_side_sensor_data( void )
 {
-  
-  // sensor値の補正�?える�?
-  sensor[0] = sensorH[0] - sensorL[0];  // Measures against external light
-
-  if ( sensor[0] <= 1900 ){
-    sensor_frontr.is_wall = 0;
-  } else {
-    sensor_frontr.is_wall = 1;
-  }
-
-  log_sensorfr = sensor[0];       // log buff
-
   sensor[1] = sensorH[1] - sensorL[1];  // Measures against external light
 
   if ( sensor[1] <= 1500 ){
@@ -468,6 +456,30 @@ void update_sensor_data( void )
 
   log_sensorsl = sensor[2];     // log buff
 
+  sensor_sider.error = sensor[1] - 1700;
+  sensor_sidel.error = sensor[2] - 1860;
+
+}
+
+///////////////////////////////////////////////////////////////////////
+// update front sensor data
+// [argument] nothing
+// [Substitutiong] sensor[4]
+// [return] nothing
+///////////////////////////////////////////////////////////////////////
+void update_front_sensor_data( void )
+{
+  
+  sensor[0] = sensorH[0] - sensorL[0];  // Measures against external light
+
+  if ( sensor[0] <= 1900 ){
+    sensor_frontr.is_wall = 0;
+  } else {
+    sensor_frontr.is_wall = 1;
+  }
+
+  log_sensorfr = sensor[0];       // log buff
+
   sensor[3] = sensorH[3] - sensorL[3];  // Measures against external light
 
   if ( sensor[3] <= 2000 ){
@@ -478,13 +490,11 @@ void update_sensor_data( void )
 
   log_sensorfl = sensor[3];     // log buff
 
-  sensor_sider.error = sensor[1] - 1700;
-  sensor_sidel.error = sensor[2] - 1860;
-
   //sensor_frontr.error = sensor[0] - 2300;
   //sensor_frontr.error = sensor[3] - 2300;
 
 }
+
 
 /* USER CODE END 1 */
 
