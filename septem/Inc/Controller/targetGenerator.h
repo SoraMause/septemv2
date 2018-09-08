@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 void setSearchGain( void );
+void setFastGain( void );
 
 void resetMotion( void );
 void resetRadParam( void );

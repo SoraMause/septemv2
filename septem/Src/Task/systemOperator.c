@@ -275,6 +275,7 @@ void MauseSystem( void )
         HAL_Delay( 300 );
         mazePosition_init();  // マシンの座標状況を初期化
         fullColorLedOut( LED_YELLOW );
+        setFastGain();
         MPU6500_z_axis_offset_calc_start();
         changePattern( 42 );
       }

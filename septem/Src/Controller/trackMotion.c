@@ -134,7 +134,7 @@ void updateMotion( void )
         fullColorLedOut( LED_RED );
         certainLedOut( LED_FRONT );
         setControlWallPD( 1 );
-        speedTrapezoid( fast_path[head].distance, 16.0f, fast_path[head].speed, fast_path[head].start_speed, fast_path[head].end_speed );
+        speedTrapezoid( fast_path[head].distance, 8.0f, fast_path[head].speed, fast_path[head].start_speed, fast_path[head].end_speed );
         head++;
         break;
 
@@ -171,7 +171,7 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
-        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.5f, 21.5f );
+        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 22.5f, 23.0f );
         head++;
         break;
 
@@ -181,7 +181,7 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
-        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 21.5f );
+        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 22.5f, 23.0f );
         head++;
         break;
 

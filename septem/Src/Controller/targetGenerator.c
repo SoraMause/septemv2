@@ -3,12 +3,13 @@
 #include "config.h"
 #include "global_var.h"
 
+// common
+#include "buzzer.h"
+
 // controller
 #include "trackMotion.h"
 #include "motion.h"
 #include "PIDController.h"
-
-
 
 // motion 用変数
 static float v = 0.0f;                 // 速度
@@ -63,6 +64,11 @@ static float wall_i = 0.0f;
 static int8_t maze_wall_update_flag = 0;
 static int8_t maze_update_flag = 0;
 
+// 壁フラグ関連
+static int8_t left_check_flag = 0;
+static int8_t right_check_flag = 0;
+static int8_t wall_out_flag = 0;
+
 void setSearchGain( void )
 {
   // speed Gain
@@ -89,6 +95,32 @@ void setSearchGain( void )
   wall_i = 0.1f;
 }
 
+void setFastGain( void )
+{
+  // speed Gain
+  // 直線用
+  speed_p = 2.0f;
+  speed_i = 1.0f;
+
+  // 超信地旋回用
+  speed_turn_p = 0.45f;
+  speed_turn_d = 0.1f;
+
+  // yawrate gain
+  // gyro 直線用
+  gyro_p = 0.15f;
+  gyro_d = 0.1f;
+
+  // gyro turn,slarom 用
+  gyro_turn_p = 5.0f;
+  gyro_turn_i = 0.9f;
+  gyro_turn_d = 25.0f;
+
+  // wall side pd gain
+  wall_p = 0.15f;
+  wall_i = 0.1f;
+}
+
 // 距離、角度などモーションに必要なものを更新しておく
 void resetMotion( void )
 {
@@ -102,6 +134,11 @@ void resetMotion( void )
   // pid gain reset
   gyro_sum = 0.0f;
   gyro_old = 0.0f;
+
+  // flag のリセット
+  wall_out_flag = 0;
+  left_check_flag = 0;
+  right_check_flag = 0;
 
 }
 
@@ -155,7 +192,7 @@ void updateTargetVelocity( void )
 
   // to do 壁切れ補正
   
-  //wallOutCorrection();
+  wallOutStraightCorrection();
 
   // to do 迷路の更新タイミングを教える
   if ( maze_wall_update_flag == 1 && distance >= motion_distance - 10.0f ){
@@ -167,9 +204,27 @@ void updateTargetVelocity( void )
 void wallOutStraightCorrection( void )
 {
   if ( checkNowMotion() == straight && motion_distance == 180.0f ){
-    // to do 左壁を読んだら左の壁切れをチェックするようになる
-    // to do 右側も同様に
-    // to do きれたら distance = 90.0mm に固定
+    if ( wall_out_flag == 0 ){
+      // to do 壁を読んだら左の壁切れをチェックするようになる
+      if ( sensor_sidel.is_wall == 1 ) left_check_flag = 1;
+      if ( sensor_sider.is_wall == 1 ) right_check_flag = 1;
+      // to do きれたら distance = 90.0mm に固定
+      if ( distance > 70.0f && distance < 110.0 ){
+        if ( left_check_flag == 1 && sensor_sidel.is_wall == 0 ){
+          distance = 90.0f;
+          wall_out_flag = 1; 
+          buzzerSetMonophonic( C_SCALE, 200 );
+        } 
+
+        if ( right_check_flag == 1 && sensor_sider.is_wall == 0 ){
+          distance = 90.0f;
+          wall_out_flag = 1;
+          buzzerSetMonophonic( C_SCALE, 200 );
+        }
+      }
+
+    } 
+
   }
 }
 
