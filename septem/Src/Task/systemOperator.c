@@ -11,10 +11,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-
-// arm libraly 
-#include "arm_math.h"
-
 // standard libraly
 #include <stdio.h>
 #include <stdint.h>
@@ -142,7 +138,6 @@ void MauseSystem( void )
 
     case 13:
       if ( MPU6500_calc_check() == 1 ){
-        setSearchGain();
         fullColorLedOut( LED_GREEN );
         HAL_Delay( 1000 );
         fullColorLedOut( LED_CYAN );
@@ -275,7 +270,6 @@ void MauseSystem( void )
         HAL_Delay( 300 );
         mazePosition_init();  // マシンの座標状況を初期化
         fullColorLedOut( LED_YELLOW );
-        setFastGain();
         MPU6500_z_axis_offset_calc_start();
         changePattern( 42 );
       }

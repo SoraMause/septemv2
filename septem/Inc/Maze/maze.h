@@ -3,15 +3,14 @@
 #define __MAZE_H
 
 #include <stdint.h>
-// maze size 0 ~ 15
+
 #define MAZE_SIZE_X   15
 #define MAZE_SIZE_Y   15
 
 #define MAZE_START_X  0
 #define MAZE_START_Y  0
-
-#define MAZE_GOAL_X   1
-#define MAZE_GOAL_Y   0
+#define MAZE_GOAL_X   3
+#define MAZE_GOAL_Y   3
 
 #define MAX_STEP      65535
 
