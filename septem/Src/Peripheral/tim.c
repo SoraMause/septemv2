@@ -47,6 +47,8 @@
 TIM_MasterConfigTypeDef sMasterConfig;
 TIM_OC_InitTypeDef sConfigOC;
 
+static int32_t buzzer_period_buff = 0;
+
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim1;
@@ -595,16 +597,19 @@ void motorControl( int pwm_l , int pwm_r )
 ///////////////////////////////////////////////////////////////////////
 void buzzerPwmOut( uint32_t pwm, uint32_t period ) 
 {
+  if ( buzzer_period_buff != period ){
+    htim2.Instance = TIM2;
+    htim2.Init.Prescaler = period;
+    htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim2.Init.Period = 99;
+    htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
+    {
+      _Error_Handler(__FILE__, __LINE__);
+    }
+    buzzer_period_buff = period;
+  } 
 
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = period;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 99;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;

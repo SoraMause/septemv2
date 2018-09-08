@@ -34,6 +34,10 @@
 #include "agent.h"
 
 static int16_t pattern = 0;
+static uint8_t next_dir = front;
+static uint8_t return_flag = 0;
+static uint8_t gx = 0;
+static uint8_t gy = 0;
 
 void changePattern( int16_t _pattern )
 {
@@ -42,7 +46,6 @@ void changePattern( int16_t _pattern )
 
 void MauseSystem( void )
 {
-  uint8_t next_dir = front;
 
   switch( pattern ){
     case 0:
@@ -71,7 +74,39 @@ void MauseSystem( void )
       break;
 
     case 100:
+      if ( getLeftPushsw() ){
+        fullColorLedOut( LED_WHITE );
+        changePattern( 101 );
+      }
       printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",sensor[0], sensor[1], sensor[2], sensor[3] );
+      break;
+
+    case 101:
+      if ( sensor[0] > 3300 && sensor[3] > 3300 ){
+        MPU6500_z_axis_offset_calc_start();
+        changePattern( 102 ); 
+      }
+      break;
+
+    case 102:
+      if ( MPU6500_calc_check() == 1 ){
+        setSearchGain();
+        fullColorLedOut( LED_GREEN );
+        HAL_Delay( 1000 );
+        fullColorLedOut( LED_CYAN );
+        HAL_Delay( 1000 );
+        pushMotion( ADJ_FRONT );
+        pushMotion( ONE_BLOCK_CHECK );
+        pushMotion( SLAROM_LEFT );
+        pushMotion( ONE_BLOCK );
+        pushMotion( HALF_BLOCK_STOP );
+        setLogFlag( 1 );
+        setMotionEnd( 1 );
+        setControl( 1 );
+        fullColorLedOut( LED_OFF );
+        setIrledPwm( IRLED_ON );
+        changePattern( 43 );
+      }
       break;
 
     //---------------------------------------------------------------
@@ -82,18 +117,18 @@ void MauseSystem( void )
       // 探索モードへ
       if ( getLeftPushsw() ){
         buzzerSetMonophonic( E_SCALE, 100 );
-        HAL_Delay( 100 );
+        HAL_Delay( 150 );
         buzzerSetMonophonic( E_SCALE, 100 );
-        HAL_Delay( 100 );
+        HAL_Delay( 150 );
         changePattern( 11 );
       }
 
       // 最短走行モードへ
       if ( getRightPushsw() && maze_store.save_flag == 1 ){
         buzzerSetMonophonic( C_SCALE, 100 );
-        HAL_Delay( 100 );
+        HAL_Delay( 150 );
         buzzerSetMonophonic( C_SCALE, 100 );
-        HAL_Delay( 100 );
+        HAL_Delay( 150 );
         mazeSubstituteData();
         changePattern( 40 );
       }
@@ -119,8 +154,10 @@ void MauseSystem( void )
       break;
     
     case 12:
+      if ( getRightPushsw() ) return_flag = 1;
       fullColorLedOut( LED_MAGENTA );
-      if ( sensor[0] > 2000 && sensor[3] > 2000 ){
+      if ( sensor[0] > 3300 && sensor[3] > 3300 ){
+        setSearchGain();
         setIrledPwm( IRLED_OFF );
         fullColorLedOut( LED_CYAN );
         buzzerSetMonophonic( A_SCALE, 200 );
@@ -129,7 +166,9 @@ void MauseSystem( void )
         mazeWall_init();  // 壁情報を初期化
         mazeStore_init(); // store data を初期化
         motion_init();      // queueの中身をからにする
-        mazeUpdateMap( MAZE_GOAL_X, MAZE_GOAL_Y, MASK_SEARCH );
+        gx = MAZE_GOAL_X;
+        gy = MAZE_GOAL_Y;
+        mazeUpdateMap( gx, gy, MASK_SEARCH );
         fullColorLedOut( LED_YELLOW );
         MPU6500_z_axis_offset_calc_start();
         changePattern( 13 );
@@ -159,7 +198,7 @@ void MauseSystem( void )
       if ( checkMazeUpdateFlag() == 1 ){
         certainMazeUpdateFlag();
         mazeSetWall( mypos.x, mypos.y );
-        mazeUpdateMap( MAZE_GOAL_X, MAZE_GOAL_Y, MASK_SEARCH );
+        mazeUpdateMap( gx, gy, MASK_SEARCH );
         next_dir = getNextdir( MASK_SEARCH );
         switch( next_dir ){
           case front:
@@ -186,20 +225,27 @@ void MauseSystem( void )
         }
         maze.search[mypos.x][mypos.y] = 1;
         mazeUpdatePosition( next_dir );
-        if ( mypos.x == MAZE_GOAL_X && mypos.y == MAZE_GOAL_Y ){
+        if ( mypos.x == gx && mypos.y == gy ){
           changePattern( 21 );
         }
       }
       break;
 
     case 21:
-      pushMotion( HALF_BLOCK_STOP );
-      maze.search[mypos.x][mypos.y] = 1;
-      pushMotion( DELAY );
-      pushMotion( END_MOTION );
-      certainMazeUpdateFlag();
-      //mazeSetWall( mypos.x, mypos.y );
-      changePattern( 22 );
+      if ( checkMazeUpdateFlag() == 1 ){
+        maze.search[mypos.x][mypos.y] = 1;
+        mazeSetWall( mypos.x, mypos.y );
+        pushMotion( HALF_BLOCK_STOP );
+        pushMotion( DELAY );
+        if ( return_flag == 0 ){
+          pushMotion( ROTATION );
+          pushMotion( DELAY );
+          pushMotion( ADJ_BACK );
+        }
+        pushMotion( END_MOTION );
+        certainMazeUpdateFlag();
+        changePattern( 22 );
+      }
       break;
 
     case 22:
@@ -223,6 +269,28 @@ void MauseSystem( void )
       break;
 
     case 24:
+      if ( return_flag == 1 ){
+        changePattern( 26 );
+      } else {
+        changePattern( 25 );
+      }
+      break;
+
+    case 25:
+      buzzerSetMonophonic( G_SCALE, 100 );
+      HAL_Delay( 150 );
+      buzzerSetMonophonic( G_SCALE, 100 );
+      motion_init();
+      mazeInvertedDirection();
+      gx = MAZE_START_X;
+      gy = MAZE_START_Y;
+      mazeUpdateMap( gx, gy, MASK_SEARCH );
+      MPU6500_z_axis_offset_calc_start();
+      return_flag = 1;
+      changePattern( 13 );
+      break;
+
+    case 26:
       if ( getLeftPushsw() ){
         certainLedOut( LED_FRONT );
         mazeUpdateMap( MAZE_GOAL_X, MAZE_GOAL_Y, MASK_SHORT );
@@ -263,7 +331,8 @@ void MauseSystem( void )
 
     case 41:
       fullColorLedOut( LED_MAGENTA );
-      if ( sensor[0] > 2000 && sensor[3] > 2000 ){
+      if ( sensor[0] > 3300 && sensor[3] > 3300 ){
+        setFastGain();
         setIrledPwm( IRLED_OFF );
         fullColorLedOut( LED_CYAN );
         buzzerSetMonophonic( G_SCALE, 200 );

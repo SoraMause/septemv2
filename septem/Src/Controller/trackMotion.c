@@ -15,6 +15,7 @@ void motion_init( void )
 {
   head = 0;
   last = 0;
+  end_flag = 0;
   for ( int i = 0; i < 4096; i++ ){
     motion_queue[i] = no_control;
   }
@@ -95,7 +96,7 @@ void updateMotion( void )
         motion = straight;
         fullColorLedOut( LED_BLUE );
         certainLedOut( LED_OFF );
-        setControlWallPD( 1 );
+        //setControlWallPD( 1 );
         setMazeWallUpdate( 1 ); 
         speedTrapezoid( 180.0f, 4.0f, 500.0f, 500.0f, 500.0f );
         head++;

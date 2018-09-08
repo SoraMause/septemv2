@@ -175,6 +175,8 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
               if ( fast_path[i].speed > 2000.0f ) fast_path[i].speed = 2000.0f;
             } else if ( path[i] == 0 ){
               fast_path[i].speed = 500.0f;
+            } else {
+              fast_path[i].speed = 700.0f;
             }
             fast_path[i].end_speed = 500.0f;
         } else {
@@ -210,15 +212,19 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
     }
 
     // 最後に半区画ストップを入れておく
-    if (motion_queue[path_number-1] != SET_STRAIGHT ) path_number++;
-    motion_queue[path_number] = SET_STRAIGHT;
-    fast_path[path_number].distance = HALF_BLOCK_DISTANCE;
-    fast_path[path_number].start_speed = fast_path[path_number-1].end_speed;
-    fast_path[path_number].speed = 500.0f;
-    fast_path[path_number].end_speed = 0.0f;
-    path_number++;
-    motion_queue[path_number] = DELAY;
-    path_number++;
+    if (motion_queue[path_number-1] == SET_STRAIGHT ) {
+      fast_path[path_number-1].distance = HALF_BLOCK_DISTANCE;
+      fast_path[path_number-1].start_speed = fast_path[path_number-1].end_speed;
+      fast_path[path_number-1].speed = 500.0f;
+      fast_path[path_number-1].end_speed = 0.0f;
+    } else {
+      motion_queue[path_number] = SET_STRAIGHT;
+      fast_path[path_number].distance = HALF_BLOCK_DISTANCE;
+      fast_path[path_number].start_speed = fast_path[path_number-1].end_speed;
+      fast_path[path_number].speed = 500.0f;
+      fast_path[path_number].end_speed = 0.0f;
+      path_number++;
+    }
     motion_queue[path_number] = END_MOTION;
     path_number++;
 

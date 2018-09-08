@@ -440,7 +440,7 @@ void update_sensor_data( void )
   // sensor値の補正�?える�?
   sensor[0] = sensorH[0] - sensorL[0];  // Measures against external light
 
-  if ( sensor[0] <= 1900 ){
+  if ( sensor[0] <= 2800 ){
     sensor_frontr.is_wall = 0;
   } else {
     sensor_frontr.is_wall = 1;
@@ -450,7 +450,7 @@ void update_sensor_data( void )
 
   sensor[1] = sensorH[1] - sensorL[1];  // Measures against external light
 
-  if ( sensor[1] <= 1500 ){
+  if ( sensor[1] <= 2100 ){
     sensor_sider.is_wall = 0;
   } else {
     sensor_sider.is_wall = 1;
@@ -460,7 +460,7 @@ void update_sensor_data( void )
 
   sensor[2] = sensorH[2] - sensorL[2];  // Measures against external light
 
-  if ( sensor[2] <= 1700 ){
+  if ( sensor[2] <= 2700 ){
     sensor_sidel.is_wall = 0;
   } else {
     sensor_sidel.is_wall = 1;
@@ -470,7 +470,7 @@ void update_sensor_data( void )
 
   sensor[3] = sensorH[3] - sensorL[3];  // Measures against external light
 
-  if ( sensor[3] <= 2000 ){
+  if ( sensor[3] <= 2900 ){
     sensor_frontl.is_wall = 0;
   } else {
     sensor_frontl.is_wall = 1;
@@ -478,8 +478,8 @@ void update_sensor_data( void )
 
   log_sensorfl = sensor[3];     // log buff
 
-  sensor_sider.error = sensor[1] - 1700;
-  sensor_sidel.error = sensor[2] - 1860;
+  sensor_sider.error = sensor[1] - 2600;
+  sensor_sidel.error = sensor[2] - 2900;
 
   //sensor_frontr.error = sensor[0] - 2300;
   //sensor_frontr.error = sensor[3] - 2300;
