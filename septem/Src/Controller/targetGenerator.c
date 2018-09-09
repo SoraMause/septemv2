@@ -41,6 +41,8 @@ static float gyro_old = 0.0f;
 static float gyro_sum2 = 0.0f;
 
 // yawrate gain
+static float gyro_p = 0.0f;
+static float gyro_d = 0.0f;
 
 // turn,slarom 用
 static float gyro_turn_p = 0.0f;
@@ -80,19 +82,21 @@ void setSearchGain( void )
   speed_turn_d = 7.0f;
 
   // yawrate gain
+  gyro_p = 10.0f;
+  gyro_d = 5.0f;
 
   // gyro turn,slarom 用
   //gyro_turn_p = 35.0f;    // 宴会芸
   //gyro_turn_i = 0.5f;     // 宴会芸
   //gyro_turn_d = 60.0f;    // 宴会芸
   // gyro turn,slarom 用
-  gyro_turn_p = 15.0f;
+  gyro_turn_p = 17.0f;
   gyro_turn_i = 500.0f;
-  gyro_turn_i2 = 1000.0f;
+  gyro_turn_i2 = 900.0f;
   gyro_turn_d = 70.0f;
 
   // wall side pd gain
-  wall_p = 10.0f;
+  wall_p = 0.0f;
   wall_d = 0.0f;
 }
 
@@ -108,13 +112,15 @@ void setFastGain( void )
   speed_turn_d = 7.0f;
 
   // yawrate gain
+  gyro_p = 10.0f;
+  gyro_d = 50.0f;
 
   // gyro turn,slarom 用
   //gyro_turn_p = 35.0f;    // 宴会芸
   //gyro_turn_i = 0.5f;     // 宴会芸
   //gyro_turn_d = 60.0f;    // 宴会芸
   // gyro turn,slarom 用
-  gyro_turn_p = 15.0f;
+  gyro_turn_p = 16.0f;
   gyro_turn_i = 500.0f;
   gyro_turn_i2 = 1000.0f;
   gyro_turn_d = 70.0f;
@@ -137,6 +143,7 @@ void resetMotion( void )
   // pid gain reset
   gyro_sum = 0.0f;
   gyro_old = 0.0f;
+  gyro_sum2 = 0.0f;
 
   left_check_flag = 0;
   right_check_flag = 0;
@@ -326,10 +333,13 @@ float updateAngularAccele( void )
   float feedback_angular_accele = 0.0f; //角度のフィードバック
   float feedback_wall = 0.0f;
 
-  feedback_wall = wallSidePD( wall_p, wall_d, 3000.0f );
-  feedback_angular_accele = PID2( omega, gyro_z_measured, rad_target, machine_rad, &gyro_sum, &gyro_old,&gyro_sum2, 
+  if ( checkNowMotion() == straight ){
+    feedback_angular_accele = PID( 0.0f, gyro_z_measured, &gyro_sum, &gyro_old, gyro_p, 0.0f, gyro_d, 3000.0f );
+    feedback_wall = wallSidePD( wall_p, wall_d, 3000.0f );
+  } else {
+    feedback_angular_accele = PID2( omega, gyro_z_measured, rad_target, machine_rad, &gyro_sum, &gyro_old,&gyro_sum2, 
                                     gyro_turn_p, gyro_turn_i, gyro_turn_d,gyro_turn_i2, 10000.0f );
-  
+  }
 
   log_omega_target = (int16_t)omega;
   log_omega = (int16_t)gyro_z_measured;

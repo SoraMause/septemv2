@@ -9,8 +9,8 @@
 
 #define MAZE_START_X  0
 #define MAZE_START_Y  0
-#define MAZE_GOAL_X   3
-#define MAZE_GOAL_Y   3
+#define MAZE_GOAL_X   1
+#define MAZE_GOAL_Y   0
 
 #define MAX_STEP      65535
 

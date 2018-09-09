@@ -83,7 +83,7 @@ void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -263,7 +263,7 @@ void update_sidesensorH_data( void )
 {
   //read object
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
   sConfig.Channel = ADC_CHANNEL_1;  // channel set
   HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
   HAL_ADC_Start( &hadc1 );     // ad convert start
@@ -290,7 +290,7 @@ void update_frontsensorH_data( void )
 {
   //read object
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
   
   sConfig.Channel = ADC_CHANNEL_0;  // channel set
   HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
@@ -318,7 +318,7 @@ void update_sidesensorL_data( void )
 {
   //read object
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
 
   sConfig.Channel = ADC_CHANNEL_1;  // channel set
   HAL_ADC_ConfigChannel( &hadc1, &sConfig );  // setting store
@@ -346,7 +346,7 @@ void update_frontsensorL_data( void )
 {
   //read object
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
   
   sConfig.Channel = ADC_CHANNEL_0;  // channel set
   HAL_ADC_Start( &hadc1 );     // ad convert start
@@ -374,7 +374,7 @@ void update_sensor_data( void )
   // sensor値の補正?��?える?��?
   sensor[0] = sensorH[0] - sensorL[0];  // Measures against external light
 
-  if ( sensor[0] <= 2800 ){
+  if ( sensor[0] <= 780 ){
     sensor_frontr.is_wall = 0;
   } else {
     sensor_frontr.is_wall = 1;
@@ -384,7 +384,7 @@ void update_sensor_data( void )
 
   sensor[1] = sensorH[1] - sensorL[1];  // Measures against external light
 
-  if ( sensor[1] <= 2100 ){
+  if ( sensor[1] <= 590 ){
     sensor_sider.is_wall = 0;
   } else {
     sensor_sider.is_wall = 1;
@@ -394,7 +394,7 @@ void update_sensor_data( void )
 
   sensor[2] = sensorH[2] - sensorL[2];  // Measures against external light
 
-  if ( sensor[2] <= 2700 ){
+  if ( sensor[2] <= 690 ){
     sensor_sidel.is_wall = 0;
   } else {
     sensor_sidel.is_wall = 1;
@@ -404,7 +404,7 @@ void update_sensor_data( void )
 
   sensor[3] = sensorH[3] - sensorL[3];  // Measures against external light
 
-  if ( sensor[3] <= 2900 ){
+  if ( sensor[3] <= 810 ){
     sensor_frontl.is_wall = 0;
   } else {
     sensor_frontl.is_wall = 1;

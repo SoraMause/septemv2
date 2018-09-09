@@ -172,7 +172,7 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
-        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.5f, 22.0f );
+        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.0f, 23.0f );
         head++;
         break;
 
@@ -182,7 +182,7 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
-        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 22.0f );
+        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 24.0f, 22.0f );
         head++;
         break;
 
@@ -191,7 +191,7 @@ void updateMotion( void )
         fullColorLedOut( LED_CYAN );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
-        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.5f, 21.5f );
+        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.0f, 23.0f );
         head++;
         break;
 
@@ -200,7 +200,7 @@ void updateMotion( void )
         fullColorLedOut( LED_MAGENTA );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
-        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 21.5f );
+        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 24.0f, 22.0f );
         head++;
         break;
 

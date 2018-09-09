@@ -57,7 +57,7 @@ void MauseSystem( void )
       if ( batt_monitor < 7.4f ) fullColorLedOut( LED_RED );
       else fullColorLedOut( LED_BLUE );
 
-      //printf( "batt_monitor = %f\r", batt_monitor );
+      printf( "batt_monitor = %f\r", batt_monitor );
 
       if ( getLeftPushsw() ){
         buzzerSetMonophonic( F_SCALE, 200 );
@@ -86,7 +86,7 @@ void MauseSystem( void )
       break;
 
     case 101:
-      if ( sensor[0] > 3300 && sensor[3] > 3300 ){
+      if ( sensor[0] > 750 && sensor[3] > 750 ){
         MPU6500_z_axis_offset_calc_start();
         changePattern( 102 ); 
       }
@@ -101,8 +101,17 @@ void MauseSystem( void )
         buzzerSetMonophonic( E_SCALE, 300 );
         HAL_Delay( 1000 );
         pushMotion( HALF_BLOCK );
-        pushMotion( ONE_BLOCK_CHECK );
-        pushMotion( ONE_BLOCK_CHECK );
+        //pushMotion( ONE_BLOCK_CHECK );
+        //pushMotion( ONE_BLOCK_CHECK );
+        //pushMotion( HALF_BLOCK_STOP );
+        pushMotion( SEARCH_SLAROM_RIGHT );
+        pushMotion( SEARCH_SLAROM_RIGHT );
+        pushMotion( SEARCH_SLAROM_RIGHT );
+        pushMotion( SEARCH_SLAROM_RIGHT );
+        pushMotion( SEARCH_SLAROM_RIGHT );
+        pushMotion( SEARCH_SLAROM_RIGHT );
+        pushMotion( SEARCH_SLAROM_RIGHT );
+        pushMotion( SEARCH_SLAROM_RIGHT );
         pushMotion( HALF_BLOCK_STOP );
         pushMotion( DELAY );
         pushMotion( END_MOTION );
@@ -162,7 +171,7 @@ void MauseSystem( void )
     case 12:
       if ( getRightPushsw() ) return_flag = 1;
       fullColorLedOut( LED_MAGENTA );
-      if ( sensor[0] > 3300 && sensor[3] > 3300 ){
+      if ( sensor[0] > 750 && sensor[3] > 750 ){
         setSearchGain();
         setIrledPwm( IRLED_OFF );
         fullColorLedOut( LED_CYAN );
@@ -337,7 +346,7 @@ void MauseSystem( void )
 
     case 41:
       fullColorLedOut( LED_MAGENTA );
-      if ( sensor[0] > 3300 && sensor[3] > 3300 ){
+      if ( sensor[0] > 750 && sensor[3] > 750 ){
         setFastGain();
         setIrledPwm( IRLED_OFF );
         fullColorLedOut( LED_CYAN );
