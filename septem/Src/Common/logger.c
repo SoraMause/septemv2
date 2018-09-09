@@ -17,7 +17,7 @@ void updateLogger( void )
       logger.distance[cnt_log] = log_distance;
       logger.omega[cnt_log] = log_omega;
       logger.rad[cnt_log] = log_rad;
-      logger.rad_target[cnt_log] = log_rad_target;
+      logger.omega_target[cnt_log] = log_omega_target;
       logger.batt[cnt_log] = log_batt;
       logger.sensor_fl[cnt_log] = log_sensorfl;
       logger.sensor_sl[cnt_log] = log_sensorsl;
@@ -42,14 +42,14 @@ void setLogFlag( uint8_t _flag )
 void showLog( void )
 {
   if( logger_flag == 1 ) logger_flag = 0;
-  printf( "v_target, v, distance, omega, rad_target, rad, sensor fl, sl, sr, fr,batt\r\n");  
+  printf( "v_target, v, distance, omega_target, omega, rad, sensor fl, sl, sr, fr,batt\r\n");  
   for ( int i = 0; i < cnt_log; i++ ){
       printf( "%d,%d,%f,%d,%d,%d,%d,%d,%d,%d,%f\r\n", 
       logger.v_target[i],
       logger.v[i],
       logger.distance[i],
+      logger.omega_target[i],
       logger.omega[i],
-      logger.rad_target[i],
       logger.rad[i],
       logger.sensor_fl[i], 
       logger.sensor_sl[i], 

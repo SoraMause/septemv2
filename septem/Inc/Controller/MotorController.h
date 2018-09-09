@@ -9,7 +9,6 @@ typedef struct {
   int32_t right;
 }MotorDuty;
 
-void calcMotorConst( void );
 MotorDuty updateMotorDuty( void );
 Velocity updateMotorData( void );
 

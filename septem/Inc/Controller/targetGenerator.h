@@ -25,4 +25,9 @@ float wallSidePD( float kp, float kd, float maxim );
 float updateVelocityAccele( float measured );
 float updateAngularAccele( void );
 
+float PID( float target, float measurement, float *sum, float *old, float kp, 
+                    float ki, float kd, float maxim );
+                    
+float PID2( float target, float measurement, float target2, float measurement2,  float *sum, 
+            float *old, float *sum2, float kp, float ki, float kd, float ki2, float maxim );
 #endif /* __TARGETGENERATOR_H */

@@ -39,12 +39,11 @@
 #include "adc.h"
 #include "global_var.h"
 #include "function.h"
-
 #include "timer.h"
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef hdma_adc2;
 extern TIM_HandleTypeDef htim5;
 
 /******************************************************************************/
@@ -199,22 +198,19 @@ void TIM5_IRQHandler(void)
   /* USER CODE END TIM5_IRQn 0 */
   HAL_TIM_IRQHandler(&htim5);
   /* USER CODE BEGIN TIM5_IRQn 1 */
-  
-  // ir led process
   timer125++;
   switch(timer125){
     case 1:
-      update_sidesensorH_data();
-      irledSideOut( IRLED_OFF );
-      batt_buff[0] = battMonitor( batt_analog );
+      irledSideOut( IRLED_ON );
       break;
 
     case 2:
+      update_sidesensorH_data();
+      irledSideOut( IRLED_OFF );
       break;
 
     case 3:
       update_sidesensorL_data();
-      batt_buff[1] = battMonitor( batt_analog );
       break;
 
     case 4:
@@ -224,41 +220,21 @@ void TIM5_IRQHandler(void)
     case 5:
       update_frontsensorH_data();
       irledFrontOut( IRLED_OFF );
-      batt_buff[2]= battMonitor( batt_analog );
       break;
 
     case 6:
-      batt_monitor = ( batt_buff[0] + batt_buff[1] + batt_buff[2] + batt_buff[3] ) / 4.0f;
-      log_batt = batt_monitor;
       break;
 
     case 7:
       update_frontsensorL_data();
-      batt_buff[3] = battMonitor( batt_analog );
       break;
 
     case 8:
       update_sensor_data();
-      irledSideOut( IRLED_ON );
       timer125 = 0;
       break;
   } // end switch
-
   /* USER CODE END TIM5_IRQn 1 */
-}
-
-/**
-* @brief This function handles DMA2 stream2 global interrupt.
-*/
-void DMA2_Stream2_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA2_Stream2_IRQn 0 */
-
-  /* USER CODE END DMA2_Stream2_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_adc2);
-  /* USER CODE BEGIN DMA2_Stream2_IRQn 1 */
-
-  /* USER CODE END DMA2_Stream2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

@@ -54,7 +54,7 @@
 extern SPI_HandleTypeDef hspi2;
 
 /* USER CODE BEGIN Private defines */
-// MPU6500のレジスタマッ??��?��?
+// MPU6500のレジスタマッ???��?��??��?��?
 #define MPU6500_RA_SELF_TEST_X_GYRO	0x00
 #define MPU6500_RA_SELF_TEST_Y_GYRO	0x01
 #define MPU6500_RA_SELF_TEST_Z_GYRO	0x02
@@ -76,7 +76,7 @@ extern SPI_HandleTypeDef hspi2;
 #define MPU6500_RA_WOM_THR			0x1F
 #define MPU6500_RA_FIFO_EN			0x23
 // ...
-// 外部I2C周り�???��?��省略
+// 外部I2C周り�????��?��??��?��省略
 // ...
 #define MPU6500_RA_INT_PIN_CFG		0x37
 #define MPU6500_RA_INT_ENABLE		0x38
@@ -96,7 +96,7 @@ extern SPI_HandleTypeDef hspi2;
 #define MPU6500_RA_GYRO_ZOUT_H		0x47
 #define MPU6500_RA_GYRO_ZOUT_L		0x48
 // ...
-// 外部I2C周り�???��?��省略
+// 外部I2C周り�????��?��??��?��省略
 // ...
 #define MPU6500_RA_SIGNAL_PATH_RESET	0x68
 #define MPU6500_RA_MOT_DETECT_CTRL		0x69
@@ -115,7 +115,7 @@ extern SPI_HandleTypeDef hspi2;
 #define MPU6500_RA_ZA_OFFSET_L		0x7E
 
 #define MPU6500_DEVICE_ID			0x70
-// ジャイロのゲインがフルスケールで2000dpsの時�???��?��値
+// ジャイロのゲインがフルスケールで2000dpsの時�????��?��??��?��値
 #define GYRO_FACTOR  16.4f
 
 /* USER CODE END Private defines */

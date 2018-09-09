@@ -10,8 +10,6 @@
 #include "led.h"
 #include "buzzer.h"
 #include "flash.h"
-// controller
-#include "motorController.h"
 
 static float batt_calc_const = 0.0f;
 static uint8_t ctr_irled = 0;
@@ -30,15 +28,13 @@ void machine_init( void )
   HAL_Delay( 101 );
   certainLedOut( LED_OFF );
   fullColorLedOut( LED_OFF );
-  calcMotorConst();
   MPU6500_init();
   buzzerSetMonophonic( NORMAL, 100 );
   HAL_Delay( 100 );
   HAL_TIM_Encoder_Start( &htim3, TIM_CHANNEL_ALL ); // encoder
   HAL_TIM_Encoder_Start( &htim4, TIM_CHANNEL_ALL ); // encoder
   HAL_TIM_Base_Start_IT( &htim5 );
-  HAL_ADC_Start_DMA( &hadc2, (uint32_t *)&batt_analog,1 );
-  batt_calc_const = 3.3f / 960.0f;
+  batt_calc_const = 3.3f / 4096.0f * ( 1000.0f + 390.0f ) / 390.0f;
   //MPU6500_z_axis_offset_calc_start();
 }
 

@@ -12,7 +12,6 @@ extern float machine_rad;
 
 // sensor data
 extern int16_t batt_analog;
-extern float batt_buff[4];
 extern float batt_monitor;
 
 extern int16_t sensorL[4];
@@ -48,7 +47,7 @@ typedef struct {
   int16_t v[2048];
   float distance[2048];
   int16_t omega[2048];
-  int16_t rad_target[2048];
+  int16_t omega_target[2048];
   int16_t rad[2048];
   int16_t sensor_fl[2048];
   int16_t sensor_fr[2048];
@@ -63,7 +62,7 @@ extern Logger logger;
 extern int16_t log_v_target;
 extern int16_t log_v;
 extern int16_t log_omega;
-extern int16_t log_rad_target;
+extern int16_t log_omega_target;
 extern int16_t log_rad;
 extern float log_distance;
 extern float log_batt;

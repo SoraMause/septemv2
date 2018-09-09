@@ -71,7 +71,7 @@ void updateMotion( void )
       case HALF_BLOCK:
         motion = straight;
         setControlWallPD( 1 );
-        speedTrapezoid( 90.0f, 4.0f, 500.0f, 500.0f, 500.0f );
+        speedTrapezoid( 90.0f, 4.0f, 500.0f, 0.0f, 500.0f );
         head++;
         break;
       
@@ -117,7 +117,7 @@ void updateMotion( void )
         fullColorLedOut( LED_OFF );
         certainLedOut( LED_REAR );
         setControlWallPD( 1 );
-        speedTrapezoid( -60.0f, -4.0f, -300.0f, 0.0f, 0.0f );
+        speedTrapezoid( -55.0f, -4.0f, -300.0f, 0.0f, 0.0f );
         head++;
         break;
 
@@ -144,7 +144,7 @@ void updateMotion( void )
         certainLedOut( LED_REAR );
         motion = turn;
         setControlWallPD( 0 );
-        yawrateTrapezoid( 90.0f, 1540.0f, 360.0f );
+        yawrateTrapezoid( 90.0f, 1080.0f, 270.0f );
         head++;
         break;
 
@@ -153,7 +153,7 @@ void updateMotion( void )
         fullColorLedOut( LED_GREEN );
         certainLedOut( LED_OFF );
         setControlWallPD( 0 );
-        yawrateTrapezoid( -90.0f, -1540.0f, -360.0f );
+        yawrateTrapezoid( -90.0f, -1080.0f, -270.0f );
         head++;
         break;
 
@@ -162,7 +162,7 @@ void updateMotion( void )
         fullColorLedOut( LED_GREEN );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
-        yawrateTrapezoid( 180.0f, 1540.0f, 450.0f );
+        yawrateTrapezoid( 180.0f, 1080.0f, 360.0f );
         head++;
         break;
 
@@ -172,7 +172,7 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
-        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.5f, 21.5f );
+        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.5f, 22.0f );
         head++;
         break;
 
@@ -182,7 +182,7 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
-        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 21.5f );
+        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 22.0f );
         head++;
         break;
 
@@ -202,6 +202,14 @@ void updateMotion( void )
         setControlWallPD( 0 );
         setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 23.5f, 21.5f );
         head++;
+        break;
+
+      case ENKAIGEI:
+        motion = turn;
+        fullColorLedOut( LED_OFF );
+        certainLedOut( LED_BOTH );
+        setControlWallPD( 0 );
+        setMotionEnd( 0 );
         break;
 
       default:

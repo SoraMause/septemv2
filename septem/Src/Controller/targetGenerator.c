@@ -6,8 +6,6 @@
 
 #include "motion.h"
 
-#include "PIDController.h"
-
 #include "global_var.h"
 
 #include "buzzer.h"
@@ -40,15 +38,15 @@ static float speed_turn_d = 0.0f;
 // 角度のPID用変数
 static float gyro_sum = 0.0f;
 static float gyro_old = 0.0f;
+static float gyro_sum2 = 0.0f;
+
 // yawrate gain
-// 直線用
-static float gyro_p = 0.0f;
-static float gyro_d = 0.0f;
 
 // turn,slarom 用
 static float gyro_turn_p = 0.0f;
 static float gyro_turn_i = 0.0f;
 static float gyro_turn_d = 0.0f;
+static float gyro_turn_i2 = 0.0f;
 
 // 角度指定用の変数
 static float rad_target = 0.0f;
@@ -59,7 +57,7 @@ static int16_t sensor_error_before = 0.0f;
 
 // wall side pd gain
 static float wall_p = 0.0f;
-static float wall_i = 0.0f;
+static float wall_d = 0.0f;
 
 // maze update flag 
 static int8_t maze_wall_update_flag = 0;
@@ -74,52 +72,56 @@ void setSearchGain( void )
 {
   // speed Gain
   // 直線用
-  speed_p = 1.5f;
-  speed_i = 0.7f;
+  speed_p = 150.0f;
+  speed_i = 50.0f;
 
   // 超信地旋回用
-  speed_turn_p = 0.45f;
-  speed_turn_d = 0.1f;
+  speed_turn_p = 20.0f;
+  speed_turn_d = 7.0f;
 
   // yawrate gain
-  // gyro 直線用
-  gyro_p = 0.30f;
-  gyro_d = 0.1f;
 
   // gyro turn,slarom 用
-  gyro_turn_p = 5.0f;
-  gyro_turn_i = 0.9f;
-  gyro_turn_d = 25.0f;
+  //gyro_turn_p = 35.0f;    // 宴会芸
+  //gyro_turn_i = 0.5f;     // 宴会芸
+  //gyro_turn_d = 60.0f;    // 宴会芸
+  // gyro turn,slarom 用
+  gyro_turn_p = 15.0f;
+  gyro_turn_i = 500.0f;
+  gyro_turn_i2 = 1000.0f;
+  gyro_turn_d = 70.0f;
 
   // wall side pd gain
-  wall_p = 0.35f;
-  wall_i = 0.1f;
+  wall_p = 10.0f;
+  wall_d = 0.0f;
 }
 
 void setFastGain( void )
 {
   // speed Gain
   // 直線用
-  speed_p = 2.5f;
-  speed_i = 1.2f;
+  speed_p = 150.0f;
+  speed_i = 50.0f;
 
   // 超信地旋回用
-  speed_turn_p = 0.45f;
-  speed_turn_d = 0.1f;
+  speed_turn_p = 20.0f;
+  speed_turn_d = 7.0f;
 
   // yawrate gain
-  // gyro 直線用
-  gyro_p = 0.15f;
-  gyro_d = 0.1f;
 
   // gyro turn,slarom 用
-  gyro_turn_p = 5.0f;
-  gyro_turn_i = 0.9f;
-  gyro_turn_d = 25.0f;
+  //gyro_turn_p = 35.0f;    // 宴会芸
+  //gyro_turn_i = 0.5f;     // 宴会芸
+  //gyro_turn_d = 60.0f;    // 宴会芸
+  // gyro turn,slarom 用
+  gyro_turn_p = 15.0f;
+  gyro_turn_i = 500.0f;
+  gyro_turn_i2 = 1000.0f;
+  gyro_turn_d = 70.0f;
 
   // wall side pd gain
-  wall_p = 0.15f;
-  wall_i = 0.1f;
+  wall_p = 0.0f;
+  wall_d = 0.0f;
 }
 
 // 距離、角度などモーションに必要なものを更新しておく
@@ -153,6 +155,7 @@ void resetRadParam( void )
   // pid gain reset
   gyro_sum = 0.0f;
   gyro_old = 0.0f;
+  gyro_sum2 = 0.0f;
 
 }
 
@@ -173,7 +176,7 @@ void updateTargetVelocity( void )
     omega = slaromNext( distance, rad );
   } else {
     omega = 0.0f;
-  }
+  } 
 
   distance += v * dt;     // 理論値から距離を積算する
   rad += omega * dt;      // 理論値から角度を積算する
@@ -262,10 +265,10 @@ float wallSidePD( float kp, float kd, float maxim )
 
   error_buff = error;
 
-  if ( ( (error - sensor_error_before) > 300 ) || ( ( error - sensor_error_before ) < -300 ) ){
+  //if ( ( (error - sensor_error_before) > 500 ) || ( ( error - sensor_error_before ) < -500 ) ){
     // to do flag 一度制御をきる
-    error = 0;
-  } 
+    //error = 0;
+  //} 
 
   sensor_error_before = error_buff;
 
@@ -298,9 +301,9 @@ float updateVelocityAccele( float measured )
 
   // 超信地旋回のときはゲインを変更
   if ( checkNowMotion() == turn ){
-    feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, speed_turn_p, 0.0f, speed_turn_d, 15.0f );
+    feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, speed_turn_p, 0.0f, speed_turn_d, 4000.0f );
   } else {
-    feedback_accele = PID( v, measured, &v_sum, &v_old, speed_p, speed_i, 0.0f, 50.0f );
+    feedback_accele = PID( v, measured, &v_sum, &v_old, speed_p, speed_i, 0.0f, 12000.0f );
   }
 
   log_v = (int16_t)measured;
@@ -323,17 +326,14 @@ float updateAngularAccele( void )
   float feedback_angular_accele = 0.0f; //角度のフィードバック
   float feedback_wall = 0.0f;
 
-  // 直進と直進以外でゲインを変化させる
-  if ( checkNowMotion() == straight ){
-    feedback_angular_accele = PID( omega, gyro_z_measured, &gyro_sum, &gyro_old, gyro_p, 0.0f, gyro_d, 15.0f );
-    feedback_wall = wallSidePD( wall_p, wall_i, 15.0f );
-  } else {
-    feedback_angular_accele = PID( rad_target, machine_rad, &gyro_sum, &gyro_old, gyro_turn_p, gyro_turn_i, gyro_turn_d, 50.0f );
-  }
+  feedback_wall = wallSidePD( wall_p, wall_d, 3000.0f );
+  feedback_angular_accele = PID2( omega, gyro_z_measured, rad_target, machine_rad, &gyro_sum, &gyro_old,&gyro_sum2, 
+                                    gyro_turn_p, gyro_turn_i, gyro_turn_d,gyro_turn_i2, 10000.0f );
+  
 
+  log_omega_target = (int16_t)omega;
   log_omega = (int16_t)gyro_z_measured;
   log_rad = (int16_t)machine_rad;
-  log_rad_target = (int16_t)rad_target; 
   
   if ( checkNowMotion() == no_control || checkNowMotion() == delay ){
     angular_accele = 0.0f;
@@ -343,4 +343,93 @@ float updateAngularAccele( void )
     return angular_accele;
   }
 
+}
+
+///////////////////////////////////////////////////////////////////////
+// PID
+// [argument] (float)target,measurement,*sum,*old,kp,ki,kd,max,min
+// [Substitutiong] nothing
+// [return] p + i + d
+// [contents] caluculate the pid controller ( feedback )
+///////////////////////////////////////////////////////////////////////
+float PID( float target, float measurement, float *sum, float *old, float kp, 
+                    float ki, float kd, float maxim )
+{
+  float p, i, d, error, sum2;
+
+  sum2 = *sum;
+
+  error = target - measurement;
+
+  p = error * kp;
+
+  *sum += error * dt; 
+  i = *sum * ki;
+
+  d =  ( measurement - *old ) * kd; 
+  *old = measurement;
+
+  // リセットワインドアップ対策
+  if( (p+i+d) > maxim ){
+    p = maxim;
+    i = 0.0f;
+    d = 0.0f;
+    *sum = sum2;
+  }
+
+  if( (p+i+d) < -maxim ){
+    p = -maxim;
+    i = 0.0f;
+    d = 0.0f;
+    *sum = sum2;
+  }
+
+  return ( p+i+d );
+}
+
+///////////////////////////////////////////////////////////////////////
+// PID( TURN )
+// [argument] (float)target,measurement,*sum,*old,kp,ki,kd,max,min
+// [Substitutiong] nothing
+// [return] p + i + d
+// [contents] caluculate the pid controller ( feedback )
+///////////////////////////////////////////////////////////////////////
+float PID2( float target, float measurement, float target2, float measurement2,  float *sum, 
+            float *old, float *sum2, float kp, float ki, float kd, float ki2, float maxim )
+{
+  float p, i, i2, d, error, sum_buff;
+
+  sum_buff = *sum;
+
+  error = target - measurement;
+
+  p = error * kp;
+
+  *sum += error * dt; 
+  i = *sum * ki;
+
+  *sum2 += ( target2 - measurement2 ) * dt;
+  i2 = *sum2 * ki2;
+
+  d =  ( measurement - *old ) * kd; 
+  *old = measurement;
+
+  // リセットワインドアップ対策
+  if( (p+i+d+i2) > maxim ){
+    p = maxim;
+    i = 0.0f;
+    i2 = 0.0f;
+    d = 0.0f;
+    *sum = sum_buff;
+  }
+
+  if( (p+i+d+i2) < -maxim ){
+    p = -maxim;
+    i = 0.0f;
+    i2 = 0.0f;
+    d = 0.0f;
+    *sum = sum_buff;
+  }
+
+  return ( p+i+d+i2 );
 }

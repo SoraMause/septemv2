@@ -2,12 +2,12 @@
 
 #include "spi.h"
 #include "tim.h"
+#include "adc.h"
 
 #include "config.h" 
-
 #include "buzzer.h"
-
 #include "logger.h"
+#include "function.h"
 
 #include "trackMotion.h"
 
@@ -20,6 +20,9 @@ static uint8_t controll_flag = 0;
 
 void interrupt()
 {
+  updateBattAnalog();
+  batt_monitor = battMonitor( batt_analog );
+
   if ( MPU6500_calc_check() == 0 ) {
     MPU6500_z_axis_offset_calc();
   } else {

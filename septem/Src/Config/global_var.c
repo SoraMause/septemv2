@@ -9,7 +9,6 @@ float machine_rad;
 
 // sensor data
 int16_t batt_analog;
-float batt_buff[4];
 float batt_monitor;
 
 int16_t sensorL[4];
@@ -36,7 +35,7 @@ Logger logger;
 int16_t log_v_target;
 int16_t log_v;
 int16_t log_omega;
-int16_t log_rad_target;
+int16_t log_omega_target;
 int16_t log_rad;
 float log_distance;
 float log_batt;

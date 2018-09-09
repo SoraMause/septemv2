@@ -6,7 +6,6 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "adc.h"
-#include "dma.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -58,6 +57,8 @@ void MauseSystem( void )
       if ( batt_monitor < 7.4f ) fullColorLedOut( LED_RED );
       else fullColorLedOut( LED_BLUE );
 
+      //printf( "batt_monitor = %f\r", batt_monitor );
+
       if ( getLeftPushsw() ){
         buzzerSetMonophonic( F_SCALE, 200 );
         HAL_Delay( 300 );
@@ -74,11 +75,14 @@ void MauseSystem( void )
       break;
 
     case 100:
+      printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",
+                sensor[0], sensor[1], sensor[2], sensor[3] );
       if ( getLeftPushsw() ){
+        buzzerSetMonophonic( NORMAL, 100 );
         fullColorLedOut( LED_WHITE );
         changePattern( 101 );
       }
-      printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",sensor[0], sensor[1], sensor[2], sensor[3] );
+      //printf( "0:%4d,1:%4d,2:%4d,3:%4d\r",sensor[0], sensor[1], sensor[2], sensor[3] );
       break;
 
     case 101:
@@ -94,17 +98,19 @@ void MauseSystem( void )
         fullColorLedOut( LED_GREEN );
         HAL_Delay( 1000 );
         fullColorLedOut( LED_CYAN );
+        buzzerSetMonophonic( E_SCALE, 300 );
         HAL_Delay( 1000 );
-        pushMotion( ADJ_FRONT );
+        pushMotion( HALF_BLOCK );
         pushMotion( ONE_BLOCK_CHECK );
-        pushMotion( SLAROM_LEFT );
-        pushMotion( ONE_BLOCK );
+        pushMotion( ONE_BLOCK_CHECK );
         pushMotion( HALF_BLOCK_STOP );
+        pushMotion( DELAY );
+        pushMotion( END_MOTION );
         setLogFlag( 1 );
         setMotionEnd( 1 );
         setControl( 1 );
         fullColorLedOut( LED_OFF );
-        setIrledPwm( IRLED_ON );
+        //setIrledPwm( IRLED_ON );
         changePattern( 43 );
       }
       break;

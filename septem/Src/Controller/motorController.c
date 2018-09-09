@@ -11,41 +11,7 @@
 
 #include <stdio.h>
 
-// 定数( 先に計算しておく　)
-static float vectoryConst = 0.0f;
-static float motorRpmConst = 0.0f;
-static float angleConst = 0.0f;
-static float voltageTorqueConst = 0.0f;
-
-// 制御に使用する定数　buffix用にスタックに確保
-static float torque_vectory = 0.0f;
-static float torque_angle = 0.0f;
-static float torque_left = 0.0f;
-static float torque_right = 0.0f;
-static float motor_rpm = 0.0f;
-
 static float v = 0.0f;
-
-///////////////////////////////////////////////////////////////////////
-// calcMotorConst
-// [argument] nothing
-// [Substitutiong] nothing
-// [return] nothing
-// [contents] caluculate the const
-///////////////////////////////////////////////////////////////////////
-void calcMotorConst( void )
-{
-  vectoryConst = MACHINE_WEIGHT * MACHINE_WHEEL_RADIUS / 2.0;
-
-  angleConst = INERTIAL_MOMENT / MACHINE_TREAD_WIDTH;
-
-  motorRpmConst = 60.0 * GEAR_RATION / 2.0 * PI * MACHINE_WHEEL_RADIUS;
-
-  voltageTorqueConst = MOTOR_RESISTOR / MOTOR_TORQUE_CONSTANT; 
-
-  printf( "\n vectoryconst, angleconst, motorrpmconst, voltagetorqueconst, %5.5f,%5.5f, %5.5f, %5.5f\r\n",
-          vectoryConst, angleConst, motorRpmConst, voltageTorqueConst );
-}
 
 ///////////////////////////////////////////////////////////////////////
 // calcMotorConst
@@ -71,8 +37,6 @@ Velocity updateMotorData( void )
   //speed.left_omega = ( speed.measument - speed.omega * MACHINE_TREAD_WIDTH ) / MACHINE_WHEEL_RADIUS;
   //speed.right_omega = ( speed.measument + speed.omega * MACHINE_TREAD_WIDTH ) / MACHINE_WHEEL_RADIUS;
 
-  motor_rpm = now.v * dt * motorRpmConst;
-
   return now;
 }
 
@@ -85,37 +49,24 @@ Velocity updateMotorData( void )
 ///////////////////////////////////////////////////////////////////////
 MotorDuty updateMotorDuty( void )
 {
-  float velocity_accele = 0.0f;
-  float angular_accele = 0.0f;
+  float velocity_duty = 0.0f;
+  float angular_duty = 0.0f;
   float duty_left_buff = 0.0f;
   float duty_right_buff = 0.0f;
 
   MotorDuty duty;
 
-  velocity_accele = updateVelocityAccele( v );
-  angular_accele = updateAngularAccele();
-
-  //  トルクを計算する
-  torque_vectory = velocity_accele * vectoryConst;
-  torque_angle =  angular_accele * angleConst;
+  velocity_duty = updateVelocityAccele( v );
+  angular_duty = updateAngularAccele();
 
   // 左側のトルクと右側のトルクをそれぞれ求める
-  torque_left = ( torque_vectory - torque_angle ) / GEAR_RATION;
-  torque_right = ( torque_vectory + torque_angle ) / GEAR_RATION;
+  duty_left_buff = ( velocity_duty - angular_duty ) / batt_monitor;
+  duty_right_buff = ( velocity_duty + angular_duty ) / batt_monitor;
 
-  // duty を求める
-  duty_left_buff = ( voltageTorqueConst * torque_left + MOTOR_REVERSE_VOLTAGE_CONSTANT * motor_rpm ) / batt_monitor;
-  duty_right_buff = ( voltageTorqueConst * torque_right + MOTOR_REVERSE_VOLTAGE_CONSTANT * motor_rpm ) / batt_monitor;
-
-  if ( duty_left_buff > 0.99f ) duty_left_buff = 0.99f;
-  if ( duty_left_buff < -0.99f ) duty_left_buff = -0.99f;
-
-  if ( duty_right_buff > 0.99f ) duty_right_buff = 0.99f;
-  if ( duty_right_buff < -0.99f ) duty_right_buff = -0.99f;
-   
-
-  duty_left_buff *= MOTOR_CONTROL_PERIOD;
-  duty_right_buff *= MOTOR_CONTROL_PERIOD;
+  if ( duty_left_buff > 1599 ) duty_left_buff = 1599;
+  if ( duty_right_buff > 1599 ) duty_right_buff = 1599;
+  if ( duty_left_buff < -1599 ) duty_left_buff = -1599;
+  if ( duty_right_buff < -1599 ) duty_right_buff = -1599;
 
   // 出力電圧を計算
   duty.left  = (int32_t)duty_left_buff;
