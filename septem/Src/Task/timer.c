@@ -22,6 +22,7 @@ void interrupt()
 {
   updateBattAnalog();
   batt_monitor = battMonitor( batt_analog );
+  log_batt = batt_monitor;
 
   if ( MPU6500_calc_check() == 0 ) {
     MPU6500_z_axis_offset_calc();

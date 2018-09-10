@@ -78,42 +78,12 @@ void setSearchGain( void )
   speed_i = 50.0f;
 
   // 超信地旋回用
-  speed_turn_p = 20.0f;
+  speed_turn_p = 30.0f;
   speed_turn_d = 7.0f;
 
   // yawrate gain
-  gyro_p = 10.0f;
-  gyro_d = 5.0f;
-
-  // gyro turn,slarom 用
-  //gyro_turn_p = 35.0f;    // 宴会芸
-  //gyro_turn_i = 0.5f;     // 宴会芸
-  //gyro_turn_d = 60.0f;    // 宴会芸
-  // gyro turn,slarom 用
-  gyro_turn_p = 17.0f;
-  gyro_turn_i = 500.0f;
-  gyro_turn_i2 = 900.0f;
-  gyro_turn_d = 70.0f;
-
-  // wall side pd gain
-  wall_p = 0.0f;
-  wall_d = 0.0f;
-}
-
-void setFastGain( void )
-{
-  // speed Gain
-  // 直線用
-  speed_p = 150.0f;
-  speed_i = 50.0f;
-
-  // 超信地旋回用
-  speed_turn_p = 20.0f;
-  speed_turn_d = 7.0f;
-
-  // yawrate gain
-  gyro_p = 10.0f;
-  gyro_d = 50.0f;
+  gyro_p = 7.0f;
+  gyro_d = 30.0f;
 
   // gyro turn,slarom 用
   //gyro_turn_p = 35.0f;    // 宴会芸
@@ -121,8 +91,38 @@ void setFastGain( void )
   //gyro_turn_d = 60.0f;    // 宴会芸
   // gyro turn,slarom 用
   gyro_turn_p = 16.0f;
-  gyro_turn_i = 500.0f;
-  gyro_turn_i2 = 1000.0f;
+  gyro_turn_i = 400.0f;
+  gyro_turn_i2 = 500.0f;
+  gyro_turn_d = 70.0f;
+
+  // wall side pd gain
+  wall_p = 50.0f;
+  wall_d = 20.0f;
+}
+
+void setFastGain( void )
+{
+  // speed Gain
+  // 直線用
+  speed_p = 135.0f;
+  speed_i = 50.0f;
+
+  // 超信地旋回用
+  speed_turn_p = 20.0f;
+  speed_turn_d = 7.0f;
+
+  // yawrate gain
+  gyro_p = 5.0f;
+  gyro_d = 30.0f;
+
+  // gyro turn,slarom 用
+  //gyro_turn_p = 35.0f;    // 宴会芸
+  //gyro_turn_i = 0.5f;     // 宴会芸
+  //gyro_turn_d = 60.0f;    // 宴会芸
+  // gyro turn,slarom 用
+  gyro_turn_p = 17.0f;
+  gyro_turn_i = 600.0f;
+  gyro_turn_i2 = 800.0f;
   gyro_turn_d = 70.0f;
 
   // wall side pd gain
@@ -139,11 +139,6 @@ void resetMotion( void )
   // pid 関連の偏差の積、偏差の値をリセット
   v_sum = 0.0f, 
   v_old = 0.0f;
-
-  // pid gain reset
-  gyro_sum = 0.0f;
-  gyro_old = 0.0f;
-  gyro_sum2 = 0.0f;
 
   left_check_flag = 0;
   right_check_flag = 0;
@@ -198,15 +193,15 @@ void updateTargetVelocity( void )
   v_previous = v;           
 
   // to do 壁切れ補正
-  //wallOutCorrection();
+  wallOutCorrection();
 
   // to do 迷路の更新タイミングを教える
-  if ( maze_wall_update_flag == 1 && distance >= motion_distance - 10.0f ){
+  if ( maze_wall_update_flag == 1 && distance >= motion_distance - 7.0f ){
     maze_update_flag = 1;
     maze_wall_update_flag = 0;
   }
 }
-#if 0
+
 void wallOutCorrection( void )
 {
   if ( checkNowMotion() == straight && motion_distance == 180.0f ){
@@ -215,23 +210,21 @@ void wallOutCorrection( void )
       if ( sensor_sidel.is_wall == 1 ) left_check_flag = 1;
       if ( sensor_sider.is_wall == 1 ) right_check_flag = 1;
       // to do きれたら distance = 90.0mm に固定
-      if ( distance > 75.0f && distance < 95.0f ){
-        if ( left_check_flag == 1 && sensor_sidel.is_wall == 0 ){
-          distance = 85.0f;
-          wall_out_flag = 1; 
-          buzzerSetMonophonic( C_SCALE, 100 );
-        } 
-
-        if ( right_check_flag == 1 && sensor_sider.is_wall == 0 ){
-          distance = 88.0f;
-          wall_out_flag = 1;
-          buzzerSetMonophonic( C_SCALE, 100 );
-        }
+      if ( left_check_flag == 1 && sensor_sidel.is_wall == 0 ){
+        //distance = 85.0f;
+        wall_out_flag = 1; 
+        buzzerSetMonophonic( C_SCALE, 100 );
       }
+
+      if ( right_check_flag == 1 && sensor_sider.is_wall == 0 ){
+        //distance = 88.0f;
+        wall_out_flag = 1;
+        buzzerSetMonophonic( C_SCALE, 100 );
+      }
+      
     }
   }
 }
-#endif
 
 void setMazeWallUpdate( int8_t _able )
 {
@@ -271,11 +264,11 @@ float wallSidePD( float kp, float kd, float maxim )
   }
 
   error_buff = error;
-
-  //if ( ( (error - sensor_error_before) > 500 ) || ( ( error - sensor_error_before ) < -500 ) ){
-    // to do flag 一度制御をきる
-    //error = 0;
-  //} 
+  
+  if ( ( (error - sensor_error_before) > 30 ) || ( ( error - sensor_error_before ) < -30 ) ){
+     // to do flag 一度制御をきる
+    error = 0;
+  }
 
   sensor_error_before = error_buff;
 

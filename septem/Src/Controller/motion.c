@@ -177,7 +177,7 @@ float yawrateNext( float rad )
   return omega;
 
 }
-// 進む距離を返す
+
 void setSlarom( float L, float accele, float rad_target, float speed_target, float before_distance, float after_distance )
 {
   // rad [rad]
@@ -262,6 +262,7 @@ float slaromNext( float distance, float rad )
       }
     } else if ( distance < after_L ){
       omega = 0.0f;
+      setControlWallPD( 1 );
     } else {
       omega = 0.0f;
       slarom_flag = 1;

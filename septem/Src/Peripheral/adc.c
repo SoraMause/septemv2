@@ -50,6 +50,11 @@
 
 ADC_ChannelConfTypeDef sConfig;
 
+uint8_t cnt_front_left = 0;
+uint8_t cnt_front_right = 0;
+uint8_t cnt_side_left = 0;
+uint8_t cnt_side_right = 0;
+
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;
@@ -374,46 +379,67 @@ void update_sensor_data( void )
   // sensor値の補正?��?える?��?
   sensor[0] = sensorH[0] - sensorL[0];  // Measures against external light
 
-  if ( sensor[0] <= 780 ){
+  if ( sensor[0] <= 740 ){
     sensor_frontr.is_wall = 0;
+    cnt_front_right = 0;
   } else {
-    sensor_frontr.is_wall = 1;
+    if ( cnt_front_right > 9 ){
+      sensor_frontr.is_wall = 1;
+    } else {
+      cnt_front_right++;
+    }
   }
 
   log_sensorfr = sensor[0];       // log buff
 
   sensor[1] = sensorH[1] - sensorL[1];  // Measures against external light
 
-  if ( sensor[1] <= 590 ){
+  if ( sensor[1] <= 580 ){
     sensor_sider.is_wall = 0;
+    cnt_side_right = 0;
   } else {
-    sensor_sider.is_wall = 1;
+    if ( cnt_side_right > 9 ){
+      sensor_sider.is_wall = 1;
+    } else {
+      cnt_side_right++;
+    }
   }
 
   log_sensorsr = sensor[1];       // log_buff
 
   sensor[2] = sensorH[2] - sensorL[2];  // Measures against external light
 
-  if ( sensor[2] <= 690 ){
+  if ( sensor[2] <= 680 ){
     sensor_sidel.is_wall = 0;
+    cnt_side_left = 0;
   } else {
-    sensor_sidel.is_wall = 1;
+    if ( cnt_side_left > 9 ){
+      sensor_sidel.is_wall = 1;
+    } else {
+      cnt_side_left++;
+    }
+    
   }
 
   log_sensorsl = sensor[2];     // log buff
 
   sensor[3] = sensorH[3] - sensorL[3];  // Measures against external light
 
-  if ( sensor[3] <= 810 ){
+  if ( sensor[3] <= 760 ){
+    cnt_front_left = 0;
     sensor_frontl.is_wall = 0;
   } else {
-    sensor_frontl.is_wall = 1;
+    if ( cnt_front_left > 9 ){
+      sensor_frontl.is_wall = 1;
+    } else {
+      cnt_front_left++;
+    }
   }
 
   log_sensorfl = sensor[3];     // log buff
 
-  sensor_sider.error = sensor[1] - 2600;
-  sensor_sidel.error = sensor[2] - 2900;
+  sensor_sider.error = sensor[1] - 670;
+  sensor_sidel.error = sensor[2] - 770;
 
   //sensor_frontr.error = sensor[0] - 2300;
   //sensor_frontr.error = sensor[3] - 2300;

@@ -96,7 +96,7 @@ void updateMotion( void )
         motion = straight;
         fullColorLedOut( LED_BLUE );
         certainLedOut( LED_OFF );
-        //setControlWallPD( 1 );
+        setControlWallPD( 1 );
         setMazeWallUpdate( 1 ); 
         speedTrapezoid( 180.0f, 4.0f, 500.0f, 500.0f, 500.0f );
         head++;
@@ -172,17 +172,17 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
-        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.0f, 23.0f );
+        setSlarom( 90.0f, 6720.0f, 630.0f, 500.0f, 19.0f, 24.0f );
         head++;
         break;
 
       case SEARCH_SLAROM_RIGHT:
         motion = slarom;
         fullColorLedOut( LED_MAGENTA );
-        certainLedOut( LED_FRONT );
+        certainLedOut( LED_REAR );
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
-        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 24.0f, 22.0f );
+        setSlarom( -90.0f, -6720.0f, -630.0f, 500.0f, 24.0f, 20.0f );
         head++;
         break;
 
