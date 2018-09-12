@@ -40,10 +40,6 @@ static float gyro_sum = 0.0f;
 static float gyro_old = 0.0f;
 static float gyro_sum2 = 0.0f;
 
-// yawrate gain
-static float gyro_p = 0.0f;
-static float gyro_d = 0.0f;
-
 // turn,slarom 用
 static float gyro_turn_p = 0.0f;
 static float gyro_turn_i = 0.0f;
@@ -81,10 +77,6 @@ void setSearchGain( void )
   speed_turn_p = 30.0f;
   speed_turn_d = 7.0f;
 
-  // yawrate gain
-  gyro_p = 7.0f;
-  gyro_d = 30.0f;
-
   // gyro turn,slarom 用
   //gyro_turn_p = 35.0f;    // 宴会芸
   //gyro_turn_i = 0.5f;     // 宴会芸
@@ -96,38 +88,30 @@ void setSearchGain( void )
   gyro_turn_d = 70.0f;
 
   // wall side pd gain
-  wall_p = 50.0f;
-  wall_d = 20.0f;
+  wall_p = 40.0f;
+  wall_d = 15.0f;
 }
 
 void setFastGain( void )
 {
   // speed Gain
   // 直線用
-  speed_p = 135.0f;
+  speed_p = 150.0f;
   speed_i = 50.0f;
 
   // 超信地旋回用
-  speed_turn_p = 20.0f;
+  speed_turn_p = 30.0f;
   speed_turn_d = 7.0f;
 
-  // yawrate gain
-  gyro_p = 5.0f;
-  gyro_d = 30.0f;
-
   // gyro turn,slarom 用
-  //gyro_turn_p = 35.0f;    // 宴会芸
-  //gyro_turn_i = 0.5f;     // 宴会芸
-  //gyro_turn_d = 60.0f;    // 宴会芸
-  // gyro turn,slarom 用
-  gyro_turn_p = 17.0f;
-  gyro_turn_i = 600.0f;
-  gyro_turn_i2 = 800.0f;
-  gyro_turn_d = 70.0f;
+  gyro_turn_p = 15.0f;
+  gyro_turn_i = 250.0f;
+  gyro_turn_i2 = 400.0f;
+  gyro_turn_d = 90.0f;
 
   // wall side pd gain
-  wall_p = 0.0f;
-  wall_d = 0.0f;
+  wall_p = 20.0f;
+  wall_d = 10.0f;
 }
 
 // 距離、角度などモーションに必要なものを更新しておく
@@ -143,6 +127,7 @@ void resetMotion( void )
   left_check_flag = 0;
   right_check_flag = 0;
   wall_out_flag = 0;
+  log_wall_out_distance = 0;
 
 }
 
@@ -167,7 +152,35 @@ void setMotionDistance( float _L_motion )
 }
 
 // velocity　の目標値を更新 
-void updateTargetVelocity( void )
+void updateFastRunTargetVelocity( float measurement )
+{
+
+  v = speedNext( distance );  // 速度を取得
+
+  if ( checkNowMotion() == turn ){
+    omega = yawrateNext( rad );   // 角速度を取得する
+  } else if ( checkNowMotion() == slarom ){
+    omega = slaromNext( distance, rad );
+  } else {
+    omega = 0.0f;
+  } 
+
+  distance += measurement * dt;     // 理論値から距離を積算する
+  rad += omega * dt;      // 理論値から角度を積算する
+
+  rad_target += omega * dt;   // 角度の目標値毎回リセットしないため積算をし続けておく
+
+  // FF 制御 ( 今の値 - 一つ前の値 ) ( /dt) 
+  // 先に加速度をかけておく
+  feedfoward_acccele = ( v - v_previous ); 
+
+  // 今の値を保存
+  v_previous = v;           
+
+}
+
+// velocity　の目標値を更新 
+void updateSearchTargetVelocity( void )
 {
 
   v = speedNext( distance );  // 速度を取得
@@ -209,19 +222,23 @@ void wallOutCorrection( void )
       // to do 壁を読んだら左の壁切れをチェックするようになる
       if ( sensor_sidel.is_wall == 1 ) left_check_flag = 1;
       if ( sensor_sider.is_wall == 1 ) right_check_flag = 1;
-      // to do きれたら distance = 90.0mm に固定
-      if ( left_check_flag == 1 && sensor_sidel.is_wall == 0 ){
-        //distance = 85.0f;
-        wall_out_flag = 1; 
-        buzzerSetMonophonic( C_SCALE, 100 );
-      }
+      // to do 切れた後の処理を入れること！
+      if ( distance > 80.0f && distance < 100.0f ){
 
-      if ( right_check_flag == 1 && sensor_sider.is_wall == 0 ){
-        //distance = 88.0f;
-        wall_out_flag = 1;
-        buzzerSetMonophonic( C_SCALE, 100 );
+        if ( left_check_flag == 1 && sensor_sidel.is_wall == 0 ){
+          wall_out_flag = 1; 
+          distance = 92.0f;
+          log_wall_out_distance = (int16_t)distance;
+          buzzerSetMonophonic( C_SCALE, 100 );
+        }
+
+        if ( right_check_flag == 1 && sensor_sider.is_wall == 0 ){
+          wall_out_flag = 1;
+          distance = 92.0f;
+          log_wall_out_distance = (int16_t)distance;
+          buzzerSetMonophonic( C_SCALE, 100 );
+        }
       }
-      
     }
   }
 }
@@ -244,54 +261,6 @@ int8_t checkMazeUpdateFlag( void )
 void setControlWallPD( int8_t _able )
 {
   ctr_sidewall_flag = _able;
-}
-
-float wallSidePD( float kp, float kd, float maxim )
-{
-  int16_t error = 0;
-  int16_t error_buff = 0;
-  float p,d;
-
-  // sensor の状態によって偏差の取り方を変える
-  if ( sensor_sidel.is_wall == 1 && sensor_sider.is_wall == 1 ){
-    error = sensor_sider.error - sensor_sidel.error;
-  } else if ( sensor_sidel.is_wall == 1 ){
-    error = -2 * sensor_sidel.error;
-  } else if ( sensor_sider.is_wall == 1 ){
-    error = 2 * sensor_sider.error;
-  } else {
-    error = 0;
-  }
-
-  error_buff = error;
-  
-  if ( ( (error - sensor_error_before) > 30 ) || ( ( error - sensor_error_before ) < -30 ) ){
-     // to do flag 一度制御をきる
-    error = 0;
-  }
-
-  sensor_error_before = error_buff;
-
-  p = (float)( kp * error );
-  d = (float)( ( error - sensor_error_before) * kd );
-  
-  if ( (p + d) > maxim ) {
-    p = maxim;
-    d = 0.0f;
-  }
-
-  if ( (p + d) < -maxim ) {
-    p = -maxim;
-    d = 0.0f;
-  }
-
-  if ( ctr_sidewall_flag == 1 ){
-    return (p + d);
-  } else {
-    return 0.0f;
-  }
-  
-
 }
 
 float updateVelocityAccele( float measured )
@@ -326,6 +295,7 @@ float updateAngularAccele( void )
   float feedback_angular_accele = 0.0f; //角度のフィードバック
   float feedback_wall = 0.0f;
 
+#if 0
   if ( checkNowMotion() == straight ){
     feedback_angular_accele = PID( 0.0f, gyro_z_measured, &gyro_sum, &gyro_old, gyro_p, 0.0f, gyro_d, 3000.0f );
     feedback_wall = wallSidePD( wall_p, wall_d, 3000.0f );
@@ -333,6 +303,11 @@ float updateAngularAccele( void )
     feedback_angular_accele = PID2( omega, gyro_z_measured, rad_target, machine_rad, &gyro_sum, &gyro_old,&gyro_sum2, 
                                     gyro_turn_p, gyro_turn_i, gyro_turn_d,gyro_turn_i2, 10000.0f );
   }
+#endif
+
+  feedback_angular_accele = PID2( omega, gyro_z_measured, rad_target, machine_rad, &gyro_sum, &gyro_old,&gyro_sum2, 
+                                gyro_turn_p, gyro_turn_i, gyro_turn_d,gyro_turn_i2, 10000.0f );
+  feedback_wall = wallSidePD( wall_p, wall_d, 3000.0f );
 
   log_omega_target = (int16_t)omega;
   log_omega = (int16_t)gyro_z_measured;
@@ -348,13 +323,6 @@ float updateAngularAccele( void )
 
 }
 
-///////////////////////////////////////////////////////////////////////
-// PID
-// [argument] (float)target,measurement,*sum,*old,kp,ki,kd,max,min
-// [Substitutiong] nothing
-// [return] p + i + d
-// [contents] caluculate the pid controller ( feedback )
-///////////////////////////////////////////////////////////////////////
 float PID( float target, float measurement, float *sum, float *old, float kp, 
                     float ki, float kd, float maxim )
 {
@@ -390,13 +358,6 @@ float PID( float target, float measurement, float *sum, float *old, float kp,
   return ( p+i+d );
 }
 
-///////////////////////////////////////////////////////////////////////
-// PID( TURN )
-// [argument] (float)target,measurement,*sum,*old,kp,ki,kd,max,min
-// [Substitutiong] nothing
-// [return] p + i + d
-// [contents] caluculate the pid controller ( feedback )
-///////////////////////////////////////////////////////////////////////
 float PID2( float target, float measurement, float target2, float measurement2,  float *sum, 
             float *old, float *sum2, float kp, float ki, float kd, float ki2, float maxim )
 {
@@ -435,4 +396,51 @@ float PID2( float target, float measurement, float target2, float measurement2, 
   }
 
   return ( p+i+d+i2 );
+}
+
+float wallSidePD( float kp, float kd, float maxim )
+{
+  int16_t error = 0;
+  int16_t error_buff = 0;
+  float p,d;
+
+  // sensor の状態によって偏差の取り方を変える
+  if ( sensor_sidel.is_wall == 1 && sensor_sider.is_wall == 1 ){
+    error = sensor_sider.error - sensor_sidel.error;
+  } else if ( sensor_sidel.is_wall == 1 ){
+    error = -2 * sensor_sidel.error;
+  } else if ( sensor_sider.is_wall == 1 ){
+    error = 2 * sensor_sider.error;
+  } else {
+    error = 0;
+  }
+
+  error_buff = error;
+  
+  if ( ( (error - sensor_error_before) > 20 ) || ( ( error - sensor_error_before ) < -20 ) ){
+     // to do flag 一度制御をきる
+    error = 0;
+  }
+
+  sensor_error_before = error_buff;
+
+  p = (float)( kp * error );
+  d = (float)( ( error - sensor_error_before) * kd );
+  
+  if ( (p + d) > maxim ) {
+    p = maxim;
+    d = 0.0f;
+  }
+
+  if ( (p + d) < -maxim ) {
+    p = -maxim;
+    d = 0.0f;
+  }
+
+  if ( ctr_sidewall_flag == 1 ){
+    return (p + d);
+  } else {
+    return 0.0f;
+  }
+
 }

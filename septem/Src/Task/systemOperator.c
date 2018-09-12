@@ -166,6 +166,7 @@ void MauseSystem( void )
       fullColorLedOut( LED_MAGENTA );
       if ( sensor[0] > 750 && sensor[3] > 750 ){
         setSearchGain();
+        setRunModde( search );
         setIrledPwm( IRLED_OFF );
         fullColorLedOut( LED_CYAN );
         buzzerSetMonophonic( A_SCALE, 200 );
@@ -342,6 +343,7 @@ void MauseSystem( void )
       fullColorLedOut( LED_MAGENTA );
       if ( sensor[0] > 750 && sensor[3] > 750 ){
         setFastGain();
+        setRunModde( fast_run );
         setIrledPwm( IRLED_OFF );
         fullColorLedOut( LED_CYAN );
         buzzerSetMonophonic( G_SCALE, 200 );

@@ -117,7 +117,7 @@ void updateMotion( void )
         fullColorLedOut( LED_OFF );
         certainLedOut( LED_REAR );
         setControlWallPD( 1 );
-        speedTrapezoid( -55.0f, -4.0f, -300.0f, 0.0f, 0.0f );
+        speedTrapezoid( -50.0f, -4.0f, -300.0f, 0.0f, 0.0f );
         head++;
         break;
 
@@ -191,7 +191,7 @@ void updateMotion( void )
         fullColorLedOut( LED_CYAN );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
-        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 23.0f, 23.0f );
+        setSlarom( 90.0f, 7080.0f, 720.0f, 500.0f, 19.0f, 24.0f );
         head++;
         break;
 
@@ -200,7 +200,7 @@ void updateMotion( void )
         fullColorLedOut( LED_MAGENTA );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
-        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 24.0f, 22.0f );
+        setSlarom( -90.0f, -7080.0f, -720.0f, 500.0f, 24.0f, 20.0f );
         head++;
         break;
 

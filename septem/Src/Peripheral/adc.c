@@ -383,7 +383,7 @@ void update_sensor_data( void )
     sensor_frontr.is_wall = 0;
     cnt_front_right = 0;
   } else {
-    if ( cnt_front_right > 9 ){
+    if ( cnt_front_right > 10 ){
       sensor_frontr.is_wall = 1;
     } else {
       cnt_front_right++;
@@ -398,7 +398,7 @@ void update_sensor_data( void )
     sensor_sider.is_wall = 0;
     cnt_side_right = 0;
   } else {
-    if ( cnt_side_right > 9 ){
+    if ( cnt_side_right > 10 ){
       sensor_sider.is_wall = 1;
     } else {
       cnt_side_right++;
@@ -413,7 +413,7 @@ void update_sensor_data( void )
     sensor_sidel.is_wall = 0;
     cnt_side_left = 0;
   } else {
-    if ( cnt_side_left > 9 ){
+    if ( cnt_side_left > 10 ){
       sensor_sidel.is_wall = 1;
     } else {
       cnt_side_left++;
@@ -429,7 +429,7 @@ void update_sensor_data( void )
     cnt_front_left = 0;
     sensor_frontl.is_wall = 0;
   } else {
-    if ( cnt_front_left > 9 ){
+    if ( cnt_front_left > 10 ){
       sensor_frontl.is_wall = 1;
     } else {
       cnt_front_left++;

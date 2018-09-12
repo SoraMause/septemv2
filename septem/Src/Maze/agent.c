@@ -33,7 +33,7 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
   }
 
   motion_queue[0] = front;
-  path[0] = -1;
+  path[0] = 0;
   motion_buff[0] = front;
 
   // 初期化処理
@@ -99,7 +99,6 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
     }
 
 
-
     for ( int i = 0; i < count; i++ ){
       if ( motion_queue[i] == front ){
         if ( i == 0 ) {
@@ -107,7 +106,7 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
         } else {
           path[path_number] += 1;
         }
-        
+
       } else  {
         if ( motion_queue[i-1] == front ) {
           path_number++;
@@ -122,21 +121,23 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
       }
     }
 
-    path_number++;
-
+    if ( path[path_number] > 0 ) {
+      path_number++;
+    } 
+    
     for ( int i = 0; i < path_number; i++ ){
       if ( i == 0 && path[0] == 0 ){
-            fast_path[0].distance = 130.0f;
-            rec_time += 0.4f;
+        fast_path[0].distance = 130.0f;
+        rec_time += 0.5f;
       } else if ( path[i] > 0 ){
         if ( i == 0 ){
-          fast_path[i].distance = ONE_BLOCK_DISTANCE * (path[i]) + 130.0f;
+          fast_path[i].distance = ( ONE_BLOCK_DISTANCE * path[0] ) + 130.0f;
+          
           if ( path[i] < 2 ){
             rec_time += 0.18f * path[i] + 0.4f;
           } else {
             rec_time += 0.18f * path[i] + 0.4f;
           }
-
         } else {
           fast_path[i].distance = ONE_BLOCK_DISTANCE * path[i];
           if ( path[i] < 3 ){

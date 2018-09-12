@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __MAZE_H
 #define __MAZE_H
 

@@ -38,7 +38,7 @@ int16_t log_omega;
 int16_t log_omega_target;
 int16_t log_rad;
 float log_distance;
-float log_batt;
+int16_t log_wall_out_distance;
 int16_t log_sensorfl;
 int16_t log_sensorfr;
 int16_t log_sensorsl;

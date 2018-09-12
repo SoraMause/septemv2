@@ -11,7 +11,8 @@ void resetRadParam( void );
 
 void setMotionDistance( float _L_motion );
 
-void updateTargetVelocity( void );
+void updateSearchTargetVelocity( void );
+void updateFastRunTargetVelocity( float measurement );
 
 void setMazeWallUpdate( int8_t _able );
 void certainMazeUpdateFlag( void );

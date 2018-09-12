@@ -16,13 +16,13 @@
 static Velocity v;
 static MotorDuty duty;
 static float gyro_z_before = 0.0f;
-static uint8_t controll_flag = 0;
+static int8_t controll_flag = 0;
+static int8_t run_mode = search;
 
 void interrupt()
 {
   updateBattAnalog();
   batt_monitor = battMonitor( batt_analog );
-  log_batt = batt_monitor;
 
   if ( MPU6500_calc_check() == 0 ) {
     MPU6500_z_axis_offset_calc();
@@ -41,8 +41,13 @@ void interrupt()
     // To do motionのアップデート 
     updateMotion();
 
-    // To do 目標値の値を得る
-    updateTargetVelocity();
+    // To do 目標値の値を得る, search のときと最短のときで切り替える
+    if ( run_mode == search ){
+      updateSearchTargetVelocity();
+    } else {
+      // to do fast run update target
+      updateFastRunTargetVelocity( v.v );
+    }
     
     // モーターの出力を行う
     duty = updateMotorDuty();
@@ -55,6 +60,11 @@ void interrupt()
   updateLogger();
   
   buzzerOutPut();
+}
+
+void setRunModde( int8_t _in )
+{
+  run_mode = _in;
 }
 
 void setControl( int8_t _in )
