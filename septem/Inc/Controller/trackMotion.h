@@ -13,6 +13,7 @@
 #define DELAY               2
 
 // straight
+// 探索用
 #define HALF_BLOCK          4
 #define HALF_BLOCK_SEARCH   5
 #define ONE_BLOCK           6 
@@ -20,6 +21,7 @@
 #define ADJ_FRONT           8
 #define ADJ_BACK            9
 #define HALF_BLOCK_STOP     10
+// 最短用
 #define SET_STRAIGHT        11
 
 // turn 
@@ -28,10 +30,22 @@
 #define ROTATION            18
 
 // slarom
+// 探索用
 #define SEARCH_SLAROM_LEFT  24
 #define SEARCH_SLAROM_RIGHT 25
+
+// 最短用
 #define SLAROM_LEFT         26
 #define SLAROM_RIGHT        27
+
+#define SLAROM_LEFT_45 28
+#define SLAROM_RIGHT_45 29
+
+#define SLAROM_CENTER_LEFT_45 30
+#define SLAROM_CENTER_RIGHT_45 31
+
+#define SLAROM_DIA_LEFT_90    32
+#define SLAROM_DIA_RIGHT_90   33
 
 // 宴会芸
 #define ENKAIGEI            127

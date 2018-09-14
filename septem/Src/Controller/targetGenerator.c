@@ -127,7 +127,6 @@ void resetMotion( void )
   left_check_flag = 0;
   right_check_flag = 0;
   wall_out_flag = 0;
-  log_wall_out_distance = 0;
 
 }
 
@@ -228,14 +227,12 @@ void wallOutCorrection( void )
         if ( left_check_flag == 1 && sensor_sidel.is_wall == 0 ){
           wall_out_flag = 1; 
           distance = 92.0f;
-          log_wall_out_distance = (int16_t)distance;
           buzzerSetMonophonic( C_SCALE, 100 );
         }
 
         if ( right_check_flag == 1 && sensor_sider.is_wall == 0 ){
           wall_out_flag = 1;
           distance = 92.0f;
-          log_wall_out_distance = (int16_t)distance;
           buzzerSetMonophonic( C_SCALE, 100 );
         }
       }

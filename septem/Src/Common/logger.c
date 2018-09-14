@@ -18,7 +18,6 @@ void updateLogger( void )
       logger.omega[cnt_log] = log_omega;
       logger.rad[cnt_log] = log_rad;
       logger.omega_target[cnt_log] = log_omega_target;
-      logger.wall_out_distance[cnt_log] = log_wall_out_distance;
       logger.sensor_fl[cnt_log] = log_sensorfl;
       logger.sensor_sl[cnt_log] = log_sensorsl;
       logger.sensor_fr[cnt_log] = log_sensorfr;
@@ -44,7 +43,7 @@ void showLog( void )
   if( logger_flag == 1 ) logger_flag = 0;
   printf( "v_target, v, distance, omega_target, omega, rad, sensor fl, sl, sr, fr,wall_out_distance\r\n");  
   for ( int i = 0; i < cnt_log; i++ ){
-      printf( "%d,%d,%f,%d,%d,%d,%d,%d,%d,%d,%d\r\n", 
+      printf( "%d,%d,%f,%d,%d,%d,%d,%d,%d,%d\r\n", 
       logger.v_target[i],
       logger.v[i],
       logger.distance[i],
@@ -54,7 +53,6 @@ void showLog( void )
       logger.sensor_fl[i], 
       logger.sensor_sl[i], 
       logger.sensor_sr[i], 
-      logger.sensor_fr[i], 
-      logger.wall_out_distance[i]  );
+      logger.sensor_fr[i] );
   }
 }

@@ -53,7 +53,6 @@ typedef struct {
   int16_t sensor_fr[2048];
   int16_t sensor_sl[2048];
   int16_t sensor_sr[2048];
-  int16_t wall_out_distance[2048];
 }Logger;
 
 extern Logger logger;
@@ -65,7 +64,6 @@ extern int16_t log_omega;
 extern int16_t log_omega_target;
 extern int16_t log_rad;
 extern float log_distance;
-extern int16_t log_wall_out_distance;
 extern int16_t log_sensorfl;
 extern int16_t log_sensorfr;
 extern int16_t log_sensorsl;

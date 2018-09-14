@@ -70,7 +70,7 @@ void updateMotion( void )
 
       case HALF_BLOCK:
         motion = straight;
-        setControlWallPD( 1 );
+        setControlWallPD( 0 );
         speedTrapezoid( 90.0f, 4.0f, 500.0f, 0.0f, 500.0f );
         head++;
         break;
@@ -80,14 +80,14 @@ void updateMotion( void )
         setControlWallPD( 1 );
         fullColorLedOut( LED_RED );
         certainLedOut( LED_OFF );
-        setMazeWallUpdate( 1 ); 
-        speedTrapezoid( 90.0f, 4.0f, 500.0f, 500.0f, 500.0f );
+        setMazeWallUpdate( 0 ); 
+        speedTrapezoid( 90.0f, 4.0f, 500.0f, 500.0f, 0.0f );
         head++;
         break;
 
       case ONE_BLOCK:
         motion = straight;
-        setControlWallPD( 1 );
+        setControlWallPD( 0 );
         speedTrapezoid( 180.0f, 4.0f, 500.0f, 500.0f, 500.0f );
         head++;
         break;

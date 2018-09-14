@@ -9,6 +9,7 @@
     "corecrt_math.h": "c",
     "corecrt.h": "c",
     "stdint.h": "c",
-    "agent.h": "c"
+    "agent.h": "c",
+    "dijkstra.h": "c"
   }
 }

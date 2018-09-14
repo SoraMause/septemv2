@@ -31,6 +31,7 @@
 // maze
 #include "maze.h"
 #include "agent.h"
+#include "dijkstra.h"
 
 static int16_t pattern = 0;
 static uint8_t next_dir = front;
@@ -94,25 +95,26 @@ void MauseSystem( void )
 
     case 102:
       if ( MPU6500_calc_check() == 1 ){
+        setIrledPwm( IRLED_OFF );
         setSearchGain();
         fullColorLedOut( LED_GREEN );
         HAL_Delay( 1000 );
         fullColorLedOut( LED_CYAN );
         buzzerSetMonophonic( E_SCALE, 300 );
         HAL_Delay( 1000 );
-        pushMotion( ADJ_FRONT );
-        pushMotion( ONE_BLOCK_CHECK );
-        pushMotion( ONE_BLOCK_CHECK );
+        pushMotion( HALF_BLOCK );
+        pushMotion( ONE_BLOCK );
+        pushMotion( ONE_BLOCK );
         //pushMotion( HALF_BLOCK_STOP );
         //pushMotion( SEARCH_SLAROM_LEFT );
-        pushMotion( HALF_BLOCK_STOP );
+        pushMotion( HALF_BLOCK_SEARCH );
         pushMotion( DELAY );
         pushMotion( END_MOTION );
         setLogFlag( 1 );
         setMotionEnd( 1 );
         setControl( 1 );
         fullColorLedOut( LED_OFF );
-        //setIrledPwm( IRLED_ON );
+        setIrledPwm( IRLED_ON );
         changePattern( 43 );
       }
       break;
@@ -331,9 +333,9 @@ void MauseSystem( void )
       }
 
       if ( getRightPushsw() ){
-        
         certainLedOut( LED_FRONT );
         agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 1 );
+        agentDijkstraRoute( MAZE_GOAL_X, 15 - MAZE_GOAL_Y, 1 );
         certainLedOut( LED_OFF );
       }
 
