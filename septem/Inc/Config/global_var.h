@@ -6,6 +6,9 @@
 // tim5 interrupt
 extern uint8_t timer125;
 
+// machine_action time
+extern uint32_t machine_act_time;
+
 // gyro data
 extern float gyro_z_measured;
 extern float machine_rad;

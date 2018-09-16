@@ -57,6 +57,14 @@ static int16_t sensor_error_before = 0.0f;
 static float wall_p = 0.0f;
 static float wall_d = 0.0f;
 
+// front sensor用のpd用
+static int8_t ctr_frontwall_flag = 0;
+static int16_t sensor_front_error_before = 0;
+
+// wall front pd gain
+static float wall_front_p = 0.0f;
+static float wall_front_d = 0.0f;
+
 // maze update flag 
 static int8_t maze_wall_update_flag = 0;
 static int8_t maze_update_flag = 0;
@@ -65,6 +73,9 @@ static int8_t maze_update_flag = 0;
 static int8_t left_check_flag = 0;
 static int8_t right_check_flag = 0;
 static int8_t wall_out_flag = 0;
+
+// 緊急停止用フラグ
+static int8_t emergency_flag = 0;
 
 void setSearchGain( void )
 {
@@ -90,6 +101,8 @@ void setSearchGain( void )
   // wall side pd gain
   wall_p = 40.0f;
   wall_d = 15.0f;
+
+  emergency_flag = 0;
 }
 
 void setFastGain( void )
@@ -112,6 +125,8 @@ void setFastGain( void )
   // wall side pd gain
   wall_p = 20.0f;
   wall_d = 10.0f;
+
+  emergency_flag = 0;
 }
 
 // 距離、角度などモーションに必要なものを更新しておく
@@ -151,34 +166,6 @@ void setMotionDistance( float _L_motion )
 }
 
 // velocity　の目標値を更新 
-void updateFastRunTargetVelocity( float measurement )
-{
-
-  v = speedNext( distance );  // 速度を取得
-
-  if ( checkNowMotion() == turn ){
-    omega = yawrateNext( rad );   // 角速度を取得する
-  } else if ( checkNowMotion() == slarom ){
-    omega = slaromNext( distance, rad );
-  } else {
-    omega = 0.0f;
-  } 
-
-  distance += measurement * dt;     // 理論値から距離を積算する
-  rad += omega * dt;      // 理論値から角度を積算する
-
-  rad_target += omega * dt;   // 角度の目標値毎回リセットしないため積算をし続けておく
-
-  // FF 制御 ( 今の値 - 一つ前の値 ) ( /dt) 
-  // 先に加速度をかけておく
-  feedfoward_acccele = ( v - v_previous ); 
-
-  // 今の値を保存
-  v_previous = v;           
-
-}
-
-// velocity　の目標値を更新 
 void updateSearchTargetVelocity( void )
 {
 
@@ -212,6 +199,10 @@ void updateSearchTargetVelocity( void )
     maze_update_flag = 1;
     maze_wall_update_flag = 0;
   }
+
+  if ( machine_rad > rad_target + 90.0f || machine_rad < rad_target - 90.0f ){
+    emergency_flag = 1;
+  }
 }
 
 void wallOutCorrection( void )
@@ -240,6 +231,38 @@ void wallOutCorrection( void )
   }
 }
 
+// velocity　の目標値を更新 
+void updateFastRunTargetVelocity( float measurement )
+{
+
+  v = speedNext( distance );  // 速度を取得
+
+  if ( checkNowMotion() == turn ){
+    omega = yawrateNext( rad );   // 角速度を取得する
+  } else if ( checkNowMotion() == slarom ){
+    omega = slaromNext( distance, rad );
+  } else {
+    omega = 0.0f;
+  } 
+
+  distance += measurement * dt;     // 理論値から距離を積算する
+  rad += omega * dt;      // 理論値から角度を積算する
+
+  rad_target += omega * dt;   // 角度の目標値毎回リセットしないため積算をし続けておく
+
+  // FF 制御 ( 今の値 - 一つ前の値 ) ( /dt) 
+  // 先に加速度をかけておく
+  feedfoward_acccele = ( v - v_previous ); 
+
+  // 今の値を保存
+  v_previous = v;         
+
+  if ( machine_rad > rad_target + 90.0f || machine_rad < rad_target - 90.0f ){
+    emergency_flag = 1;
+  }  
+
+}
+
 void setMazeWallUpdate( int8_t _able )
 {
   maze_wall_update_flag = _able;
@@ -255,9 +278,9 @@ int8_t checkMazeUpdateFlag( void )
   return maze_update_flag;
 }
 
-void setControlWallPD( int8_t _able )
+int8_t checkEmergyncyFlag( void )
 {
-  ctr_sidewall_flag = _able;
+  return emergency_flag;
 }
 
 float updateVelocityAccele( float measured )
@@ -395,6 +418,11 @@ float PID2( float target, float measurement, float target2, float measurement2, 
   return ( p+i+d+i2 );
 }
 
+void setControlWallPD( int8_t _able )
+{
+  ctr_sidewall_flag = _able;
+}
+
 float wallSidePD( float kp, float kd, float maxim )
 {
   int16_t error = 0;
@@ -419,8 +447,6 @@ float wallSidePD( float kp, float kd, float maxim )
     error = 0;
   }
 
-  sensor_error_before = error_buff;
-
   p = (float)( kp * error );
   d = (float)( ( error - sensor_error_before) * kd );
   
@@ -434,7 +460,49 @@ float wallSidePD( float kp, float kd, float maxim )
     d = 0.0f;
   }
 
+  sensor_error_before = error_buff; // 今の値を保存( 微分用 )
+
   if ( ctr_sidewall_flag == 1 ){
+    return (p + d);
+  } else {
+    return 0.0f;
+  }
+
+}
+
+void setControlFrontPD( int8_t _able )
+{
+  ctr_frontwall_flag = _able;
+}
+
+float wallFrontPD( float kp, float kd, float maxim )
+{
+  int16_t error = 0;
+  int16_t error_buff = 0;
+  float p,d;
+
+  // sensor の状態によって偏差の取り方を変える
+
+  error_buff = error;
+
+  // 値が大きすぎるときは制御を一度きる
+
+  p = (float)( kp * error );
+  d = (float)( ( error - sensor_front_error_before) * kd );
+  
+  if ( (p + d) > maxim ) {
+    p = maxim;
+    d = 0.0f;
+  }
+
+  if ( (p + d) < -maxim ) {
+    p = -maxim;
+    d = 0.0f;
+  }
+
+  sensor_front_error_before = error_buff;
+
+  if ( ctr_frontwall_flag == 1 ){
     return (p + d);
   } else {
     return 0.0f;

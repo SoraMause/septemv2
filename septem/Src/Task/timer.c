@@ -60,6 +60,8 @@ void interrupt()
   updateLogger();
   
   buzzerOutPut();
+
+  machine_act_time++; // 動作の時間を記憶
 }
 
 void setRunModde( int8_t _in )

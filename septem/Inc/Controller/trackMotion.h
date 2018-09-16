@@ -24,6 +24,10 @@
 // 最短用
 #define SET_STRAIGHT        11
 
+// other
+#define DIR_ONE_BLOCK       12
+#define DIR_FOUR_BLOCK    13
+
 // turn 
 #define TURN_LEFT           16
 #define TURN_RIGHT          17
@@ -37,15 +41,20 @@
 // 最短用
 #define SLAROM_LEFT         26
 #define SLAROM_RIGHT        27
+// 区画の中心から45度ターン
+#define SLAROM_CENTER_LEFT_45   28
+#define SLAROM_CENTER_RIGHT_45  29
+// 斜めから直線に戻る
+// to do いくつかパターンが必要
+#define SLAROM_LEFT_45     30
 
-#define SLAROM_LEFT_45 28
-#define SLAROM_RIGHT_45 29
+#define SLAROM_RIGHT_45    32
 
-#define SLAROM_CENTER_LEFT_45 30
-#define SLAROM_CENTER_RIGHT_45 31
+// 斜めから90度ターン
+// いくつかパターンが必要!
+#define SLAROM_DIA_LEFT_90     34
 
-#define SLAROM_DIA_LEFT_90    32
-#define SLAROM_DIA_RIGHT_90   33
+#define SLAROM_DIA_RIGHT_90     36
 
 // 宴会芸
 #define ENKAIGEI            127

@@ -33,9 +33,14 @@
 #include "agent.h"
 #include "dijkstra.h"
 
+// マシンの探索時間　最大
+#define MAX_SEARCH_TIME 120000 // 2分間
+
 static int16_t pattern = 0;
 static uint8_t next_dir = front;
 static uint8_t return_flag = 0;
+static uint8_t normal_end = 0;
+static uint8_t rear_counter = 0;
 static uint8_t gx = 0;
 static uint8_t gy = 0;
 
@@ -96,17 +101,15 @@ void MauseSystem( void )
     case 102:
       if ( MPU6500_calc_check() == 1 ){
         setIrledPwm( IRLED_OFF );
-        setSearchGain();
+        //setSearchGain();
+        setRunModde( fast_run );
+        setFastGain();
         fullColorLedOut( LED_GREEN );
         HAL_Delay( 1000 );
         fullColorLedOut( LED_CYAN );
         buzzerSetMonophonic( E_SCALE, 300 );
         HAL_Delay( 1000 );
         pushMotion( HALF_BLOCK );
-        pushMotion( ONE_BLOCK );
-        pushMotion( ONE_BLOCK );
-        //pushMotion( HALF_BLOCK_STOP );
-        //pushMotion( SEARCH_SLAROM_LEFT );
         pushMotion( HALF_BLOCK_SEARCH );
         pushMotion( DELAY );
         pushMotion( END_MOTION );
@@ -195,6 +198,8 @@ void MauseSystem( void )
         pushMotion( ADJ_FRONT );
         mazeUpdatePosition( front );
         resetRadParam();
+        if ( return_flag == 0 ) machine_act_time = 0;
+        normal_end = 0;
         setLogFlag( 1 );
         setMotionEnd( 1 );
         setControl( 1 );
@@ -215,14 +220,17 @@ void MauseSystem( void )
         switch( next_dir ){
           case front:
             pushMotion( ONE_BLOCK_CHECK );
+            rear_counter = 0;
             break;
 
           case left:
             pushMotion( SEARCH_SLAROM_LEFT );
+            rear_counter = 0;
             break;
 
           case right:
             pushMotion( SEARCH_SLAROM_RIGHT );
+            rear_counter = 0;
             break;
 
           case rear:
@@ -233,6 +241,15 @@ void MauseSystem( void )
             pushMotion( ADJ_BACK );
             pushMotion( DELAY );
             pushMotion( ADJ_FRONT ); 
+            rear_counter++;
+            // 壁を間違えて読んで連続でその場で反転を繰り返した場合
+            // 緊急停止処理を行う
+            if ( rear_counter > 3 ){
+              pushMotion( HALF_BLOCK_STOP );
+              pushMotion( END_MOTION );
+              normal_end = 0;
+              changePattern( 22 );
+            }
             break;
         }
         maze.search[mypos.x][mypos.y] = 1;
@@ -240,6 +257,17 @@ void MauseSystem( void )
         if ( mypos.x == gx && mypos.y == gy ){
           changePattern( 21 );
         }
+        // 時間オーバーの場合探索を打ち切り停止処理を行う
+        if ( gx == MAZE_START_X && gy == MAZE_START_Y ){
+          if ( machine_act_time > MAX_SEARCH_TIME ){
+            changePattern( 21 );
+          }
+        }
+      }
+
+      if ( checkEmergyncyFlag() == 1 ){
+        setControl( 0 );
+        changePattern( 26 );
       }
       break;
 
@@ -254,6 +282,7 @@ void MauseSystem( void )
           pushMotion( DELAY );
           pushMotion( ADJ_BACK );
         }
+        normal_end = 1;
         pushMotion( END_MOTION );
         certainMazeUpdateFlag();
         changePattern( 22 );
@@ -264,10 +293,16 @@ void MauseSystem( void )
       if ( checkUpdateMotionEnd() == 1 ){
         setIrledPwm( IRLED_OFF );
         setLogFlag( 0 );
+        setControl( 0 );
         fullColorLedOut( LED_WHITE );
         buzzerSetMonophonic( NORMAL, 300 );
         HAL_Delay( 300 );
-        changePattern( 23 );
+        if ( normal_end == 1 ){
+          changePattern( 23 );
+        } else {
+          changePattern( 25 );
+        }
+        
       }
       break;
 
@@ -328,7 +363,6 @@ void MauseSystem( void )
         fullColorLedOut( LED_CYAN );
         agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 0 );
         HAL_Delay( 300 );
-        setIrledPwm( IRLED_ON );
         changePattern( 41 );
       }
 
@@ -342,7 +376,25 @@ void MauseSystem( void )
       break;
 
     case 41:
-      fullColorLedOut( LED_MAGENTA );
+      fullColorLedOut( LED_WHITE );
+      if ( getLeftPushsw() ){
+        fullColorLedOut( LED_MAGENTA );
+        HAL_Delay( 300 );
+        setIrledPwm( IRLED_ON );
+        changePattern( 42 );
+      }
+
+      if ( getRightPushsw() ){
+        motion_init();
+        agentDijkstraRoute( MAZE_GOAL_X, 15 - MAZE_GOAL_Y, 1 );
+        fullColorLedOut( LED_CYAN );
+        HAL_Delay( 300 );
+        setIrledPwm( IRLED_ON );
+        changePattern( 42 );
+      }
+      break;
+
+    case 42:
       if ( sensor[0] > 750 && sensor[3] > 750 ){
         setFastGain();
         setRunModde( fast_run );
@@ -353,11 +405,11 @@ void MauseSystem( void )
         mazePosition_init();  // マシンの座標状況を初期化
         fullColorLedOut( LED_YELLOW );
         MPU6500_z_axis_offset_calc_start();
-        changePattern( 42 );
+        changePattern( 43 );
       }
       break;
 
-    case 42:
+    case 43:
       if ( MPU6500_calc_check() == 1 ){
         fullColorLedOut( LED_GREEN );
         HAL_Delay( 1000 );
@@ -368,22 +420,27 @@ void MauseSystem( void )
         setControl( 1 );
         fullColorLedOut( LED_OFF );
         setIrledPwm( IRLED_ON );
-        changePattern( 43 );
+        changePattern( 44 );
       }
       break;  
 
-    case 43:
+    case 44:
       if ( checkUpdateMotionEnd() == 1 ){
         setIrledPwm( IRLED_OFF );
         setLogFlag( 0 );
         fullColorLedOut( LED_WHITE );
         buzzerSetMonophonic( NORMAL, 300 );
         HAL_Delay( 300 );
-        changePattern( 44 );
+        changePattern( 45 );
+      }
+
+      if ( checkEmergyncyFlag() == 1 ){
+        setControl( 0 );
+        changePattern( 45 );
       }
       break;
 
-    case 44:
+    case 45:
       if ( getRightPushsw() ){
         certainLedOut( LED_REAR );
         showLog();

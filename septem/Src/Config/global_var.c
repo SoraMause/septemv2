@@ -7,6 +7,9 @@ uint8_t timer125;
 float gyro_z_measured;
 float machine_rad;
 
+// machine_action time
+uint32_t machine_act_time;
+
 // sensor data
 int16_t batt_analog;
 float batt_monitor;

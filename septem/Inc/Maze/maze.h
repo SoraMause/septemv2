@@ -16,20 +16,21 @@
 #define HALF_BLOCK_DISTANCE   90.0f
 #define ONE_BLOCK_DISTANCE    180.0f
 
-#define SLATING_ONE_BLOCK_DISTANCE 127.2792f 
+#define SLATING_ONE_BLOCK_DISTANCE 90.0f 
 
 #define MASK_SEARCH	0x01
 #define MASK_SHORT	0x03
 
 typedef enum
 {
-	front = 0,		//前
-	right = 1,		//右
-	rear = 2,			//後
-	left = 3,			//左
-	diagonal = 8,	// 斜め直線
-	dir_left = 9,	// 斜め左
-	dir_right = 10, // 斜め右
+	front=0,		//前
+	right=1,		//右
+	rear=2,			//後
+	left=3,			//左
+	diagonal_left = 8,	// 斜め左直線
+	diagonal_right = 9,	// 斜め右直線
+	dir_left = 10,	// 斜め左
+	dir_right = 11, // 斜め右
 }t_local_dir;	//自分から見た方向を示す列挙型
 
 typedef enum

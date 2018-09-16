@@ -144,7 +144,7 @@ uint8_t read_byte( uint8_t reg )
 {
   uint8_t ret,val;
   HAL_GPIO_WritePin( gyro_cs_GPIO_Port, gyro_cs_Pin, GPIO_PIN_RESET ); //cs = 0;
-  ret = reg | 0x80 ;
+  ret = reg | 0x80;   // 読み込みのときは最上位ビットをHighにする
   HAL_SPI_Transmit( &hspi2, &ret,1,100 );
   HAL_SPI_Receive( &hspi2,&val,1,100 ); 
   HAL_GPIO_WritePin( gyro_cs_GPIO_Port,gyro_cs_Pin, GPIO_PIN_SET );  //cs = 1;
@@ -196,7 +196,7 @@ void MPU6500_init( void )
 {
   uint8_t who_am_i;
   uint8_t recheck_who_am_i;
-  // MPU-6500の???��?��??��?��?バイスチェ???��?��??��?��?ク
+  // MPU-6500の???��?��??��?��?バイスチェ???��?��??��?��?ク
   
   who_am_i = read_byte( MPU6500_RA_WHO_AM_I );
   printf( "\r\n0x%x\r\n",who_am_i );
@@ -220,13 +220,13 @@ void MPU6500_init( void )
 
   HAL_Delay( 100 );
 
-	// DLPF_CFG = 0 : GyroのLPFを無効???��?��??��?��?
-	// FIFOは使わな???��?��??��?��?
+	// DLPF_CFG = 0 : GyroのLPFを無効???��?��??��?��?
+	// FIFOは使わな???��?��??��?��?
   write_byte( MPU6500_RA_CONFIG, 0x00 );
 
   HAL_Delay( 100 );
 
-  // Gyroのフルスケール???��?��??��?��?+-2000dpsに設???��?��??��?��?
+  // Gyroのフルスケール???��?��??��?��?+-2000dpsに設???��?��??��?��?
 	write_byte(MPU6500_RA_GYRO_CONFIG, 0x18);
 
   gyro_calc_flag = 1;

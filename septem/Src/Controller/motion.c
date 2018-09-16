@@ -2,6 +2,8 @@
 
 #include "targetGenerator.h"
 
+#include "trackMotion.h"
+
 #include "config.h"
 
 //#include <stdio.h>
@@ -32,6 +34,8 @@ static uint8_t slarom_flag = 1;         // 終了確認用フラグ( slarom )
 static float before_L = 0.0f;           // スラロームの曲がる前のオフセット走行距離
 static float after_L = 0.0f;            // スラロームの終了距離
 static float slarom_trape_L = 0.0f;     // スラロームの曲がるのに必要な距離
+
+static int8_t after_wallPD_flag = 0;
 
 // delay motion
 static uint16_t cnt_delay = 0;
@@ -262,7 +266,10 @@ float slaromNext( float distance, float rad )
       }
     } else if ( distance < after_L ){
       omega = 0.0f;
-      setControlWallPD( 1 );
+      if ( after_wallPD_flag == 1 ) {
+        after_wallPD_flag = 0;
+        setControlWallPD( 1 );
+      }
     } else {
       omega = 0.0f;
       slarom_flag = 1;
@@ -274,6 +281,11 @@ float slaromNext( float distance, float rad )
 
   return omega;
 
+}
+
+void setAfterWallPD( void )
+{
+  after_wallPD_flag = 1;
 }
 
 void motionDelay( void )

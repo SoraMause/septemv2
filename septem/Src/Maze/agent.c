@@ -300,12 +300,17 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
         }
         cnt++;
       }
-			if(DIA_GO1<=route[i] && route[i]<=DIA_GO31){
+			if(DIA_GO1<=route[i] && route[i]<=DIA_GO31){    
+        if ( motion_buff[cnt-1] == dir_left ){
+          motion_buff[cnt] = diagonal_left;
+        } else if ( motion_buff[cnt-1] == dir_right ) {
+          motion_buff[cnt] = diagonal_right;
+        }
         motion_queue[cnt] = SET_STRAIGHT;
-        motion_buff[cnt] = diagonal;
         fast_path[cnt].distance = (float)SLATING_ONE_BLOCK_DISTANCE * (route[i]-DIA_GO1+1);
         cnt++;
       }
+
 			if(route[i]==TURNR){
         motion_queue[cnt] = SLAROM_RIGHT;
         motion_buff[cnt] = right;
@@ -330,30 +335,29 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
         fast_path[cnt].distance = 0.0f;
         cnt++;
       }
+
+// to do ここらへん全部考え直し！
+// to do motion_queue[cnt]にモーションを代入
+// to do motion_buff[cnt]にモーションの名前を代入
 			if(route[i]==DIA_FROM_CLOTHOIDR){
-        motion_queue[cnt] = SLAROM_RIGHT_45;
-        motion_buff[cnt] = dir_right;
         fast_path[cnt].distance = 0.0f;
         cnt++;
       }
+
 			if(route[i]==DIA_FROM_CLOTHOIDL){
-        motion_queue[cnt] = SLAROM_LEFT_45;
-        motion_buff[cnt] = dir_left;
         fast_path[cnt].distance = 0.0f;
         cnt++;
       }
+
 			if(route[i]==DIA_TURNR){
-        motion_queue[cnt] = SLAROM_DIA_RIGHT_90;
-        motion_buff[cnt] = dir_right;
         fast_path[cnt].distance = 0.0f;
         cnt++;
       }
 			if(route[i]==DIA_TURNL){
-        motion_queue[cnt] = SLAROM_DIA_LEFT_90;
-        motion_buff[cnt] = dir_left;
         fast_path[cnt].distance = 0.0f;
         cnt++;
       }
+// ここまで
 			if(route[i]==SNODE) printf("おわり\r\n");
 		}
 
@@ -377,19 +381,8 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
         fast_path[i].speed = 700.0f;
       }
       fast_path[i].end_speed = 500.0f;
-    } else if ( motion_buff[i] == diagonal ){
-      if ( i == 0 ){
-        fast_path[0].start_speed = 0.0f;
-      } else {
+    } else if ( motion_buff[i] == diagonal_left || motion_buff[i] == diagonal_right ){
         fast_path[i].start_speed = 500.0f;
-      }
-      if ( fast_path[i].distance >= 1080.0f ){
-        fast_path[i].speed = 1000.0f;
-      } else if ( fast_path[i].distance >= 540.0f ){
-        fast_path[i].speed = 700.0f;
-      } else {
-        fast_path[i].speed = 500.0f;
-      }
     } else {
       fast_path[i].speed = 500.0f;
       fast_path[i].start_speed = 500.0f;
@@ -397,34 +390,66 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
     }
   }
 
+  motion_queue[cnt] = END_MOTION;
+
   if ( out_flag == 1 ){
 
     printf("以下の経路が見つかりました\r\n");
     for ( int i = 0; i <= cnt; i++ ){
         if(GO1<=route[i] && route[i]<=GO15){
-          printf("%dマス直進, speed: %f, distance: %f\r\n",route[i], fast_path[i].speed, fast_path[i].distance );
+          printf("%dマス直進, speed: %f, distance: %f ",route[i], fast_path[i].speed, fast_path[i].distance );
         }
           
         if(DIA_GO1<=route[i] && route[i]<=DIA_GO31)
-          printf("%dマス斜め直進, speed: %f, distance: %f\r\n",route[i]-DIA_GO1+1, fast_path[i].speed, fast_path[i].distance );
+          printf("%dマス斜め直進, speed: %f, distance: %f ",route[i]-DIA_GO1+1, fast_path[i].speed, fast_path[i].distance );
         if(route[i]==TURNR)
-          printf("右９０度方向へスラローム\r\n");
+          printf("右９０度方向へスラローム ");
         if(route[i]==TURNL)
-          printf("左９０度方向へスラローム\r\n");
+          printf("左９０度方向へスラローム ");
         if(route[i]==DIA_TO_CLOTHOIDR)
-          printf("直進から１マス使って斜め右方向へ\r\n");
+          printf("直進から１マス使って斜め右方向へ ");
         if(route[i]==DIA_TO_CLOTHOIDL)
-          printf("直進から１マス使って斜め左方向へ\r\n");
+          printf("直進から１マス使って斜め左方向へ ");
         if(route[i]==DIA_FROM_CLOTHOIDR)
-          printf("斜め右方向から直進へ\r\n");
+          printf("斜め右方向から直進へ ");
         if(route[i]==DIA_FROM_CLOTHOIDL)
-          printf("斜め左方向から直進へ\r\n");
+          printf("斜め左方向から直進へ ");
         if(route[i]==DIA_TURNR)
-          printf("斜めから右９０度方向ターンして斜めへ\r\n");
+          printf("斜めから右９０度方向ターンして斜めへ ");
         if(route[i]==DIA_TURNL)
-          printf("斜めから左９０度方向ターンして斜めへ\r\n");
+          printf("斜めから左９０度方向ターンして斜めへ ");
         if(route[i]==SNODE)
-          printf("おわり\r\n");
+          printf("おわり");
+      
+      #if 0
+      switch( motion_queue[i] ){
+        case SET_STRAIGHT:
+          printf( "set straight\r\n");
+          break;
+
+        case SLAROM_LEFT:
+          printf( "slarom left\r\n");
+          break;
+
+        case SLAROM_RIGHT:
+          printf( "slarom right\r\n");
+          break;
+
+        case SLAROM_CENTER_LEFT_45:
+          printf( "slarom center left 45\r\n");
+          break;
+
+        case SLAROM_CENTER_RIGHT_45:
+          printf( "slarom center right 45\r\n");
+          break;
+
+
+        case END_MOTION:
+          printf( " END_MOTION\r\n" );
+          break;
+      } // end motion_buff
+      #endif
+        
     }
   }
 

@@ -20,10 +20,13 @@ float yawrateNext( float rad );
 
 void setSlarom( float rad, float accele, float rad_target, float speed_target, float before_distance, float after_distance );
 float slaromNext( float distance, float rad );
+void setAfterWallPD( void );
 
 void motionDelay( void );
 
 void setMotionEnd( int8_t _end );
 int8_t checkEndMotion( void );
+
+
 
 #endif /* __MOTION_H */
