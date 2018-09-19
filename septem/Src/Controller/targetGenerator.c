@@ -333,7 +333,7 @@ float updateAngularAccele( void )
   log_omega = (int16_t)gyro_z_measured;
   log_rad = (int16_t)machine_rad;
   
-  if ( checkNowMotion() == no_control || checkNowMotion() == delay ){
+  if ( checkNowMotion() == no_control ){
     angular_accele = 0.0f;
     return angular_accele;
   } else {

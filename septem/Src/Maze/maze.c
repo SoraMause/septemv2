@@ -30,7 +30,6 @@ void mazeWall_init(void)
 
 	// スタートマスの右側の壁
 	maze.east_wall[0][0] = exist;
-	maze.north_wall[0][0] = nowall;
 
 	// 外壁の代入
 	for (int i = 0; i <= MAZE_SIZE_X; i++) {
@@ -657,7 +656,7 @@ uint8_t getNextdir(uint8_t mask)
 				if (maze.step[mypos.x][mypos.y - 1] < step) {
 					step = maze.step[mypos.x][mypos.y - 1];
 					nextdir = left;
-					priority = tmp_priority;
+					priority = tmp_priority;					
 				}
 			}
 		}
