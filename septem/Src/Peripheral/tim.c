@@ -43,6 +43,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
+#include "global_var.h"
 
 TIM_MasterConfigTypeDef sMasterConfig;
 TIM_OC_InitTypeDef sConfigOC;

@@ -786,11 +786,11 @@ void mazeStoreData(void)
 	// 配列の中身を全て保存しなおす
 	for (int i = 0; i <= MAZE_SIZE_X; i++) {
 		for (int j = 0; j <= MAZE_SIZE_Y; j++) {
-			maze_store.north_wall[i][j] = (maze_store.north_wall[i][j] & MASK_SEARCH);
-			maze_store.east_wall[i][j] = (maze_store.east_wall[i][j] & MASK_SEARCH);
-			maze_store.west_wall[i][j] = (maze_store.west_wall[i][j] & MASK_SEARCH);
-			maze_store.south_wall[i][j] = (maze_store.south_wall[i][j] & MASK_SEARCH);
-
+      if ( maze.north_wall[i][j] == 2 ) maze.north_wall[i][j] = 1;
+      if ( maze.east_wall[i][j] == 2 ) maze.east_wall[i][j] = 1;
+      if ( maze.west_wall[i][j] == 2 ) maze.west_wall[i][j] = 1;
+      if ( maze.south_wall[i][j] == 2 ) maze.south_wall[i][j] = 1; 
+			
 			maze_store.north_wall[i][j] = maze.north_wall[i][j];
 			maze_store.east_wall[i][j] = maze.east_wall[i][j];
 			maze_store.west_wall[i][j] = maze.west_wall[i][j];

@@ -217,7 +217,8 @@ void MauseSystem( void )
         mazeSetWall( mypos.x, mypos.y );
         mazeUpdateMap( gx, gy, MASK_SEARCH );
         if ( gx == MAZE_GOAL_X && gy == MAZE_GOAL_Y ){
-          maze.north_wall[0][0] = 1;
+          maze.north_wall[0][0] = 1;  // 壁のダミーを挿入
+          maze.south_wall[0][1] = 1;
         } 
         next_dir = getNextdir( MASK_SEARCH );
         switch( next_dir ){
@@ -277,6 +278,7 @@ void MauseSystem( void )
     case 21:
       if ( checkMazeUpdateFlag() == 1 ){
         maze.north_wall[0][0] = 0;  // 壁を入れていたため削除する
+        maze.south_wall[0][1] = 0;  // 壁を入れていたため削除する
         maze.search[mypos.x][mypos.y] = 1;
         mazeSetWall( mypos.x, mypos.y );
         pushMotion( HALF_BLOCK_STOP );
