@@ -17,7 +17,7 @@ void fast_path_init( void )
   }
 }
 
-int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t method, uint8_t outflag )
+int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t method, uint8_t outflag, uint8_t boost )
 {
   uint8_t nextdir = front;
   uint8_t count = 1;
@@ -26,6 +26,8 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
   int16_t path_number = 0;
   float rec_time = 0.0f;
   uint8_t counter = 0;
+
+  // to do boost によって直線を早くするソフトを入れる。
 
   for ( int i = 0; i < 256; i++ ){
     motion_queue[i] = 0;
@@ -251,26 +253,26 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
   }
 }
 
-void agentSetShortRoute( uint8_t gx, uint8_t gy, uint8_t outflag )
+void agentSetShortRoute( uint8_t gx, uint8_t gy, uint8_t outflag, uint8_t boost )
 {
   uint8_t checkA = 0;
   uint8_t checkB = 0;
   float timeA = 0.0f;
   float timeB = 0.0f;
 
-  checkA = agentGetShortRoute( gx, gy,&timeA, 0, outflag );
-  checkB = agentGetShortRoute( gx, gy,&timeB, 1, outflag );
+  checkA = agentGetShortRoute( gx, gy,&timeA, 0, outflag, boost );
+  checkB = agentGetShortRoute( gx, gy,&timeB, 1, outflag, boost );
 
   if ( checkA == 1 && checkB == 1 ){
     if ( timeA < timeB ){
-      agentGetShortRoute( gx, gy,&timeA, 0, outflag );
+      agentGetShortRoute( gx, gy,&timeA, 0, outflag, boost );
     } else {
-      agentGetShortRoute( gx, gy,&timeB, 1, outflag );
+      agentGetShortRoute( gx, gy,&timeB, 1, outflag, boost );
     }
   } else if ( checkA == 0 ){
-    agentGetShortRoute( gx, gy,&timeB, 1, outflag );
+    agentGetShortRoute( gx, gy,&timeB, 1, outflag, boost );
   } else if ( checkB == 0 ){
-    agentGetShortRoute( gx, gy,&timeA, 0, outflag );
+    agentGetShortRoute( gx, gy,&timeA, 0, outflag, boost );
   } else {
     return;
   }
@@ -280,176 +282,411 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
 {
   int16_t route[256];
   int8_t motion_buff[256];
-  int16_t cnt = 0;
+  int8_t motion_data[256];
+  uint8_t cnt_dijkstra = 0;
+  int i = 0;
+  uint8_t cnt_motion = 0;
 
   for ( int i = 0; i < 256; i++ ){
     motion_queue[i] = 0;
     motion_buff[i] = 0;
+    motion_data[i] = 0;
     route[i] = 0;
   }
   
   if ( getRouteArray( gx, gy, route, out_flag ) ){
-		for( int i = 0;route[i]!=SNODE;i++){
-			if(GO1<=route[i] && route[i]<=GO15){
-        motion_queue[cnt] = SET_STRAIGHT;
-        motion_buff[cnt] = front;
-        if ( cnt == 0 ){
-          fast_path[cnt].distance = (float)ONE_BLOCK_DISTANCE * route[i] + 40.0f;
-        } else {
-          fast_path[cnt].distance = (float)ONE_BLOCK_DISTANCE * route[i];
-        }
-        cnt++;
+		printf("以下の経路が見つかりました\r\n");
+    for( i = 0;route[i]!=SNODE;i++){
+      if(GO1<=route[i] && route[i]<=GO15){
+        cnt_dijkstra++;      
       }
-			if(DIA_GO1<=route[i] && route[i]<=DIA_GO31){    
-        if ( motion_buff[cnt-1] == dir_left ){
-          motion_buff[cnt] = diagonal_left;
-        } else if ( motion_buff[cnt-1] == dir_right ) {
-          motion_buff[cnt] = diagonal_right;
-        }
-        motion_queue[cnt] = SET_STRAIGHT;
-        fast_path[cnt].distance = (float)SLATING_ONE_BLOCK_DISTANCE * (route[i]-DIA_GO1+1);
-        cnt++;
-      }
+          
+      if(DIA_GO1<=route[i] && route[i]<=DIA_GO31)
+        cnt_dijkstra++;
+      
 
-			if(route[i]==TURNR){
-        motion_queue[cnt] = SLAROM_RIGHT;
-        motion_buff[cnt] = right;
-        fast_path[cnt].distance = 0.0f;
-        cnt++;
-      }
-			if(route[i]==TURNL){
-        motion_queue[cnt] = SLAROM_LEFT;
-        motion_buff[cnt] = left;
-        fast_path[cnt].distance = 0.0f;
-        cnt++;
-      }
-			if(route[i]==DIA_TO_CLOTHOIDR){
-        motion_queue[cnt] = SLAROM_CENTER_RIGHT_45;
-        motion_buff[cnt] = dir_right;
-        fast_path[cnt].distance = 0.0f;
-        cnt++;
-      }
-			if(route[i]==DIA_TO_CLOTHOIDL){
-        motion_queue[cnt] = SLAROM_CENTER_LEFT_45;
-        motion_buff[cnt] = dir_left;
-        fast_path[cnt].distance = 0.0f;
-        cnt++;
-      }
+      if(route[i]==TURNR)
+        cnt_dijkstra++;
+      
+        
+      if(route[i]==TURNL)
+        cnt_dijkstra++;
+        
+      if(route[i]==DIA_TO_CLOTHOIDR)
+        cnt_dijkstra++;
+        
+      if(route[i]==DIA_TO_CLOTHOIDL)
+        cnt_dijkstra++;
+        
+      if(route[i]==DIA_FROM_CLOTHOIDR)
+        cnt_dijkstra++;
+      
+      if(route[i]==DIA_FROM_CLOTHOIDL)
+        cnt_dijkstra++;
 
-// to do ここらへん全部考え直し！
-// to do motion_queue[cnt]にモーションを代入
-// to do motion_buff[cnt]にモーションの名前を代入
-			if(route[i]==DIA_FROM_CLOTHOIDR){
-        fast_path[cnt].distance = 0.0f;
-        cnt++;
-      }
+      if(route[i]==DIA_TURNR)
+        cnt_dijkstra++;
 
-			if(route[i]==DIA_FROM_CLOTHOIDL){
-        fast_path[cnt].distance = 0.0f;
-        cnt++;
-      }
+      if(route[i]==DIA_TURNL)
+        cnt_dijkstra++;
 
-			if(route[i]==DIA_TURNR){
-        fast_path[cnt].distance = 0.0f;
-        cnt++;
-      }
-			if(route[i]==DIA_TURNL){
-        fast_path[cnt].distance = 0.0f;
-        cnt++;
-      }
-// ここまで
-			if(route[i]==SNODE) printf("おわり\r\n");
-		}
-
-	}else{
-		printf("軌道が見つからなかった\r\n");
+      if(route[i]==SNODE)
+        cnt_dijkstra++;
+        
+    }
+  } else {
+    printf( "経路が見つかりませんでした。\r\n" );
     return 0;
-	}
+  }
 
-  for ( int i = 0; i < cnt; i++ ){
-    if ( motion_buff[i] == front ){
-      if ( i == 0 ){
-        fast_path[0].start_speed = 0.0f;
+  motion_queue[cnt_dijkstra] = end_maze;
+  cnt_dijkstra++; 
+  printf( "cnt_dijkstra = %4d\r\n",cnt_dijkstra );
+
+  // to do 
+  // 中心から右斜め　45度ターン #0
+  // x= 90 y = 180
+  // 中心から右斜め　右斜めから直線　90度ターン　#1
+  // x = 180 y = 180
+  // 中心から右斜め　右90度ターン　右斜めから45度ターン 180 度ターン #2
+  // x = 180 y = 0
+  // 右斜め　右90度ターン　斜め１区画　斜め90度ターン #3
+  // x = 180 y = 0
+  // 右斜め90度ターン　右斜めから直線復帰 135度直線復帰ターン #4
+  // x = 180 y = -90
+  // 右斜めから復帰
+  // x = 90 y = 180　
+  // motion_queue にモーションを入れてしまう！
+  i  = 0;
+  while( i < cnt_dijkstra ){
+    if(GO1<=route[i] && route[i]<=GO15){
+      motion_queue[cnt_motion] = SET_STRAIGHT;
+      motion_buff[cnt_motion] = front;
+      motion_data[cnt_motion] = route[i];
+      cnt_motion++;
+      i++;      
+    }
+          
+    if(DIA_GO1<=route[i] && route[i]<=DIA_GO31){
+      motion_queue[cnt_motion] = SET_STRAIGHT;
+      motion_buff[cnt_motion] = diagonal;
+      motion_data[cnt_motion] = route[i]-DIA_GO1 + 1;
+      cnt_motion++;
+      i++;
+    }
+      
+
+    if(route[i]==TURNR){
+      motion_queue[cnt_motion] = CENRTER_SLAROM_RIGHT;
+      motion_buff[cnt_motion] = right;
+      motion_data[cnt_motion] = 1;
+      cnt_motion++;
+      i++;
+    }
+         
+    if(route[i]==TURNL){
+      motion_queue[cnt_motion] = CENRTER_SLAROM_LEFT;
+      motion_buff[cnt_motion] = left;
+      motion_data[cnt_motion] = 1;
+      cnt_motion++;
+      i++;
+    }
+        
+    if(route[i]==DIA_TO_CLOTHOIDR){
+      if ( route[i+1] == DIA_FROM_CLOTHOIDR ){
+        // 次の動作が右斜め直線復帰なら90度ターンに変更
+        motion_queue[cnt_motion] = CENRTER_SLAROM_RIGHT;
+        motion_buff[cnt_motion] = short_right;
+        motion_data[cnt_motion] = 1;
+        cnt_motion++;
+        i+=2;
+      } else if ( route[i+1] == DIA_TURNR ){
+        // もし次の動作が右90度なら
+        if( route[i+2] == DIA_FROM_CLOTHOIDR ){
+          // もしその次の動作が右斜め直線復帰なら
+          motion_queue[cnt_motion] = SLAROM_RIGHT_180;
+          motion_buff[cnt_motion] = right_180;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i+=3;
+        } else {
+          // それ以外なら
+          motion_queue[cnt_motion] = DIA_CENTER_RIGHT;
+          motion_buff[cnt_motion] = dir_right;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i++;          
+        }
       } else {
-        fast_path[i].start_speed = 500.0f;
+        motion_queue[cnt_motion] = DIA_CENTER_RIGHT;
+        motion_buff[cnt_motion] = dir_right;
+        motion_data[cnt_motion] = 1;
+        cnt_motion++;
+        i++;
       }
-      if ( fast_path[i].distance >= 720.0f ){
-        fast_path[i].speed = 1500.0f;
-      } else if ( fast_path[i].distance >= 360.0f ){
-        fast_path[i].speed = 1000.0f;
+
+    }
+              
+    if(route[i]==DIA_TO_CLOTHOIDL){
+      if ( route[i+1] == DIA_FROM_CLOTHOIDL ){
+        // 次の動作が左斜め直線復帰なら90度ターンに変更
+        motion_queue[cnt_motion] = CENRTER_SLAROM_LEFT;
+        motion_buff[cnt_motion] = short_left;
+        motion_data[cnt_motion] = 1;
+        cnt_motion++;
+        i+=2;
+      } else if ( route[i+1] == DIA_TURNL ){
+        // もし次の動作が左90度なら
+        if ( route[i+2] == DIA_FROM_CLOTHOIDL ){
+          // もしその次の動作が左斜め直線復帰なら
+          motion_queue[cnt_motion] = SLAROM_LEFT_180;
+          motion_buff[cnt_motion] = left_180;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i+=3;
+        } else {
+          // それ以外なら
+          motion_queue[cnt_motion] = DIA_CENTER_LEFT;
+          motion_buff[cnt_motion] = dir_left;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i++;          
+        }
       } else {
-        fast_path[i].speed = 700.0f;
+        motion_queue[cnt_motion] = DIA_CENTER_LEFT;
+        motion_buff[cnt_motion] = dir_left;
+        motion_data[cnt_motion] = 1;
+        cnt_motion++;
+        i++;
       }
-      fast_path[i].end_speed = 500.0f;
-    } else if ( motion_buff[i] == diagonal_left || motion_buff[i] == diagonal_right ){
-        fast_path[i].start_speed = 500.0f;
-    } else {
-      fast_path[i].speed = 500.0f;
-      fast_path[i].start_speed = 500.0f;
-      fast_path[i].end_speed = 500.0f;
+    }
+        
+    if(route[i]==DIA_FROM_CLOTHOIDR){
+      motion_queue[cnt_motion] = RETURN_DIA_RIGHT;
+      motion_buff[cnt_motion] = right_return;
+      motion_data[cnt_motion] = 1;
+      cnt_motion++;
+      i++;
+    }
+      
+    if(route[i]==DIA_FROM_CLOTHOIDL){
+      motion_queue[cnt_motion] = RETURN_DIA_LEFT;
+      motion_buff[cnt_motion] = left_return;
+      motion_data[cnt_motion] = 1;
+      cnt_motion++;
+      i++;
+    }
+
+    if(route[i]==DIA_TURNR){
+      if ( route[i+1] == DIA_FROM_CLOTHOIDR ){
+        // もしその次の動作が右斜めから直線復帰なら
+        motion_queue[cnt_motion] = RETURN_DIA_RIGHT_135;
+        motion_buff[cnt_motion] = right_return_135;
+        motion_data[cnt_motion] = 1;
+        cnt_motion++;
+        i+=2;  
+      } else if (DIA_GO1<=route[i+1] && route[i+1]<=DIA_GO31 ){
+        if( route[i+1] == DIA_GO1 ){
+          // もし次の動作が１区画斜め直進なら
+          motion_queue[cnt_motion] = DIA_RIGHT_TURN;
+          motion_buff[cnt_motion] = dia_turn_right;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i+=2;
+        } else {
+          // もし1区画以上なら
+          motion_queue[cnt_motion] = DIA_RIGHT_TURN;
+          motion_buff[cnt_motion] = dia_turn_right;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i++;
+          motion_queue[cnt_motion] = SET_STRAIGHT;
+          motion_buff[cnt_motion] = diagonal;
+          motion_data[cnt_motion] = route[i]-DIA_GO1;
+          cnt_motion++;
+          i++;
+        } 
+      } 
+    }
+
+    if(route[i]==DIA_TURNL){
+      if ( route[i+1] == DIA_FROM_CLOTHOIDL ){
+        // もしその次の動作が左斜めから直線復帰なら
+        motion_queue[cnt_motion] = RETURN_DIA_LEFT_135;
+        motion_buff[cnt_motion] = left_return_135;
+        motion_data[cnt_motion] = 1;
+        cnt_motion++;
+        i+=2;       
+      } else if (DIA_GO1<=route[i+1] && route[i+1]<=DIA_GO31 ){
+        if( route[i+1] == DIA_GO1 ){
+          // もし次の動作が１区画斜め直進なら
+          motion_queue[cnt_motion] = DIA_LEFT_TURN;
+          motion_buff[cnt_motion] = dia_turn_left;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i+=2;
+        } else {
+          // もし1区画以上なら
+          motion_queue[cnt_motion] = DIA_LEFT_TURN;
+          motion_buff[cnt_motion] = dia_turn_left;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i++;
+          motion_queue[cnt_motion] = SET_STRAIGHT;
+          motion_buff[cnt_motion] = diagonal;
+          motion_data[cnt_motion] = route[i]-DIA_GO1;
+          cnt_motion++;
+          i++;
+        }
+      } 
+    }
+    
+        
+    if(route[i]==SNODE){
+      motion_queue[cnt_motion] = END_MOTION;
+      motion_buff[cnt_motion] = end_maze;
+      motion_data[cnt_motion] = 0;      
+      cnt_motion++;
+      i++;
     }
   }
 
-  motion_queue[cnt] = END_MOTION;
+  // to do
+  // motionの目標速度、開始速度、終了速度、距離、モーションをそれぞれ指定すること
+  // 最後がスラロームの場合ゴール座標の中心でうまく停止できるようにすること
+  // 前壁制御で何とかすればいいのでは。
+  for( i = 0; i < cnt_motion; i++ ){
+    if ( i == 0 ) {
+      fast_path[i].start_speed = 0.0f;
+      fast_path[i].end_speed = 500.0f;
+    } else if ( i == cnt_motion -2 ){
+      fast_path[i].start_speed = 500.0f;
+      fast_path[i].end_speed = 0.0f;
+    } else if ( i == cnt_motion - 1 ){
+      if ( motion_queue[i] == END_MOTION )
+        printf( "最短圧縮速度指定、距離指定\r\n");
+        printf( "check end motion\r\n" );
+    } else {
+      fast_path[i].start_speed = 500.0f;
+      fast_path[i].end_speed = 500.0f;
+    }
 
+    if ( motion_buff[i] == front ){
+      fast_path[i].distance = motion_data[i] * ONE_BLOCK_DISTANCE;
+      // to do 距離によって変更
+      fast_path[i].speed = 700.0f;
+    } else if ( motion_buff[i] == diagonal ){
+      fast_path[i].distance = motion_data[i] * SLATING_ONE_BLOCK_DISTANCE;
+      fast_path[i].speed = 500.0f;
+    } else {
+      fast_path[i].distance = 0.0f;
+      fast_path[i].speed = 500.0f;
+    }
+  }
+
+  // もし、END_MOTIONの前がスラロームターンの場合
+  // to do どうにかして前にぶつからずに止める方法を模索する必要あり
+  // 前壁制御を有効にして20mm進めようとする 必須条件　加速度 8 m /ss
+  // 壁がない場合はラッキー的な 
+  if ( motion_queue[cnt_motion-2] != SET_STRAIGHT ){
+    // 終了速度を低速のまま
+    fast_path[cnt_motion-2].end_speed = 500.0f;
+    // 次の動作をEND_MOTIONから直線30mm 停止へ
+    motion_buff[cnt_motion-1] = front;
+    fast_path[cnt_motion-1].distance = 30.0f;
+    fast_path[cnt_motion-1].start_speed = 500.0f;
+    fast_path[cnt_motion-1].end_speed = 0.0f;
+    // 壁制御を有効なストレートモードを作成すること
+    motion_queue[cnt_motion-1] = SET_FRONT_PD_STRAIGHT;
+    // cnt_motionにEND_MOTIONを入れてその後
+    motion_buff[cnt_motion] = end_maze;
+    motion_queue[cnt_motion] = END_MOTION;
+    cnt_motion++;
+  }
+
+  
+  // 結果の表示
   if ( out_flag == 1 ){
+    #if 0
+    printf( "\r\n最短圧縮前\r\n\r\n" );
+    for( i = 0; i< cnt_dijkstra; i++ ){
+      if(GO1<=route[i] && route[i]<=GO15) 
+        printf("%dマス直進\r\n", route[i] );
+      if(DIA_GO1<=route[i] && route[i]<=DIA_GO31)
+        printf("%dマス斜め直進\r\n",route[i]-DIA_GO1 + 1);
+      if(route[i]==TURNR)
+        printf("右９０度方向へスラローム\r\n");
+      if(route[i]==TURNL)
+        printf("左９０度方向へスラローム\r\n");
+      if(route[i]==DIA_TO_CLOTHOIDR)
+        printf("直進から１マス使って斜め右方向へ\r\n");
+      if(route[i]==DIA_TO_CLOTHOIDL)
+        printf("直進から１マス使って斜め左方向へ\r\n");
+      if(route[i]==DIA_FROM_CLOTHOIDR)
+        printf("斜め右方向から直進へ\r\n");
+      if(route[i]==DIA_FROM_CLOTHOIDL)
+        printf("斜め左方向から直進へ\r\n");
+      if(route[i]==DIA_TURNR)
+        printf("斜めから右９０度方向ターンして斜めへ\r\n");
+      if(route[i]==DIA_TURNL)
+        printf("斜めから左９０度方向ターンして斜めへ\r\n");
+      if(route[i]==SNODE)
+        printf("おわり\r\n\r\n");
+    }
+    #endif
 
-    printf("以下の経路が見つかりました\r\n");
-    for ( int i = 0; i <= cnt; i++ ){
-        if(GO1<=route[i] && route[i]<=GO15){
-          printf("%dマス直進, speed: %f, distance: %f ",route[i], fast_path[i].speed, fast_path[i].distance );
-        }
-          
-        if(DIA_GO1<=route[i] && route[i]<=DIA_GO31)
-          printf("%dマス斜め直進, speed: %f, distance: %f ",route[i]-DIA_GO1+1, fast_path[i].speed, fast_path[i].distance );
-        if(route[i]==TURNR)
-          printf("右９０度方向へスラローム ");
-        if(route[i]==TURNL)
-          printf("左９０度方向へスラローム ");
-        if(route[i]==DIA_TO_CLOTHOIDR)
-          printf("直進から１マス使って斜め右方向へ ");
-        if(route[i]==DIA_TO_CLOTHOIDL)
-          printf("直進から１マス使って斜め左方向へ ");
-        if(route[i]==DIA_FROM_CLOTHOIDR)
-          printf("斜め右方向から直進へ ");
-        if(route[i]==DIA_FROM_CLOTHOIDL)
-          printf("斜め左方向から直進へ ");
-        if(route[i]==DIA_TURNR)
-          printf("斜めから右９０度方向ターンして斜めへ ");
-        if(route[i]==DIA_TURNL)
-          printf("斜めから左９０度方向ターンして斜めへ ");
-        if(route[i]==SNODE)
-          printf("おわり");
-      
-      #if 0
-      switch( motion_queue[i] ){
-        case SET_STRAIGHT:
-          printf( "set straight\r\n");
-          break;
-
-        case SLAROM_LEFT:
-          printf( "slarom left\r\n");
-          break;
-
-        case SLAROM_RIGHT:
-          printf( "slarom right\r\n");
-          break;
-
-        case SLAROM_CENTER_LEFT_45:
-          printf( "slarom center left 45\r\n");
-          break;
-
-        case SLAROM_CENTER_RIGHT_45:
-          printf( "slarom center right 45\r\n");
-          break;
-
-
-        case END_MOTION:
-          printf( " END_MOTION\r\n" );
-          break;
-      } // end motion_buff
-      #endif
-        
+    printf( "\r\n最短圧縮後\r\n\r\n");
+    for( i = 0; i< cnt_motion; i++ ){
+      if( motion_buff[i] == front )
+        printf("%dマス直進,distance %f,speed target %f, start %f, end %f\r\n", 
+        motion_data[i],fast_path[i].distance, fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed );
+      if( motion_buff[i] == diagonal )
+        printf("%dマス斜め直進,distance %f,speed target %f, start %f, end %f\r\n",
+        motion_data[i],fast_path[i].distance, fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed );
+      if( motion_buff[i] == right )
+        printf("右９０度方向へスラローム,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == left )
+        printf("左９０度方向へスラローム,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == dir_right )
+        printf("直進から１マス使って斜め右方向へ #0,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == dir_left )
+        printf("直進から１マス使って斜め左方向へ #0,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == right_return )
+        printf("斜め右方向から直進へ #5,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == left_return )
+        printf("斜め左方向から直進へ #5,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == dia_turn_right )
+        printf("斜めから右９０度方向へ大廻りターンして斜めへ #3,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == dia_turn_left )
+        printf("斜めから左９０度方向へ大廻りターンして斜めへ #3,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == short_right )
+        printf("右９０度方向へ区画の中心からスラローム #1,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == short_left )
+        printf("左９０度方向へ区画の中心からスラローム #1,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == right_return_135 )
+        printf("右135度方向から直線へ #4,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == left_return_135 )
+        printf("左135度方向から直線へ #4,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == right_180 )
+        printf("右180度ターンから直線へ #2,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == left_180 )
+        printf("左180度ターンから直線へ #2,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if( motion_buff[i] == end_maze )
+        printf("おわり\r\n");
     }
   }
 

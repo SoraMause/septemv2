@@ -23,10 +23,11 @@
 #define HALF_BLOCK_STOP     10
 // 最短用
 #define SET_STRAIGHT        11
+#define SET_FRONT_PD_STRAIGHT 12
 
 // other
-#define DIR_ONE_BLOCK       12
-#define DIR_FOUR_BLOCK    13
+#define DIR_ONE_BLOCK       13
+#define DIR_FOUR_BLOCK    14
 
 // turn 
 #define TURN_LEFT           16
@@ -41,20 +42,24 @@
 // 最短用
 #define SLAROM_LEFT         26
 #define SLAROM_RIGHT        27
-// 区画の中心から45度ターン
-#define SLAROM_CENTER_LEFT_45   28
-#define SLAROM_CENTER_RIGHT_45  29
-// 斜めから直線に戻る
-// to do いくつかパターンが必要
-#define SLAROM_LEFT_45     30
-
-#define SLAROM_RIGHT_45    32
-
-// 斜めから90度ターン
-// いくつかパターンが必要!
-#define SLAROM_DIA_LEFT_90     34
-
-#define SLAROM_DIA_RIGHT_90     36
+// 区画の中心から斜め #0
+#define DIA_CENTER_LEFT   28
+#define DIA_CENTER_RIGHT  29
+// 区画の中心から90度ターン #1
+#define CENRTER_SLAROM_LEFT    30
+#define CENRTER_SLAROM_RIGHT   31
+// 斜め動作から直線復帰 #5
+#define RETURN_DIA_RIGHT      32
+#define RETURN_DIA_LEFT       33
+// 180度大廻りターン #2
+#define SLAROM_LEFT_180       34
+#define SLAROM_RIGHT_180      35
+// 斜め90度大廻ターン #3
+#define DIA_LEFT_TURN       36
+#define DIA_RIGHT_TURN      37
+// 斜め135度ターンから直線復帰 #4
+#define RETURN_DIA_LEFT_135   37
+#define RETURN_DIA_RIGHT_135  37
 
 // 宴会芸
 #define ENKAIGEI            127

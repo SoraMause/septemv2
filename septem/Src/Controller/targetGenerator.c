@@ -58,12 +58,12 @@ static float wall_p = 0.0f;
 static float wall_d = 0.0f;
 
 // front sensor用のpd用
-static int8_t ctr_frontwall_flag = 0;
-static int16_t sensor_front_error_before = 0;
+//static int8_t ctr_frontwall_flag = 0;
+//static int16_t sensor_front_error_before = 0;
 
 // wall front pd gain
-static float wall_front_p = 0.0f;
-static float wall_front_d = 0.0f;
+//static float wall_front_p = 0.0f;
+//static float wall_front_d = 0.0f;
 
 // maze update flag 
 static int8_t maze_wall_update_flag = 0;
@@ -470,6 +470,8 @@ float wallSidePD( float kp, float kd, float maxim )
 
 }
 
+// to do 斜めを入れる前に有効かする必要あり
+#if 0
 void setControlFrontPD( int8_t _able )
 {
   ctr_frontwall_flag = _able;
@@ -509,3 +511,4 @@ float wallFrontPD( float kp, float kd, float maxim )
   }
 
 }
+#endif

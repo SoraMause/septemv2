@@ -252,6 +252,7 @@ void MauseSystem( void )
               pushMotion( HALF_BLOCK_STOP );
               pushMotion( END_MOTION );
               normal_end = 0;
+              return_flag = 1;
               changePattern( 22 );
             }
             break;
@@ -367,14 +368,14 @@ void MauseSystem( void )
       
       if ( getLeftPushsw() ){
         fullColorLedOut( LED_CYAN );
-        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 0 );
+        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 0, 0 );
         HAL_Delay( 300 );
         changePattern( 41 );
       }
 
       if ( getRightPushsw() ){
         certainLedOut( LED_FRONT );
-        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 1 );
+        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 1, 0 );
         agentDijkstraRoute( MAZE_GOAL_X, 15 - MAZE_GOAL_Y, 1 );
         certainLedOut( LED_OFF );
       }

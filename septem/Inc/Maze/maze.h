@@ -27,10 +27,20 @@ typedef enum
 	right=1,		//右
 	rear=2,			//後
 	left=3,			//左
-	diagonal_left = 8,	// 斜め左直線
-	diagonal_right = 9,	// 斜め右直線
-	dir_left = 10,	// 斜め左
-	dir_right = 11, // 斜め右
+	short_left = 8,
+	short_right = 9,
+	diagonal = 10,	// 斜め
+	dir_left = 11,	// 斜め左
+	dir_right = 12, // 斜め右
+  left_return = 13, // 斜め左から戻る
+  right_return = 14, // 斜め右から戻る
+	dia_turn_left = 15,				// 斜め左90度大廻り
+	dia_turn_right = 16,			// 斜め右90度大廻り
+	left_return_135 = 17,	// 斜め左135度復帰
+	right_return_135 = 18, // 斜め右135度復帰
+	right_180 = 19,				// 右180度
+	left_180 = 20,				// 左180度
+	end_maze = 32,
 }t_local_dir;	//自分から見た方向を示す列挙型
 
 typedef enum

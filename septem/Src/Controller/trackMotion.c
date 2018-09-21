@@ -226,26 +226,6 @@ void updateMotion( void )
         head++;
         break;
 
-      case SLAROM_CENTER_LEFT_45:
-        // 中心から左45度ターン
-        motion = slarom;
-        fullColorLedOut( LED_CYAN );
-        certainLedOut( LED_FRONT );
-        setControlWallPD( 0 );
-        setSlarom( 45.0f, 7080.0f, 450.0f, 500.0f, 0.0f, 0.0f );
-        head++;
-        break;
-
-      case SLAROM_CENTER_RIGHT_45:
-        // 中心から右45度ターン
-        motion = slarom;
-        fullColorLedOut( LED_CYAN );
-        certainLedOut( LED_FRONT );
-        setControlWallPD( 0 );
-        setSlarom( -45.0f, -7080.0f, -450.0f, 500.0f, 0.0f, 0.0f );
-        head++;
-        break;
-
       case ENKAIGEI:
         motion = turn;
         fullColorLedOut( LED_OFF );
