@@ -27,7 +27,29 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
   float rec_time = 0.0f;
   uint8_t counter = 0;
 
+  float short_boost = 0.0f;
+  float middle_boost = 0.0f;
+
   // to do boost によって直線を早くするソフトを入れる。
+  if ( boost == 0 ){
+    middle_boost = 0.0f;
+    short_boost = 0.0f; 
+  } else if ( boost == 1 ){
+    middle_boost = 200.0f;
+    short_boost = 100.0f; 
+  } else if ( boost == 2 ){
+    middle_boost = 400.0f;
+    short_boost = 200.0f; 
+  } else if ( boost == 3 ){
+    middle_boost = 600.0f;
+    short_boost = 300.0f; 
+  } else if ( boost == 4 ){
+    middle_boost = 800.0f;
+    short_boost = 400.0f; 
+  } else if ( boost == 5 ){
+    middle_boost = 1000.0f;
+    short_boost = 500.0f; 
+  }
 
   for ( int i = 0; i < 256; i++ ){
     motion_queue[i] = 0;
@@ -170,29 +192,35 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
     for ( int i = 0; i < path_number; i++ ){
       if ( motion_buff[i] == front ){
         if ( i == 0 ) {
-            fast_path[i].start_speed = 0.0f;
-            if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 4.0f ){
-              fast_path[i].speed = 1500.0f;
-              if ( fast_path[i].speed > 2500.0f ) fast_path[i].speed = 2500.0f;
-            } else if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 2.0f ){
-              fast_path[i].speed = 1000.0f;
-              if ( fast_path[i].speed > 2000.0f ) fast_path[i].speed = 2000.0f;
-            } else if ( path[i] == 0 ){
-              fast_path[i].speed = 500.0f;
-            } else {
-              fast_path[i].speed = 700.0f;
-            }
-            fast_path[i].end_speed = 500.0f;
+          fast_path[i].start_speed = 0.0f;
+          if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 7.0f ){
+            fast_path[i].speed = 2000.0f + middle_boost;
+            if ( fast_path[i].speed > 3000.0f ) fast_path[i].speed = 3000.0f;
+          } else if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 4.0f ){
+            fast_path[i].speed = 1500.0f + short_boost;
+            if ( fast_path[i].speed > 2000.0f ) fast_path[i].speed = 2000.0f;
+          } else if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 2.0f ){
+            fast_path[i].speed = 1000.0f + short_boost;
+            if ( fast_path[i].speed > 1500.0f ) fast_path[i].speed = 1500.0f;
+          } else if ( path[i] == 0 ){
+            fast_path[i].speed = 500.0f;
+          } else {
+            fast_path[i].speed = 700.0f;
+          }
+          fast_path[i].end_speed = 500.0f;
         } else {
-          if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 4.0f ){
+          if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 7.0f ){
+            fast_path[i].speed = 2000.0f + middle_boost;
+            if ( fast_path[i].speed > 3000.0f ) fast_path[i].speed = 3000.0f;
+          } else if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 4.0f ){
             fast_path[i].start_speed = fast_path[i-1].end_speed;
-            fast_path[i].speed = 1500.0f;
-            if ( fast_path[i].speed > 2500.0f ) fast_path[i].speed = 2500.0f;
+            fast_path[i].speed = 1500.0f + short_boost;
+            if ( fast_path[i].speed > 2000.0f ) fast_path[i].speed = 2000.0f;
             fast_path[i].end_speed = 500.0f;
           } else if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 2.0f ){
             fast_path[i].start_speed = fast_path[i-1].end_speed;
-            fast_path[i].speed = 1000.0f;
-            if ( fast_path[i].speed > 2000.0f ) fast_path[i].speed = 2000.0f;
+            fast_path[i].speed = 1000.0f + short_boost;
+            if ( fast_path[i].speed > 1500.0f ) fast_path[i].speed = 1500.0f;
             fast_path[i].end_speed = 500.0f;
           } else {
             fast_path[i].start_speed = fast_path[i-1].end_speed;

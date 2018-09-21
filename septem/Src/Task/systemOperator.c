@@ -43,6 +43,7 @@ static uint8_t normal_end = 0;
 static uint8_t rear_counter = 0;
 static uint8_t gx = 0;
 static uint8_t gy = 0;
+static uint8_t boost = 0;
 
 void changePattern( int16_t _pattern )
 {
@@ -143,6 +144,7 @@ void MauseSystem( void )
         buzzerSetMonophonic( C_SCALE, 100 );
         HAL_Delay( 150 );
         mazeSubstituteData();
+        fullColorLedOut( LED_OFF );
         changePattern( 40 );
       }
 
@@ -363,32 +365,67 @@ void MauseSystem( void )
     // 最短走行 ( 各種確認 ) pattern 40 ~ 
     //---------------------------------------------------------------
     case 40:
+      if( boost == 1 ){
+        certainLedOut( LED_OFF );
+        fullColorLedOut( LED_GREEN );
+      } else if ( boost == 2 ){
+        certainLedOut( LED_OFF );
+        fullColorLedOut( LED_BLUE );
+      } else if ( boost == 3 ){
+        certainLedOut( LED_REAR );
+        fullColorLedOut( LED_YELLOW );
+      } else if ( boost == 4 ){
+        certainLedOut( LED_FRONT );
+        fullColorLedOut( LED_MAGENTA );
+      } else if ( boost == 5 ){
+        certainLedOut( LED_BOTH );
+        fullColorLedOut( LED_CYAN );
+      } else {
+        certainLedOut( LED_OFF );
+        fullColorLedOut( LED_RED );
+      }
+
+      if ( getRightPushsw() ){
+        boost++;
+        if ( boost > 5 ) boost = 0;
+        buzzerSetMonophonic( E_SCALE, 150 );
+        HAL_Delay( 300 );
+      }
+
+      if ( getLeftPushsw() ){
+        buzzerSetMonophonic( B_SCALE, 300 );
+        HAL_Delay( 300 );
+        changePattern( 41 );
+      }
+      break;
+    
+    case 41:
       if ( batt_monitor < 7.4f ) fullColorLedOut( LED_RED );
       else fullColorLedOut( LED_GREEN );
       
       if ( getLeftPushsw() ){
         fullColorLedOut( LED_CYAN );
-        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 0, 0 );
+        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 0, boost );
         HAL_Delay( 300 );
-        changePattern( 41 );
+        changePattern( 42 );
       }
 
       if ( getRightPushsw() ){
         certainLedOut( LED_FRONT );
-        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 1, 0 );
+        agentSetShortRoute( MAZE_GOAL_X, MAZE_GOAL_Y, 1, boost );
         agentDijkstraRoute( MAZE_GOAL_X, 15 - MAZE_GOAL_Y, 1 );
         certainLedOut( LED_OFF );
       }
 
       break;
 
-    case 41:
+    case 42:
       fullColorLedOut( LED_WHITE );
       if ( getLeftPushsw() ){
         fullColorLedOut( LED_MAGENTA );
         HAL_Delay( 300 );
         setIrledPwm( IRLED_ON );
-        changePattern( 42 );
+        changePattern( 50 );
       }
 
       if ( getRightPushsw() ){
@@ -397,11 +434,11 @@ void MauseSystem( void )
         fullColorLedOut( LED_CYAN );
         HAL_Delay( 300 );
         setIrledPwm( IRLED_ON );
-        changePattern( 42 );
+        changePattern( 50 );
       }
       break;
 
-    case 42:
+    case 50:
       if ( sensor[0] > 750 && sensor[3] > 750 ){
         setFastGain();
         setRunModde( fast_run );
@@ -412,11 +449,11 @@ void MauseSystem( void )
         mazePosition_init();  // マシンの座標状況を初期化
         fullColorLedOut( LED_YELLOW );
         MPU6500_z_axis_offset_calc_start();
-        changePattern( 43 );
+        changePattern( 51 );
       }
       break;
 
-    case 43:
+    case 51:
       if ( MPU6500_calc_check() == 1 ){
         fullColorLedOut( LED_GREEN );
         HAL_Delay( 1000 );
@@ -427,27 +464,27 @@ void MauseSystem( void )
         setControl( 1 );
         fullColorLedOut( LED_OFF );
         setIrledPwm( IRLED_ON );
-        changePattern( 44 );
+        changePattern( 52 );
       }
       break;  
 
-    case 44:
+    case 52:
       if ( checkUpdateMotionEnd() == 1 ){
         setIrledPwm( IRLED_OFF );
         setLogFlag( 0 );
         fullColorLedOut( LED_WHITE );
         buzzerSetMonophonic( NORMAL, 300 );
         HAL_Delay( 300 );
-        changePattern( 45 );
+        changePattern( 53 );
       }
 
       if ( checkEmergyncyFlag() == 1 ){
         setControl( 0 );
-        changePattern( 45 );
+        changePattern( 53 );
       }
       break;
 
-    case 45:
+    case 53:
       if ( getRightPushsw() ){
         certainLedOut( LED_REAR );
         showLog();
