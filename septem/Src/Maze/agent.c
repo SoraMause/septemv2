@@ -315,6 +315,8 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
   int i = 0;
   uint8_t cnt_motion = 0;
 
+  fast_path_init();
+
   for ( int i = 0; i < 256; i++ ){
     motion_queue[i] = 0;
     motion_buff[i] = 0;
@@ -386,6 +388,8 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
   // x = 90 y = 180　
   // motion_queue にモーションを入れてしまう！
   i  = 0;
+  motion_queue[cnt_motion] = SET_STRAIGHT;
+  cnt_motion = 1;
   while( i < cnt_dijkstra ){
     if(GO1<=route[i] && route[i]<=GO15){
       motion_queue[cnt_motion] = SET_STRAIGHT;
@@ -637,11 +641,12 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
   // motionの目標速度、開始速度、終了速度、距離、モーションをそれぞれ指定すること
   // 最後がスラロームの場合ゴール座標の中心でうまく停止できるようにすること
   // 前壁制御で何とかすればいいのでは。
-  for( i = 0; i < cnt_motion; i++ ){
-    if ( i == 0 ) {
-      fast_path[i].start_speed = 0.0f;
-      fast_path[i].end_speed = 700.0f;
-    } else if ( i == cnt_motion -2 ){
+  fast_path[0].start_speed = 0.0f;
+  fast_path[0].end_speed = 700.0f;
+  fast_path[0].speed = 700.0f;
+  fast_path[0].distance = 39.0f;
+  for( i = 1; i < cnt_motion; i++ ){
+    if ( i == cnt_motion -2 ){
       fast_path[i].start_speed = 700.0f;
       fast_path[i].end_speed = 0.0f;
     } else if ( i == cnt_motion - 1 ){
@@ -691,7 +696,7 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
     motion_queue[cnt_motion-1] = FRONTPD_DELAY;
     motion_buff[cnt_motion-1] = end_maze;
     motion_queue[cnt_motion] = END_MOTION;
-    motion_queue[cnt_motion] = end_maze;
+    motion_buff[cnt_motion] = end_maze;
     cnt_motion++;
   }
 

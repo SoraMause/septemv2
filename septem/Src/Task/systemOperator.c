@@ -110,8 +110,8 @@ void MauseSystem( void )
         fullColorLedOut( LED_CYAN );
         buzzerSetMonophonic( E_SCALE, 300 );
         HAL_Delay( 1000 );
-        pushMotion( ADJ_FRONT );
-        pushMotion( SEARCH_SLAROM_LEFT );
+        pushMotion( HALF_BLOCK );
+        pushMotion( SLAROM_LEFT_180 );
         pushMotion( HALF_BLOCK_STOP );
         pushMotion( DELAY );
         pushMotion( END_MOTION );
@@ -289,6 +289,7 @@ void MauseSystem( void )
         mazeSetWall( mypos.x, mypos.y );
         pushMotion( HALF_BLOCK_STOP );
         pushMotion( FRONTPD_DELAY );
+        pushMotion( FRONTPD_DELAY );
         if ( return_flag == 0 ){
           pushMotion( ROTATION );
           pushMotion( DELAY );
@@ -432,6 +433,7 @@ void MauseSystem( void )
       }
 
       if ( getRightPushsw() ){
+        buzzerSetMonophonic( F_SCALE, 300 );
         motion_init();
         agentDijkstraRoute( MAZE_GOAL_X, 15 - MAZE_GOAL_Y, 1 );
         fullColorLedOut( LED_CYAN );

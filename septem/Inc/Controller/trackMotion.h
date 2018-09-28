@@ -61,7 +61,7 @@
 // 斜め135度ターンから直線復帰 #4
 #define RETURN_DIA_LEFT_135   38
 #define RETURN_DIA_RIGHT_135  39
-// 区画の中心から斜め #6
+// 区画の中心から斜め135度 #6
 #define DIA_CENTER_LEFT_135   40
 #define DIA_CENTER_RIGHT_135  41
 

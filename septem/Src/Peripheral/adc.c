@@ -409,7 +409,7 @@ void update_sensor_data( void )
 
   sensor[2] = sensorH[2] - sensorL[2];  // Measures against external light
 
-  if ( sensor[2] <= 700 ){
+  if ( sensor[2] <= 680 ){
     sensor_sidel.is_wall = 0;
     cnt_side_left = 0;
   } else {

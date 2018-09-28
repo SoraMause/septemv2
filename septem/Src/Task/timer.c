@@ -43,7 +43,7 @@ void interrupt()
 
     // To do 目標値の値を得る, search のときと最短のときで切り替える
     if ( run_mode == search ){
-      updateSearchTargetVelocity();
+      updateSearchTargetVelocity( v.v );
     } else {
       // to do fast run update target
       updateFastRunTargetVelocity( v.v );

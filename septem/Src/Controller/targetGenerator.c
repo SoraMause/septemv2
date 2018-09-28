@@ -93,14 +93,14 @@ void setSearchGain( void )
   //gyro_turn_i = 0.5f;     // 宴会芸
   //gyro_turn_d = 60.0f;    // 宴会芸
   // gyro turn,slarom 用
-  gyro_turn_p = 17.0f;
-  gyro_turn_i = 500.0f;
-  gyro_turn_i2 = 900.0f;
-  gyro_turn_d = 70.0f;
+  gyro_turn_p = 16.0f;
+  gyro_turn_i = 250.0f;
+  gyro_turn_i2 = 300.0f;
+  gyro_turn_d = 80.0f;
 
   // wall side pd gain
   wall_p = 40.0f;
-  wall_d = 15.0f;
+  wall_d = 10.0f;
 
   emergency_flag = 0;
 }
@@ -117,13 +117,13 @@ void setFastGain( void )
   speed_turn_d = 7.0f;
 
   // gyro turn,slarom 用
-  gyro_turn_p = 15.0f;
+  gyro_turn_p = 16.0f;
   gyro_turn_i = 250.0f;
   gyro_turn_i2 = 350.0f;
   gyro_turn_d = 80.0f;
 
   // wall side pd gain
-  wall_p = 20.0f;
+  wall_p = 30.0f;
   wall_d = 10.0f;
 
   emergency_flag = 0;
@@ -166,7 +166,7 @@ void setMotionDistance( float _L_motion )
 }
 
 // velocity　の目標値を更新 
-void updateSearchTargetVelocity( void )
+void updateSearchTargetVelocity( float measurement )
 {
 
   v = speedNext( distance );  // 速度を取得
@@ -179,7 +179,7 @@ void updateSearchTargetVelocity( void )
     omega = 0.0f;
   } 
 
-  distance += v * dt;     // 理論値から距離を積算する
+  distance += measurement * dt;     // 現在の距離から
   rad += omega * dt;      // 理論値から角度を積算する
 
   rad_target += omega * dt;   // 角度の目標値毎回リセットしないため積算をし続けておく
@@ -195,13 +195,9 @@ void updateSearchTargetVelocity( void )
   wallOutCorrection();
 
   // to do 迷路の更新タイミングを教える
-  if ( maze_wall_update_flag == 1 && distance >= motion_distance - 7.0f ){
+  if ( maze_wall_update_flag == 1 && distance >= motion_distance - 10.0f ){
     maze_update_flag = 1;
     maze_wall_update_flag = 0;
-  }
-
-  if ( machine_rad > rad_target + 90.0f || machine_rad < rad_target - 90.0f ){
-    emergency_flag = 1;
   }
 }
 
@@ -436,7 +432,7 @@ float wallSidePD( float kp, float kd, float maxim )
 
     error_buff = error;
     
-    if ( ( (error - sensor_error_before) > 30 ) || ( ( error - sensor_error_before ) < -30 ) ){
+    if ( ( (error - sensor_error_before) > 40 ) || ( ( error - sensor_error_before ) < -40 ) ){
       // to do flag 一度制御をきる
       error = 0;
     }

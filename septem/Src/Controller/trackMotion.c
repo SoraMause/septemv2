@@ -81,7 +81,7 @@ void updateMotion( void )
       case HALF_BLOCK:
         motion = straight;
         setControlWallPD( 0 );
-        speedTrapezoid( 90.0f, 12.0f, 700.0f, 0.0f, 700.0f );
+        speedTrapezoid( 39.0f, 12.0f, 700.0f, 0.0f, 700.0f );
         head++;
         break;
       
@@ -126,7 +126,7 @@ void updateMotion( void )
         motion = straight;
         fullColorLedOut( LED_OFF );
         certainLedOut( LED_REAR );
-        setControlWallPD( 1 );
+        setControlWallPD( 0 );
         speedTrapezoid( -50.0f, -4.0f, -300.0f, 0.0f, 0.0f );
         head++;
         break;
@@ -202,7 +202,7 @@ void updateMotion( void )
         setControlWallPD( 0 );
         setAfterWallPD();
         setMazeWallUpdate( 1 );
-        setSlarom( 90.0f, 7200.0f, 630.0f, 500.0f, 12.0f, 24.0f );
+        setSlarom( 90.0f, 7200.0f, 630.0f, 500.0f, 21.0f, 20.0f );
         head++;
         break;
 
@@ -224,7 +224,7 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setAfterWallPD();
-        setSlarom( 90.0f, 7200.0f, 630.0f, 500.0f, 12.0f, 24.0f );
+        setSlarom( 90.0f, 7200.0f, 630.0f, 500.0f, 21.0f, 20.0f );
         head++;
         break;
 
@@ -244,7 +244,7 @@ void updateMotion( void )
         fullColorLedOut( LED_RED );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
-        speedTrapezoid( 90.0f, 8.0f, 500.0f, 500.0f, 500.0f );
+        speedTrapezoid( 127.0f, 8.0f, 700.0f, 700.0f, 700.0f );
         head++;
         break;  
 
@@ -263,18 +263,52 @@ void updateMotion( void )
         head++;
         break;
 
+      // 135度ターンから斜めになる
+      case DIA_CENTER_LEFT_135:
+        motion = slarom;
+        setSlarom( 135.0f, 5400.0f, 540.0f, 700.0f, 50.0f, 32.0f );
+        setControlWallPD( 0 );
+        head++;
+        break;
+
+      case DIA_CENTER_RIGHT_135:
+        motion = slarom;
+        setSlarom( -135.0f, -5400.0f, -540.0f, 700.0f, 50.0f, 32.0f );
+        setControlWallPD( 0 );
+        head++;
+        break;
+
+      // 135度ターンから復帰
+      case RETURN_DIA_LEFT_135:
+        motion = slarom;
+        setSlarom( 135.0f, 5760.0f, 630.0f, 700.0f, 54.0f, 68.0f );
+        setControlWallPD( 0 );
+        setAfterWallPD();
+        head++;
+        break;
+
+      case RETURN_DIA_RIGHT_135:
+        motion = slarom;
+        setSlarom( -135.0f, -5760.0f, -630.0f, 700.0f, 54.0f, 68.0f );
+        setControlWallPD( 0 );
+        setAfterWallPD();
+        head++;
+        break;
+
       // 45度ターンから直線復帰
       case RETURN_DIA_LEFT:
         motion = slarom;
-        setSlarom( 45.0f, 12000.0f, 630.0f, 700.0f, 44.5f, 81.0f );
+        setSlarom( 45.0f, 10000.0f, 630.0f, 700.0f, 78.0f, 40.0f );
         setControlWallPD( 0 );
+        setAfterWallPD();
         head++;
         break;
 
       case RETURN_DIA_RIGHT:
         motion = slarom;
-        setSlarom( -45.0f, -12000.0f, -630.0f, 700.0f, 44.5f, 81.0f );
+        setSlarom( -45.0f, -10000.0f, -630.0f, 700.0f, 78.0f, 40.0f );
         setControlWallPD( 0 );
+        setAfterWallPD();
         head++;
         break; 
 
@@ -292,6 +326,38 @@ void updateMotion( void )
         setSlarom( -90.0f, -6740.0f, -540.0f, 700.0f, 76.5f, 75.0f );
         setControlWallPD( 0 );
         setAfterWallPD();
+        head++;
+        break;
+
+      // 中心から180度ターン
+      case SLAROM_LEFT_180:
+        motion = slarom;
+        setSlarom( 180.0f, 6300.0f, 450.0f, 700.0f, 39.0f, 37.0f );
+        setControlWallPD( 0 );
+        setAfterWallPD();
+        head++;
+        break;
+
+      case SLAROM_RIGHT_180:
+        motion = slarom;
+        setSlarom( -180.0f, -6300.0f, -450.0f, 700.0f, 39.0f, 37.0f );
+        setControlWallPD( 0 );
+        setAfterWallPD();
+        head++;
+        break;
+
+      // 斜め大回り90度ターン
+      case DIA_LEFT_TURN:
+        motion = slarom;
+        setSlarom( 90.0f, 6300.0f, 630.0f, 700.0f, 26.0f, 25.0f );
+        setControlWallPD( 0 );
+        head++;
+        break;
+
+      case DIA_RIGHT_TURN:
+        motion = slarom;
+        setSlarom( -90.0f, -6300.0f, -630.0f, 700.0f, 26.0f, 25.0f );
+        setControlWallPD( 0 );
         head++;
         break;
 
