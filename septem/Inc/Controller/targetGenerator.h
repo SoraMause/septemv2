@@ -34,6 +34,6 @@ float PID( float target, float measurement, float *sum, float *old, float kp,
 float PID2( float target, float measurement, float target2, float measurement2,  float *sum, 
             float *old, float *sum2, float kp, float ki, float kd, float ki2, float maxim );
 
-//void setControlFrontPD( int8_t _able );
-//float wallFrontPD( float kp, float kd, float maxim );
+void setControlFrontPD( int8_t _able );
+float wallFrontPD( float kp, float kd, float maxim );
 #endif /* __TARGETGENERATOR_H */

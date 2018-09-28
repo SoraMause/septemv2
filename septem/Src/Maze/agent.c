@@ -202,10 +202,8 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
           } else if ( fast_path[i].distance >= ONE_BLOCK_DISTANCE * 2.0f ){
             fast_path[i].speed = 1000.0f + short_boost;
             if ( fast_path[i].speed > 1500.0f ) fast_path[i].speed = 1500.0f;
-          } else if ( path[i] == 0 ){
-            fast_path[i].speed = 500.0f;
           } else {
-            fast_path[i].speed = 700.0f;
+            fast_path[i].speed = 500.0f;
           }
           fast_path[i].end_speed = 500.0f;
         } else {
@@ -251,6 +249,8 @@ int8_t agentGetShortRoute( uint8_t gx, uint8_t gy, float *all_time, uint8_t meth
     fast_path[path_number].end_speed = 0.0f;
     path_number++;
     
+    motion_queue[path_number] = FRONTPD_DELAY;
+    path_number++;
     motion_queue[path_number] = END_MOTION;
     path_number++;
 
@@ -396,7 +396,7 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
     }
           
     if(DIA_GO1<=route[i] && route[i]<=DIA_GO31){
-      motion_queue[cnt_motion] = SET_STRAIGHT;
+      motion_queue[cnt_motion] = SET_DIA_STRAIGHT;
       motion_buff[cnt_motion] = diagonal;
       motion_data[cnt_motion] = route[i]-DIA_GO1 + 1;
       cnt_motion++;
@@ -438,19 +438,46 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
           cnt_motion++;
           i+=3;
         } else {
-          // それ以外なら
+          // to do 135度ターン斜めを入れる
+          if ( route[i+2] == DIA_GO1 ){
+            motion_queue[cnt_motion] = DIA_CENTER_RIGHT_135;
+            motion_buff[cnt_motion] = dir_right_135;
+            motion_data[cnt_motion] = 1;
+            cnt_motion++;
+            i+=3;   
+          } else {
+            motion_queue[cnt_motion] = DIA_CENTER_RIGHT_135;
+            motion_buff[cnt_motion] = dir_right_135;
+            motion_data[cnt_motion] = 1;
+            cnt_motion++;
+            i+=2;
+            motion_queue[cnt_motion] = SET_DIA_STRAIGHT;
+            motion_buff[cnt_motion] = diagonal;
+            motion_data[cnt_motion] = route[i]-DIA_GO1;
+            cnt_motion++;
+            i++;  
+          }
+        }
+      } else {
+        // 1区画の場合とそれ以外の場合で分ける
+        if ( route[i+1] == DIA_GO1 ){
           motion_queue[cnt_motion] = DIA_CENTER_RIGHT;
           motion_buff[cnt_motion] = dir_right;
           motion_data[cnt_motion] = 1;
           cnt_motion++;
-          i++;          
+          i+=2;   
+        } else {
+          motion_queue[cnt_motion] = DIA_CENTER_RIGHT;
+          motion_buff[cnt_motion] = dir_right;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i++;
+          motion_queue[cnt_motion] = SET_DIA_STRAIGHT;
+          motion_buff[cnt_motion] = diagonal;
+          motion_data[cnt_motion] = route[i]-DIA_GO1;
+          cnt_motion++;
+          i++;  
         }
-      } else {
-        motion_queue[cnt_motion] = DIA_CENTER_RIGHT;
-        motion_buff[cnt_motion] = dir_right;
-        motion_data[cnt_motion] = 1;
-        cnt_motion++;
-        i++;
       }
 
     }
@@ -473,19 +500,46 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
           cnt_motion++;
           i+=3;
         } else {
-          // それ以外なら
+          // to do 135度ターン斜めを入れる
+          if ( route[i+2] == DIA_GO1 ){
+            motion_queue[cnt_motion] = DIA_CENTER_LEFT_135;
+            motion_buff[cnt_motion] = dir_left_135;
+            motion_data[cnt_motion] = 1;
+            cnt_motion++;
+            i+=3;   
+          } else {
+            motion_queue[cnt_motion] = DIA_CENTER_LEFT_135;
+            motion_buff[cnt_motion] = dir_left_135;
+            motion_data[cnt_motion] = 1;
+            cnt_motion++;
+            i+=2;
+            motion_queue[cnt_motion] = SET_DIA_STRAIGHT;
+            motion_buff[cnt_motion] = diagonal;
+            motion_data[cnt_motion] = route[i]-DIA_GO1;
+            cnt_motion++;
+            i++;  
+          }
+        }
+      } else {
+        // 1区画の場合とそれ以外の場合で分ける
+        if ( route[i+1] == DIA_GO1 ){
           motion_queue[cnt_motion] = DIA_CENTER_LEFT;
           motion_buff[cnt_motion] = dir_left;
           motion_data[cnt_motion] = 1;
           cnt_motion++;
-          i++;          
+          i+=2;   
+        } else {
+          motion_queue[cnt_motion] = DIA_CENTER_LEFT;
+          motion_buff[cnt_motion] = dir_right;
+          motion_data[cnt_motion] = 1;
+          cnt_motion++;
+          i++;
+          motion_queue[cnt_motion] = SET_DIA_STRAIGHT;
+          motion_buff[cnt_motion] = diagonal;
+          motion_data[cnt_motion] = route[i]-DIA_GO1;
+          cnt_motion++;
+          i++;  
         }
-      } else {
-        motion_queue[cnt_motion] = DIA_CENTER_LEFT;
-        motion_buff[cnt_motion] = dir_left;
-        motion_data[cnt_motion] = 1;
-        cnt_motion++;
-        i++;
       }
     }
         
@@ -586,17 +640,17 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
   for( i = 0; i < cnt_motion; i++ ){
     if ( i == 0 ) {
       fast_path[i].start_speed = 0.0f;
-      fast_path[i].end_speed = 500.0f;
+      fast_path[i].end_speed = 700.0f;
     } else if ( i == cnt_motion -2 ){
-      fast_path[i].start_speed = 500.0f;
+      fast_path[i].start_speed = 700.0f;
       fast_path[i].end_speed = 0.0f;
     } else if ( i == cnt_motion - 1 ){
       if ( motion_queue[i] == END_MOTION )
         printf( "最短圧縮速度指定、距離指定\r\n");
         printf( "check end motion\r\n" );
     } else {
-      fast_path[i].start_speed = 500.0f;
-      fast_path[i].end_speed = 500.0f;
+      fast_path[i].start_speed = 700.0f;
+      fast_path[i].end_speed = 700.0f;
     }
 
     if ( motion_buff[i] == front ){
@@ -605,37 +659,46 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
       fast_path[i].speed = 700.0f;
     } else if ( motion_buff[i] == diagonal ){
       fast_path[i].distance = motion_data[i] * SLATING_ONE_BLOCK_DISTANCE;
-      fast_path[i].speed = 500.0f;
+      fast_path[i].speed = 700.0f;
     } else {
       fast_path[i].distance = 0.0f;
-      fast_path[i].speed = 500.0f;
+      fast_path[i].speed = 700.0f;
     }
   }
 
   // もし、END_MOTIONの前がスラロームターンの場合
-  // to do どうにかして前にぶつからずに止める方法を模索する必要あり
-  // 前壁制御を有効にして20mm進めようとする 必須条件　加速度 8 m /ss
-  // 壁がない場合はラッキー的な 
+  // 前壁制御を有効にして20mm進めようとする 必須条件　加速度 16 m /ss
+  // 停止する前に前壁制御を有効にしたdelay
   if ( motion_queue[cnt_motion-2] != SET_STRAIGHT ){
     // 終了速度を低速のまま
-    fast_path[cnt_motion-2].end_speed = 500.0f;
+    fast_path[cnt_motion-2].end_speed = 700.0f;
     // 次の動作をEND_MOTIONから直線30mm 停止へ
     motion_buff[cnt_motion-1] = front;
     fast_path[cnt_motion-1].distance = 30.0f;
-    fast_path[cnt_motion-1].start_speed = 500.0f;
+    fast_path[cnt_motion-1].start_speed = 700.0f;
     fast_path[cnt_motion-1].end_speed = 0.0f;
     // 壁制御を有効なストレートモードを作成すること
     motion_queue[cnt_motion-1] = SET_FRONT_PD_STRAIGHT;
+    // delay
+    motion_buff[cnt_motion] = end_maze;
+    motion_queue[cnt_motion] = FRONTPD_DELAY;
+    cnt_motion++;
     // cnt_motionにEND_MOTIONを入れてその後
     motion_buff[cnt_motion] = end_maze;
     motion_queue[cnt_motion] = END_MOTION;
+    cnt_motion++;
+  } else {
+    motion_queue[cnt_motion-1] = FRONTPD_DELAY;
+    motion_buff[cnt_motion-1] = end_maze;
+    motion_queue[cnt_motion] = END_MOTION;
+    motion_queue[cnt_motion] = end_maze;
     cnt_motion++;
   }
 
   
   // 結果の表示
   if ( out_flag == 1 ){
-    #if 0
+    //#if 0
     printf( "\r\n最短圧縮前\r\n\r\n" );
     for( i = 0; i< cnt_dijkstra; i++ ){
       if(GO1<=route[i] && route[i]<=GO15) 
@@ -661,7 +724,7 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
       if(route[i]==SNODE)
         printf("おわり\r\n\r\n");
     }
-    #endif
+    //#endif
 
     printf( "\r\n最短圧縮後\r\n\r\n");
     for( i = 0; i< cnt_motion; i++ ){
@@ -682,6 +745,12 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
         ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
       if( motion_buff[i] == dir_left )
         printf("直進から１マス使って斜め左方向へ #0,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if ( motion_buff[i] == dir_right_135 )
+        printf("直進から１マス使って右135度から斜め方向へ #6,speed target %f, start %f, end %f\r\n"
+        ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
+      if ( motion_buff[i] == dir_left_135 )
+        printf("直進から１マス使って左135度から斜め方向へ #6,speed target %f, start %f, end %f\r\n"
         ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
       if( motion_buff[i] == right_return )
         printf("斜め右方向から直進へ #5,speed target %f, start %f, end %f\r\n"
@@ -713,8 +782,15 @@ int8_t agentDijkstraRoute( int16_t gx, int16_t gy, int8_t out_flag )
       if( motion_buff[i] == left_180 )
         printf("左180度ターンから直線へ #2,speed target %f, start %f, end %f\r\n"
         ,fast_path[i].speed,fast_path[i].start_speed, fast_path[i].end_speed);
-      if( motion_buff[i] == end_maze )
-        printf("おわり\r\n");
+      if( motion_buff[i] == end_maze ){
+        if ( motion_queue[i] == FRONTPD_DELAY ){
+          printf("delay\r\n");
+        } else {
+          printf("おわり\r\n");
+        }
+        
+      } 
+        
     }
   }
 

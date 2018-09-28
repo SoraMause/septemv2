@@ -11,6 +11,7 @@
 #define NO_CONTROL          0
 #define END_MOTION          1
 #define DELAY               2
+#define FRONTPD_DELAY       3
 
 // straight
 // 探索用
@@ -26,8 +27,8 @@
 #define SET_FRONT_PD_STRAIGHT 12
 
 // other
-#define DIR_ONE_BLOCK       13
-#define DIR_FOUR_BLOCK    14
+#define SET_DIA_STRAIGHT    13
+#define DIR_ONE_BLOCK       14
 
 // turn 
 #define TURN_LEFT           16
@@ -58,8 +59,11 @@
 #define DIA_LEFT_TURN       36
 #define DIA_RIGHT_TURN      37
 // 斜め135度ターンから直線復帰 #4
-#define RETURN_DIA_LEFT_135   37
-#define RETURN_DIA_RIGHT_135  37
+#define RETURN_DIA_LEFT_135   38
+#define RETURN_DIA_RIGHT_135  39
+// 区画の中心から斜め #6
+#define DIA_CENTER_LEFT_135   40
+#define DIA_CENTER_RIGHT_135  41
 
 // 宴会芸
 #define ENKAIGEI            127

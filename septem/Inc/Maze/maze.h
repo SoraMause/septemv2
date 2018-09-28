@@ -16,7 +16,7 @@
 #define HALF_BLOCK_DISTANCE   90.0f
 #define ONE_BLOCK_DISTANCE    180.0f
 
-#define SLATING_ONE_BLOCK_DISTANCE 90.0f 
+#define SLATING_ONE_BLOCK_DISTANCE 127.0f 
 
 #define MASK_SEARCH	0x01
 #define MASK_SHORT	0x03
@@ -40,6 +40,8 @@ typedef enum
 	right_return_135 = 18, // 斜め右135度復帰
 	right_180 = 19,				// 右180度
 	left_180 = 20,				// 左180度
+	dir_left_135 = 21,	// 斜め左135
+	dir_right_135 = 22, // 斜め右135
 	end_maze = 32,
 }t_local_dir;	//自分から見た方向を示す列挙型
 

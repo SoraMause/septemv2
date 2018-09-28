@@ -52,6 +52,8 @@ void speedTrapezoid( float L ,float accele, float target, float start, float end
   
   float _t_start, _t_end;
 
+  resetMotion();
+
   _t_start = ( target - start ) / accele;
   _t_end = ( target - end ) / accele;
 
@@ -70,7 +72,6 @@ void speedTrapezoid( float L ,float accele, float target, float start, float end
   speed_trape_flag = 0;
   end_flag = 0;
 
-  resetMotion();
   setMotionDistance( L );
 
   //printf( "セクションの時間　加速, 減速, %f, %f \r\n",_t_start, _t_end );
@@ -122,6 +123,8 @@ void yawrateTrapezoid( float L ,float accele, float target )
   
   float _t_start_end;
 
+  resetMotion();
+
   _t_start_end = target / ( accele * dt );
 
   accele_L = target * _t_start_end * 0.5 * dt;
@@ -138,8 +141,6 @@ void yawrateTrapezoid( float L ,float accele, float target )
   ax = accele;  // 加速度をセット
   yawrate_trape_flag = 0;
   end_flag = 0;
-
-  resetMotion();
 
   //printf( "セクションの時間　加速, 減速, %f, %f \r\n",_t_start_end, _t_start_end );
   //printf( "角度, 加速, 一定速度, 減速,%f,%f,%f,%f\r\n",L, accele_L, constant_L, decele_L );
@@ -194,6 +195,8 @@ void setSlarom( float L, float accele, float rad_target, float speed_target, flo
   float slarom_yawrate_trape_distance = 0.0f;
   float slarom_distance = 0.0f;
 
+  resetMotion();
+
   _t_start_end = rad_target / ( accele * dt );
 
   accele_L = rad_target * _t_start_end * 0.5 * dt;    // targetから加速に必要な角度をだす
@@ -227,7 +230,6 @@ void setSlarom( float L, float accele, float rad_target, float speed_target, flo
 
   end_flag = 0;
 
-  resetMotion();
   setMotionDistance( slarom_distance );
 
   //printf( "時間　: 角加速全体 %f, 加減速: %f\r\n",yawrate_trape_time, _t_start_end *2 );
@@ -295,6 +297,8 @@ void motionDelay( void )
     cnt_delay++;
   } else {
     //printf( "end delay\r\n" );
+    resetRadParam();
+    setControlFrontPD( 0 );
     cnt_delay = 0;
     end_flag = 1;
   }

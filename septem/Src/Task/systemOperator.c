@@ -110,8 +110,9 @@ void MauseSystem( void )
         fullColorLedOut( LED_CYAN );
         buzzerSetMonophonic( E_SCALE, 300 );
         HAL_Delay( 1000 );
-        pushMotion( HALF_BLOCK );
-        pushMotion( HALF_BLOCK_SEARCH );
+        pushMotion( ADJ_FRONT );
+        pushMotion( SEARCH_SLAROM_LEFT );
+        pushMotion( HALF_BLOCK_STOP );
         pushMotion( DELAY );
         pushMotion( END_MOTION );
         setLogFlag( 1 );
@@ -119,7 +120,7 @@ void MauseSystem( void )
         setControl( 1 );
         fullColorLedOut( LED_OFF );
         setIrledPwm( IRLED_ON );
-        changePattern( 43 );
+        changePattern( 52 );
       }
       break;
 
@@ -240,23 +241,24 @@ void MauseSystem( void )
             break;
 
           case rear:
-            pushMotion( HALF_BLOCK_STOP );
-            pushMotion( DELAY );
-            pushMotion( ROTATION );
-            pushMotion( DELAY );
-            pushMotion( ADJ_BACK );
-            pushMotion( DELAY );
-            pushMotion( ADJ_FRONT ); 
-            rear_counter++;
-            // 壁を間違えて読んで連続でその場で反転を繰り返した場合
-            // 緊急停止処理を行う
+            // 壁を間違えて読んで連続でその場で反転を繰り返した場合緊急停止処理を行う
             if ( rear_counter > 3 ){
               pushMotion( HALF_BLOCK_STOP );
               pushMotion( END_MOTION );
               normal_end = 0;
               return_flag = 1;
               changePattern( 22 );
+            } else {
+              pushMotion( HALF_BLOCK_STOP );
+              pushMotion( FRONTPD_DELAY );
+              pushMotion( ROTATION );
+              pushMotion( DELAY );
+              pushMotion( ADJ_BACK );
+              pushMotion( DELAY );
+              pushMotion( ADJ_FRONT ); 
+              rear_counter++;
             }
+
             break;
         }
         maze.search[mypos.x][mypos.y] = 1;
@@ -274,6 +276,7 @@ void MauseSystem( void )
 
       if ( checkEmergyncyFlag() == 1 ){
         setControl( 0 );
+        pushMotion( END_MOTION );
         changePattern( 26 );
       }
       break;
@@ -285,7 +288,7 @@ void MauseSystem( void )
         maze.search[mypos.x][mypos.y] = 1;
         mazeSetWall( mypos.x, mypos.y );
         pushMotion( HALF_BLOCK_STOP );
-        pushMotion( DELAY );
+        pushMotion( FRONTPD_DELAY );
         if ( return_flag == 0 ){
           pushMotion( ROTATION );
           pushMotion( DELAY );

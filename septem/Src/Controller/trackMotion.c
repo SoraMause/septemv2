@@ -62,8 +62,18 @@ void updateMotion( void )
       case DELAY:
         fullColorLedOut( LED_YELLOW );
         certainLedOut( LED_OFF );
-        resetRadParam();
+        setControlWallPD( 0 );
         resetMotion();
+        motion = delay;
+        head++;
+        break;
+
+      case FRONTPD_DELAY:
+        fullColorLedOut( LED_YELLOW );
+        certainLedOut( LED_OFF );
+        setControlWallPD( 0 );
+        resetMotion();
+        setControlFrontPD( 1 );
         motion = delay;
         head++;
         break;
@@ -71,7 +81,7 @@ void updateMotion( void )
       case HALF_BLOCK:
         motion = straight;
         setControlWallPD( 0 );
-        speedTrapezoid( 90.0f, 4.0f, 500.0f, 0.0f, 500.0f );
+        speedTrapezoid( 90.0f, 12.0f, 700.0f, 0.0f, 700.0f );
         head++;
         break;
       
@@ -130,6 +140,16 @@ void updateMotion( void )
         head++;
         break;
 
+      case SET_FRONT_PD_STRAIGHT:
+        motion = straight;
+        fullColorLedOut( LED_RED );
+        certainLedOut( LED_FRONT );
+        setControlWallPD( 0 );
+        setControlFrontPD( 1 );
+        speedTrapezoid( fast_path[head].distance, 16.0f, fast_path[head].speed, fast_path[head].start_speed, fast_path[head].end_speed );
+        head++;
+        break;
+
       case SET_STRAIGHT:
         motion = straight;
         fullColorLedOut( LED_RED );
@@ -137,25 +157,16 @@ void updateMotion( void )
         setControlWallPD( 1 );
         speedTrapezoid( fast_path[head].distance, 12.0f, fast_path[head].speed, fast_path[head].start_speed, fast_path[head].end_speed );
         head++;
-        break;
+        break;         
 
-      case DIR_ONE_BLOCK:
+      case SET_DIA_STRAIGHT:
         motion = straight;
         fullColorLedOut( LED_RED );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
-        speedTrapezoid( 90.0f, 8.0f, 500.0f, 500.0f, 500.0f );
+        speedTrapezoid( fast_path[head].distance, 12.0f, fast_path[head].speed, fast_path[head].start_speed, fast_path[head].end_speed );
         head++;
-        break;      
-
-      case DIR_FOUR_BLOCK:
-        motion = straight;
-        fullColorLedOut( LED_RED );
-        certainLedOut( LED_FRONT );
-        setControlWallPD( 0 );
-        speedTrapezoid( 360.0f, 8.0f, 500.0f, 500.0f, 500.0f );
-        head++;
-        break;        
+        break;     
 
       case TURN_LEFT:
         fullColorLedOut( LED_GREEN );
@@ -191,7 +202,7 @@ void updateMotion( void )
         setControlWallPD( 0 );
         setAfterWallPD();
         setMazeWallUpdate( 1 );
-        setSlarom( 90.0f, 6720.0f, 630.0f, 500.0f, 19.0f, 24.0f );
+        setSlarom( 90.0f, 7200.0f, 630.0f, 500.0f, 12.0f, 24.0f );
         head++;
         break;
 
@@ -202,17 +213,18 @@ void updateMotion( void )
         setControlWallPD( 0 );
         setMazeWallUpdate( 1 );
         setAfterWallPD();
-        setSlarom( -90.0f, -6720.0f, -630.0f, 500.0f, 24.0f, 20.0f );
+        setSlarom( -90.0f, -7200.0f, -630.0f, 500.0f, 21.0f, 20.0f );
         head++;
         break;
 
+      // 最短　斜めなし
       case SLAROM_LEFT:
         motion = slarom;
         fullColorLedOut( LED_CYAN );
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setAfterWallPD();
-        setSlarom( 90.0f, 6720.0f, 630.0f, 500.0f, 20.0f, 24.0f );
+        setSlarom( 90.0f, 7200.0f, 630.0f, 500.0f, 12.0f, 24.0f );
         head++;
         break;
 
@@ -222,10 +234,68 @@ void updateMotion( void )
         certainLedOut( LED_FRONT );
         setControlWallPD( 0 );
         setAfterWallPD();
-        setSlarom( -90.0f, -6720.0f, -630.0f, 500.0f, 24.0f, 20.0f );
+        setSlarom( -90.0f, -7200.0f, -630.0f, 500.0f, 21.0f, 20.0f );
         head++;
         break;
 
+      // 最短斜めあり
+      case DIR_ONE_BLOCK:
+        motion = straight;
+        fullColorLedOut( LED_RED );
+        certainLedOut( LED_FRONT );
+        setControlWallPD( 0 );
+        speedTrapezoid( 90.0f, 8.0f, 500.0f, 500.0f, 500.0f );
+        head++;
+        break;  
+
+      // 45度ターン斜めになる
+      case DIA_CENTER_LEFT:
+        motion = slarom;
+        setSlarom( 45.0f, 12000.0f, 630.0f, 700.0f, 44.5f, 81.0f );
+        setControlWallPD( 0 );
+        head++;
+        break;
+
+      case DIA_CENTER_RIGHT:
+        motion = slarom;
+        setSlarom( -45.0f, -12000.0f, -630.0f, 700.0f, 44.5f, 81.0f );
+        setControlWallPD( 0 );
+        head++;
+        break;
+
+      // 45度ターンから直線復帰
+      case RETURN_DIA_LEFT:
+        motion = slarom;
+        setSlarom( 45.0f, 12000.0f, 630.0f, 700.0f, 44.5f, 81.0f );
+        setControlWallPD( 0 );
+        head++;
+        break;
+
+      case RETURN_DIA_RIGHT:
+        motion = slarom;
+        setSlarom( -45.0f, -12000.0f, -630.0f, 700.0f, 44.5f, 81.0f );
+        setControlWallPD( 0 );
+        head++;
+        break; 
+
+      // 中心から90度ターン
+      case CENRTER_SLAROM_LEFT:
+        motion = slarom;
+        setSlarom( 90.0f, 6740.0f, 540.0f, 700.0f, 76.5f, 75.0f );
+        setControlWallPD( 0 );
+        setAfterWallPD();
+        head++;
+        break;
+
+      case CENRTER_SLAROM_RIGHT:
+        motion = slarom;
+        setSlarom( -90.0f, -6740.0f, -540.0f, 700.0f, 76.5f, 75.0f );
+        setControlWallPD( 0 );
+        setAfterWallPD();
+        head++;
+        break;
+
+      // 宴会芸
       case ENKAIGEI:
         motion = turn;
         fullColorLedOut( LED_OFF );

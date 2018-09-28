@@ -58,8 +58,8 @@ static float wall_p = 0.0f;
 static float wall_d = 0.0f;
 
 // front sensor用のpd用
-//static int8_t ctr_frontwall_flag = 0;
-//static int16_t sensor_front_error_before = 0;
+static int8_t ctr_frontwall_flag = 0;
+static int16_t sensor_front_error_before = 0;
 
 // wall front pd gain
 //static float wall_front_p = 0.0f;
@@ -85,7 +85,7 @@ void setSearchGain( void )
   speed_i = 50.0f;
 
   // 超信地旋回用
-  speed_turn_p = 30.0f;
+  speed_turn_p = 20.0f;
   speed_turn_d = 7.0f;
 
   // gyro turn,slarom 用
@@ -93,9 +93,9 @@ void setSearchGain( void )
   //gyro_turn_i = 0.5f;     // 宴会芸
   //gyro_turn_d = 60.0f;    // 宴会芸
   // gyro turn,slarom 用
-  gyro_turn_p = 16.0f;
-  gyro_turn_i = 400.0f;
-  gyro_turn_i2 = 500.0f;
+  gyro_turn_p = 17.0f;
+  gyro_turn_i = 500.0f;
+  gyro_turn_i2 = 900.0f;
   gyro_turn_d = 70.0f;
 
   // wall side pd gain
@@ -110,7 +110,7 @@ void setFastGain( void )
   // speed Gain
   // 直線用
   speed_p = 150.0f;
-  speed_i = 50.0f;
+  speed_i = 100.0f;
 
   // 超信地旋回用
   speed_turn_p = 30.0f;
@@ -119,8 +119,8 @@ void setFastGain( void )
   // gyro turn,slarom 用
   gyro_turn_p = 15.0f;
   gyro_turn_i = 250.0f;
-  gyro_turn_i2 = 400.0f;
-  gyro_turn_d = 90.0f;
+  gyro_turn_i2 = 350.0f;
+  gyro_turn_d = 80.0f;
 
   // wall side pd gain
   wall_p = 20.0f;
@@ -287,13 +287,16 @@ float updateVelocityAccele( float measured )
 {
   float velocity_accele = 0.0f;   // 加速度
   float feedback_accele = 0.0f;   // フィードバック
+  float front_wall_duty = 0.0f;
 
   // 超信地旋回のときはゲインを変更
-  if ( checkNowMotion() == turn ){
+  if ( checkNowMotion() == turn || checkNowMotion() == delay ){
     feedback_accele = PID( 0.0f, measured, &v_sum, &v_old, speed_turn_p, 0.0f, speed_turn_d, 4000.0f );
   } else {
     feedback_accele = PID( v, measured, &v_sum, &v_old, speed_p, speed_i, 0.0f, 12000.0f );
   }
+
+  front_wall_duty = wallFrontPD( 400.0f, 150.0f, 5000.0f );
 
   log_v = (int16_t)measured;
   log_v_target = (int16_t)v;
@@ -303,7 +306,7 @@ float updateVelocityAccele( float measured )
     velocity_accele = 0.0f;
     return velocity_accele;
   } else {
-    velocity_accele = feedfoward_acccele + feedback_accele;
+    velocity_accele = feedfoward_acccele + feedback_accele - front_wall_duty;
     return velocity_accele;
   }
 
@@ -314,16 +317,6 @@ float updateAngularAccele( void )
   float angular_accele = 0.0f;    // 角加速度
   float feedback_angular_accele = 0.0f; //角度のフィードバック
   float feedback_wall = 0.0f;
-
-#if 0
-  if ( checkNowMotion() == straight ){
-    feedback_angular_accele = PID( 0.0f, gyro_z_measured, &gyro_sum, &gyro_old, gyro_p, 0.0f, gyro_d, 3000.0f );
-    feedback_wall = wallSidePD( wall_p, wall_d, 3000.0f );
-  } else {
-    feedback_angular_accele = PID2( omega, gyro_z_measured, rad_target, machine_rad, &gyro_sum, &gyro_old,&gyro_sum2, 
-                                    gyro_turn_p, gyro_turn_i, gyro_turn_d,gyro_turn_i2, 10000.0f );
-  }
-#endif
 
   feedback_angular_accele = PID2( omega, gyro_z_measured, rad_target, machine_rad, &gyro_sum, &gyro_old,&gyro_sum2, 
                                 gyro_turn_p, gyro_turn_i, gyro_turn_d,gyro_turn_i2, 10000.0f );
@@ -429,40 +422,40 @@ float wallSidePD( float kp, float kd, float maxim )
   int16_t error_buff = 0;
   float p,d;
 
-  // sensor の状態によって偏差の取り方を変える
-  if ( sensor_sidel.is_wall == 1 && sensor_sider.is_wall == 1 ){
-    error = sensor_sider.error - sensor_sidel.error;
-  } else if ( sensor_sidel.is_wall == 1 ){
-    error = -2 * sensor_sidel.error;
-  } else if ( sensor_sider.is_wall == 1 ){
-    error = 2 * sensor_sider.error;
-  } else {
-    error = 0;
-  }
-
-  error_buff = error;
-  
-  if ( ( (error - sensor_error_before) > 20 ) || ( ( error - sensor_error_before ) < -20 ) ){
-     // to do flag 一度制御をきる
-    error = 0;
-  }
-
-  p = (float)( kp * error );
-  d = (float)( ( error - sensor_error_before) * kd );
-  
-  if ( (p + d) > maxim ) {
-    p = maxim;
-    d = 0.0f;
-  }
-
-  if ( (p + d) < -maxim ) {
-    p = -maxim;
-    d = 0.0f;
-  }
-
-  sensor_error_before = error_buff; // 今の値を保存( 微分用 )
-
   if ( ctr_sidewall_flag == 1 ){
+    // sensor の状態によって偏差の取り方を変える
+    if ( sensor_sidel.is_wall == 1 && sensor_sider.is_wall == 1 ){
+      error = sensor_sider.error - sensor_sidel.error;
+    } else if ( sensor_sidel.is_wall == 1 ){
+      error = -2 * sensor_sidel.error;
+    } else if ( sensor_sider.is_wall == 1 ){
+      error = 2 * sensor_sider.error;
+    } else {
+      error = 0;
+    }
+
+    error_buff = error;
+    
+    if ( ( (error - sensor_error_before) > 30 ) || ( ( error - sensor_error_before ) < -30 ) ){
+      // to do flag 一度制御をきる
+      error = 0;
+    }
+
+    p = (float)( kp * error );
+    d = (float)( ( error - sensor_error_before) * kd );
+    
+    if ( (p + d) > maxim ) {
+      p = maxim;
+      d = 0.0f;
+    }
+
+    if ( (p + d) < -maxim ) {
+      p = -maxim;
+      d = 0.0f;
+    }
+
+    sensor_error_before = error_buff; // 今の値を保存( 微分用 )
+    
     return (p + d);
   } else {
     return 0.0f;
@@ -470,8 +463,6 @@ float wallSidePD( float kp, float kd, float maxim )
 
 }
 
-// to do 斜めを入れる前に有効かする必要あり
-#if 0
 void setControlFrontPD( int8_t _able )
 {
   ctr_frontwall_flag = _able;
@@ -483,32 +474,36 @@ float wallFrontPD( float kp, float kd, float maxim )
   int16_t error_buff = 0;
   float p,d;
 
-  // sensor の状態によって偏差の取り方を変える
-
-  error_buff = error;
-
-  // 値が大きすぎるときは制御を一度きる
-
-  p = (float)( kp * error );
-  d = (float)( ( error - sensor_front_error_before) * kd );
-  
-  if ( (p + d) > maxim ) {
-    p = maxim;
-    d = 0.0f;
-  }
-
-  if ( (p + d) < -maxim ) {
-    p = -maxim;
-    d = 0.0f;
-  }
-
-  sensor_front_error_before = error_buff;
-
   if ( ctr_frontwall_flag == 1 ){
+    // sensor の状態によって偏差の取り方を変える
+    if ( sensor_frontl.is_wall == 1 && sensor_frontr.is_wall == 1 ){
+      error = ( sensor_frontl.error + sensor_frontr.error ) / 2;
+    } else {
+      error = 0;
+    }
+
+    error_buff = error;
+
+    // 値が大きすぎるときは制御を一度きる
+
+    p = (float)( kp * error );
+    d = (float)( ( error - sensor_front_error_before) * kd );
+    
+    if ( (p + d) > maxim ) {
+      p = maxim;
+      d = 0.0f;
+    }
+
+    if ( (p + d) < -maxim ) {
+      p = -maxim;
+      d = 0.0f;
+    }
+
+    sensor_front_error_before = error_buff;
+
     return (p + d);
   } else {
     return 0.0f;
   }
 
 }
-#endif
